@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Pelanggaran;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PelanggaranHarianExport;
+use App\Exports\PelanggaranMingguanExport;
 
 class PelanggaranController extends Controller
 {
@@ -148,5 +151,21 @@ class PelanggaranController extends Controller
             ->get();
 
         return view('pelanggaran.rekap', compact('rekap'));
+    }
+
+    public function exportHarian()
+    {
+        return Excel::download(
+            new PelanggaranHarianExport,
+            'pelanggaran-harian.xlsx'
+        );
+    }
+
+    public function exportMingguan()
+    {
+        return Excel::download(
+            new PelanggaranMingguanExport,
+            'pelanggaran-mingguan.xlsx'
+        );
     }
 }
