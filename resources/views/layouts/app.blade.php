@@ -69,6 +69,7 @@ body{
 
 .logo p{
     color:#9CA3AF;
+    font-size: small;
 }
 
 .menu{
