@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>@yield('title','VERITAS')</title>
+<title>@yield('title','VERITAS - SMK PLUS PELITA NUSANTARA')</title>
 
 <script src="https://kit.fontawesome.com/e16c014aae.js" crossorigin="anonymous"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -232,6 +232,29 @@ body{
     visibility:visible;
 }
 
+.btn-logout{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:11px;
+    border:none;
+    border-radius:12px;
+    background:var(--color-secondary-red);
+    color:#fff;
+    font-size:13.5px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn-logout:hover{
+    background:#5a1006;
+    transform:translateY(-1px);
+}
+
 /* =========================
    TABLET
 ========================= */
@@ -361,24 +384,32 @@ body{
 
     </div>
 
-    <div class="sidebar-footer">
+<div class="sidebar-footer">
 
-        <div class="user-box">
+    <div class="user-box">
 
-            <div class="avatar">
-                G
+        <div class="avatar">
+            {{ auth()->user() ? strtoupper(substr(auth()->user()->name, 0, 1)) : '?' }}
+        </div>
+
+        <div style="flex:1">
+            <strong>{{ auth()->user()->name ?? 'Guest' }}</strong>
+            <div style="font-size:13px;opacity:.7">
+                {{ ucfirst(auth()->user()->role ?? '-') }}
             </div>
-
-            <div>
-                <strong>Guru</strong>
-                <div style="font-size:13px;opacity:.7">
-                    Administrator
-                </div>
-            </div>
-
         </div>
 
     </div>
+
+    <form method="POST" action="{{ route('logout') }}" style="margin-top:14px">
+        @csrf
+        <button type="submit" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </button>
+    </form>
+
+</div>
 
     <footer class="footer">
         © {{ date('Y') }} SMK Plus Pelita Nusantara.

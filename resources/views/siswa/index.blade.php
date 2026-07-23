@@ -6,13 +6,6 @@
 <style>
     *, *::before, *::after { box-sizing: border-box; }
 
-    .pv-body {
-        background: #f5f6fa;
-        min-height: 100vh;
-        /* padding: 2rem 1rem; */
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-
     /* ── Page header ── */
     .pv-page-header {
         display: flex;
@@ -223,6 +216,11 @@
         color: #2563eb; text-decoration: none;
     }
 
+    .container-page{
+        max-width:1100px;
+        margin:auto;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
         .pv-stats { grid-template-columns: 1fr 1fr; }
@@ -251,8 +249,8 @@
 @endsection
 
 @section('content')
-<div class="pv-body">
-<div class="container" style="max-width: 1100px;">
+
+<div class="container-page">
 
     {{-- Header --}}
     <div class="pv-page-header">
@@ -269,6 +267,8 @@
         <a href="{{ route('siswa.create') }}" class="pv-btn-add">
         <i class="fa-solid fa-plus"> </i>⠀ Tambah Siswa
         </a>
+
+        
     </div>
 
     {{-- Session success --}}
@@ -435,7 +435,6 @@
 </div>
 </div>
 
-</div>
 </div>
 
 <script>

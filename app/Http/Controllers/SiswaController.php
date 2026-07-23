@@ -16,7 +16,7 @@ class SiswaController extends Controller
 
         $siswas = Siswa::when($search, function ($query) use ($search) {
             $query->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nis', 'like', "%{$search}%")
+                  ->orWhere('nisn', 'like', "%{$search}%")
                   ->orWhere('kelas', 'like', "%{$search}%");
         })->latest()->get();
 
@@ -37,14 +37,14 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nis'   => 'required|unique:siswas,nis',
-            'nama'  => 'required',
-            'kelas' => 'required',
+            'nisn' => 'required|string|max:20|unique:siswas,nisn',
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:100',
         ]);
 
         Siswa::create([
-            'nis'   => $request->nis,
-            'nama'  => $request->nama,
+            'nisn' => $request->nisn,
+            'nama' => $request->nama,
             'kelas' => $request->kelas,
         ]);
 
@@ -81,14 +81,14 @@ class SiswaController extends Controller
         $siswa = Siswa::findOrFail($id);
 
         $request->validate([
-            'nis'   => 'required|unique:siswas,nis,' . $id,
-            'nama'  => 'required',
-            'kelas' => 'required',
+            'nisn' => 'required|string|max:20|unique:siswas,nisn,' . $id,
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:100',
         ]);
 
         $siswa->update([
-            'nis'   => $request->nis,
-            'nama'  => $request->nama,
+            'nisn' => $request->nisn,
+            'nama' => $request->nama,
             'kelas' => $request->kelas,
         ]);
 
@@ -111,6 +111,9 @@ class SiswaController extends Controller
             ->with('success', 'Data siswa berhasil dihapus.');
     }
 
+    /**
+     * Search siswa (AJAX)
+     */
     public function search(Request $request)
     {
         $keyword = $request->q;

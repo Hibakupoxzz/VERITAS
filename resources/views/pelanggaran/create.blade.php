@@ -211,6 +211,120 @@
         background:#f9fafb;
     }
 
+    .upload-area{
+
+    display:block;
+
+    width:100%;
+
+    border:2px dashed #D6D6D6;
+
+    border-radius:20px;
+
+    padding:45px;
+
+    background:#FAFAFA;
+
+    text-align:center;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+    .upload-area:hover{
+
+        border-color:#6D1408;
+
+        background:#FFF7F5;
+
+    }
+
+    .upload-icon{
+
+        width:85px;
+        height:85px;
+
+        margin:auto;
+
+        border-radius:50%;
+
+        background:#FBEAE8;
+
+        color:#6D1408;
+
+        display:flex;
+
+        justify-content:center;
+
+        align-items:center;
+
+        font-size:35px;
+
+        margin-bottom:20px;
+
+    }
+
+    .upload-area h3{
+
+        font-size:22px;
+
+        color:#1F2937;
+
+        margin-bottom:10px;
+
+    }
+
+    .upload-area p{
+
+        color:#6B7280;
+
+        margin-bottom:25px;
+
+    }
+
+    .upload-button{
+
+        display:inline-block;
+
+        background:#6D1408;
+
+        color:white;
+
+        padding:12px 30px;
+
+        border-radius:12px;
+
+        font-weight:600;
+
+    }
+
+    .preview-image{
+
+        margin-top:20px;
+
+        width:100%;
+
+        max-width:500px;
+
+        border-radius:18px;
+
+        object-fit:cover;
+
+        box-shadow:0 12px 35px rgba(0,0,0,.15);
+
+    }
+
+    .file-name{
+
+        margin-top:18px;
+
+        font-weight:600;
+
+        color:#374151;
+
+    }
+
     @media(max-width:576px){
         .pv-grid-2{
             grid-template-columns:1fr;
@@ -242,6 +356,180 @@
         width:100%;
         justify-content:center;
     }
+
+}
+
+.upload-box{
+
+    width:100%;
+
+    border:2px dashed #D7D7D7;
+
+    border-radius:22px;
+
+    background:#FAFAFA;
+
+    padding:45px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+}
+
+.upload-box:hover{
+
+    border-color:#6D1408;
+
+    background:#FFF8F6;
+
+}
+
+.upload-icon{
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:50%;
+
+    background:#FBEAE8;
+
+    color:#6D1408;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:38px;
+
+    margin-bottom:22px;
+
+}
+
+.upload-title{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#1F2937;
+
+    margin-bottom:10px;
+
+}
+
+.upload-desc{
+
+    max-width:450px;
+
+    color:#6B7280;
+
+    line-height:1.7;
+
+    margin-bottom:28px;
+
+}
+
+.upload-btn{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:14px 28px;
+
+    border-radius:14px;
+
+    background:#6D1408;
+
+    color:#fff;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.upload-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 25px rgba(109,20,8,.25);
+
+}
+
+#previewFoto{
+
+    display:none;
+
+    width:100%;
+
+    max-width:650px;
+
+    max-height:420px;
+
+    margin-top:30px;
+
+    border-radius:18px;
+
+    object-fit:cover;
+
+    border:6px solid white;
+
+    box-shadow:0 20px 45px rgba(0,0,0,.18);
+
+}
+
+.file-info{
+
+    display:none;
+
+    width:100%;
+
+    max-width:650px;
+
+    margin-top:20px;
+
+    padding:18px;
+
+    background:white;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:14px;
+
+    text-align:left;
+
+}
+
+.file-info strong{
+
+    display:block;
+
+    font-size:15px;
+
+    color:#111827;
+
+}
+
+.file-info small{
+
+    color:#6B7280;
 
 }
 </style>
@@ -378,11 +666,46 @@
                 Foto Bukti
             </div>
 
-            <input
-                type="file"
-                name="foto_bukti"
-                class="pv-input"
-                accept="image/*">
+            <label class="upload-box">
+
+                <input
+                    type="file"
+                    id="foto_bukti"
+                    name="foto_bukti"
+                    accept="image/*"
+                    capture="environment"
+                    hidden>
+
+                <div class="upload-icon">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+
+                <div class="upload-title">
+                    Upload Foto Bukti
+                </div>
+
+                <div class="upload-desc">
+                    Ambil foto menggunakan kamera atau pilih dari galeri.
+                    <br>
+                    Format JPG, PNG, JPEG.
+                </div>
+
+                <span class="upload-btn">
+                    <i class="fa-solid fa-image"></i>
+                    Pilih Foto
+                </span>
+
+                <img id="previewFoto">
+
+                <div id="fileInfo" class="file-info">
+
+                    <strong id="fileName"></strong>
+
+                    <small id="fileSize"></small>
+
+                </div>
+
+            </label>
 
         </div>
 
@@ -421,6 +744,35 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
+
+const fotoInput = document.getElementById("foto_bukti");
+
+const preview = document.getElementById("previewFoto");
+
+const fileInfo = document.getElementById("fileInfo");
+
+const fileName = document.getElementById("fileName");
+
+const fileSize = document.getElementById("fileSize");
+
+fotoInput.addEventListener("change",function(){
+
+    if(!this.files.length) return;
+
+    const file=this.files[0];
+
+    preview.src=URL.createObjectURL(file);
+
+    preview.style.display="block";
+
+    fileInfo.style.display="block";
+
+    fileName.innerHTML=file.name;
+
+    fileSize.innerHTML=(file.size/1024/1024).toFixed(2)+" MB";
+
+});
+
 let timer;
 
 $('#searchSiswa').on('keyup', function(){

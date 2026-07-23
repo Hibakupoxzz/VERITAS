@@ -4,22 +4,38 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\LoginController;
 
-Route::get('/', [DashboardController::class, 'index']);
+// ==========================
+// Auth Routes
+// ==========================
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
 
-Route::resource('siswa', SiswaController::class);
-Route::resource('pelanggaran', PelanggaranController::class);
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
 
-//
-Route::get('/search-siswa', [SiswaController::class, 'search']);
+// ==========================
+// App Routes (perlu login)
+// ==========================
+Route::middleware('auth')->group(function () {
+    Route::get('/', [DashboardController::class, 'index']);
 
-//Export Excel
-Route::get(
-    '/pelanggaran/export/harian',
-    [PelanggaranController::class, 'exportHarian']
-)->name('pelanggaran.export.harian');
+    Route::resource('siswa', SiswaController::class);
+    Route::resource('pelanggaran', PelanggaranController::class);
 
-Route::get(
-    '/pelanggaran/export/mingguan',
-    [PelanggaranController::class, 'exportMingguan']
-)->name('pelanggaran.export.mingguan');
+    Route::get('/search-siswa', [SiswaController::class, 'search']);
+
+    Route::get(
+        '/pelanggaran/export/harian',
+        [PelanggaranController::class, 'exportHarian']
+    )->name('pelanggaran.export.harian');
+
+    Route::get(
+        '/pelanggaran/export/mingguan',
+        [PelanggaranController::class, 'exportMingguan']
+    )->name('pelanggaran.export.mingguan');
+});

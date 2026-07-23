@@ -147,6 +147,70 @@
     background:#581108;
 }
 
+.upload-wrapper{
+
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+
+    align-items:center;
+
+}
+
+.camera-btn{
+
+    width:100%;
+
+    background:#6D1408;
+
+    color:white;
+
+    border:none;
+
+    padding:16px;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    font-weight:600;
+
+    transition:.2s;
+
+}
+
+.camera-btn:hover{
+
+    background:#521006;
+
+}
+
+.upload-text{
+
+    color:#6B7280;
+
+    font-size:13px;
+
+}
+
+#previewFoto{
+
+    display:none;
+
+    width:100%;
+
+    max-width:420px;
+
+    border-radius:15px;
+
+    border:2px dashed #D1D5DB;
+
+    object-fit:cover;
+
+}
+
 @media(max-width:768px){
 
     .pv-grid{
@@ -302,5 +366,6 @@
     </a>
 </footer>
 </div>
+
 
 @endsection
