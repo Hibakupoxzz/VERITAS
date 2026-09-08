@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pelanggaran;
 use App\Models\Siswa;
+use App\Models\AturanPelanggaran;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PelanggaranHarianExport;
@@ -30,7 +31,22 @@ class PelanggaranController extends Controller
     {
         $siswas = Siswa::orderBy('nama')->get();
 
-        return view('pelanggaran.create', compact('siswas'));
+        $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
+            ->orderByRaw("
+                CASE kategori
+                    WHEN 'Ringan' THEN 1
+                    WHEN 'Sedang' THEN 2
+                    WHEN 'Berat' THEN 3
+                    WHEN 'Luar Biasa' THEN 4
+                END
+            ")
+            ->orderBy('kode')
+            ->get();
+
+        return view(
+            'pelanggaran.create',
+            compact('siswas', 'aturanPelanggarans')
+        );
     }
 
     /**
@@ -39,12 +55,16 @@ class PelanggaranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'siswa_id' => 'required',
-            'tanggal' => 'required',
-            'jenis_pelanggaran' => 'required',
-            'keterangan' => 'required',
-            'foto_bukti' => 'nullable|image'
+            'siswa_id' => 'required|exists:siswas,id',
+            'tanggal' => 'required|date',
+            'aturan_pelanggaran_id' => 'required|exists:aturan_pelanggarans,id',
+            'keterangan' => 'nullable|string',
+            'foto_bukti' => 'nullable|image|max:5120',
         ]);
+
+        $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
+            ->where('aktif', true)
+            ->firstOrFail();
 
         $foto = null;
 
@@ -53,14 +73,18 @@ class PelanggaranController extends Controller
                 ->store('bukti', 'public');
         }
 
-    Pelanggaran::create([
-        'siswa_id' => $request->siswa_id,
-        'tanggal' => $request->tanggal,
-        'jenis_pelanggaran' => $request->jenis_pelanggaran,
-        'poin' => $request->poin,
-        'keterangan' => $request->keterangan,
-        'foto_bukti' => $foto
-    ]);
+        Pelanggaran::create([
+            'siswa_id' => $request->siswa_id,
+            'tanggal' => $request->tanggal,
+
+            // Diambil dari master aturan
+            'aturan_pelanggaran_id' => $aturan->id,
+            'jenis_pelanggaran' => $aturan->nama,
+            'poin' => $aturan->poin,
+
+            'keterangan' => $request->keterangan,
+            'foto_bukti' => $foto,
+        ]);
 
         return redirect()
             ->route('pelanggaran.index')

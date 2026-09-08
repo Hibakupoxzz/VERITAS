@@ -603,35 +603,87 @@
                 Detail Pelanggaran
             </div>
 
-            <div class="pv-grid-2">
+        <div class="pv-grid-2">
 
-                <div class="pv-field">
-                    <label class="pv-label">
-                        Tanggal <span>*</span>
-                    </label>
+            <div class="pv-field">
+                <label class="pv-label">
+                    Tanggal <span>*</span>
+                </label>
 
-                    <input
-                        type="date"
-                        name="tanggal"
-                        class="pv-input"
-                        value="{{ old('tanggal', date('Y-m-d')) }}"
-                        required>
-                </div>
-
-                <div class="pv-field">
-                    <label class="pv-label">
-                        Poin <span>*</span>
-                    </label>
-
-                    <input
-                        type="number"
-                        name="poin"
-                        class="pv-input"
-                        value="{{ old('poin') }}"
-                        required>
-                </div>
-
+                <input
+                    type="date"
+                    name="tanggal"
+                    class="pv-input"
+                    value="{{ old('tanggal', date('Y-m-d')) }}"
+                    required>
             </div>
+
+            <div class="pv-field">
+                <label class="pv-label">
+                    Kategori <span>*</span>
+                </label>
+
+                <select id="kategoriPelanggaran" class="pv-select" required>
+                    <option value="">-- Pilih Kategori --</option>
+                    <option value="Ringan">Ringan</option>
+                    <option value="Sedang">Sedang</option>
+                    <option value="Berat">Berat</option>
+                    <option value="Luar Biasa">Luar Biasa</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="pv-field">
+            <label class="pv-label">
+                Jenis Pelanggaran <span>*</span>
+            </label>
+
+            <select
+                name="aturan_pelanggaran_id"
+                id="aturanPelanggaran"
+                class="pv-select"
+                required
+                disabled>
+
+                <option value="">-- Pilih kategori terlebih dahulu --</option>
+
+                @foreach($aturanPelanggarans as $aturan)
+                    <option
+                        value="{{ $aturan->id }}"
+                        data-kategori="{{ $aturan->kategori }}"
+                        data-poin="{{ $aturan->poin }}"
+                        {{ old('aturan_pelanggaran_id') == $aturan->id ? 'selected' : '' }}>
+
+                        {{ $aturan->kode }} — {{ $aturan->nama }}
+                        ({{ $aturan->poin }} poin)
+                    </option>
+                @endforeach
+
+            </select>
+        </div>
+
+        <div class="pv-field">
+
+            <label class="pv-label">
+                Poin Pelanggaran
+            </label>
+
+            <div
+                id="poinDisplay"
+                style="
+                    padding:12px 15px;
+                    border-radius:10px;
+                    background:#FBEAE8;
+                    border:1px solid #F3D0CB;
+                    color:#6D1408;
+                    font-size:1rem;
+                    font-weight:700;
+                ">
+                Pilih jenis pelanggaran
+            </div>
+
+        </div>
 
             <div class="pv-field">
                 <label class="pv-label">
@@ -744,16 +796,14 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 <script>
-
 const fotoInput = document.getElementById("foto_bukti");
-
 const preview = document.getElementById("previewFoto");
-
 const fileInfo = document.getElementById("fileInfo");
-
 const fileName = document.getElementById("fileName");
-
 const fileSize = document.getElementById("fileSize");
+const kategoriSelect = document.getElementById('kategoriPelanggaran');
+const aturanSelect = document.getElementById('aturanPelanggaran');
+const poinDisplay = document.getElementById('poinDisplay');
 
 fotoInput.addEventListener("change",function(){
 
@@ -833,6 +883,45 @@ $(document).on('click','.pilihSiswa',function(){
 
     $('#hasilSiswa').hide();
 
+});
+
+kategoriSelect.addEventListener('change', function () {
+
+    const kategori = this.value;
+
+    aturanSelect.value = '';
+    poinDisplay.textContent = 'Pilih jenis pelanggaran';
+
+    if (!kategori) {
+        aturanSelect.disabled = true;
+        return;
+    }
+
+    aturanSelect.disabled = false;
+
+    Array.from(aturanSelect.options).forEach(option => {
+
+        if (!option.value) {
+            option.hidden = false;
+            return;
+        }
+
+        option.hidden = option.dataset.kategori !== kategori;
+    });
+});
+
+aturanSelect.addEventListener('change', function () {
+
+    const selected = this.options[this.selectedIndex];
+
+    if (!this.value) {
+        poinDisplay.textContent = 'Pilih jenis pelanggaran';
+        return;
+    }
+
+    const poin = selected.dataset.poin;
+
+    poinDisplay.textContent = `${poin} poin`;
 });
 </script>
 @endsection
