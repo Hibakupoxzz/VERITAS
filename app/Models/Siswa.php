@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 class Siswa extends Model
 {
     protected $fillable = [
-    'nisn',
-    'nama',
-    'kelas'
+        'nisn',
+        'nama',
+        'kelas'
     ];
 
     public function pelanggarans()
     {
         return $this->hasMany(Pelanggaran::class);
+    }
+
+    public function prestasis()
+    {
+        return $this->hasMany(Prestasi::class);
     }
 }

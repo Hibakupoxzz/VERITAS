@@ -18,7 +18,7 @@ class AturanPelanggaran extends Model
         'sanksi_iii',
         'sanksi_iv',
         'langsung_kembali',
-        'aktif'
+        'aktif',
     ];
 
     protected $casts = [
@@ -26,8 +26,14 @@ class AturanPelanggaran extends Model
         'aktif' => 'boolean',
     ];
 
+    /**
+     * Relasi ke data pelanggaran
+     */
     public function pelanggarans()
     {
-        return $this->hasMany(Pelanggaran::class);
+        return $this->hasMany(
+            Pelanggaran::class,
+            'aturan_pelanggaran_id'
+        );
     }
 }

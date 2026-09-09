@@ -4,39 +4,105 @@ namespace App\Http\Controllers;
 
 use App\Models\Siswa;
 use App\Models\Pelanggaran;
+use App\Models\Prestasi;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        /*
+        |--------------------------------------------------------------------------
+        | Statistik
+        |--------------------------------------------------------------------------
+        */
+
         $totalSiswa = Siswa::count();
 
-        $pelanggaranHariIni = Pelanggaran::whereDate(
-            'tanggal',
-            today()
-        )->count();
+        $totalPelanggaran = Pelanggaran::count();
 
-        $totalPoin = Pelanggaran::whereDate(
-            'tanggal',
-            today()
-        )->sum('poin');
+        $totalPrestasi = Prestasi::count();
 
-        $pelanggaranHariIniList = Pelanggaran::with('siswa')
-            ->whereDate('tanggal', today())
-            ->latest()
+
+        /*
+        |--------------------------------------------------------------------------
+        | Top Prestasi
+        |--------------------------------------------------------------------------
+        */
+
+        $topPrestasi = Siswa::query()
+            ->withCount('prestasis')
+            ->withSum('prestasis', 'poin')
+            ->having('prestasis_count', '>', 0)
+            ->orderByDesc('prestasis_count')
+            ->orderByDesc('prestasis_sum_poin')
+            ->limit(5)
             ->get();
 
-        $latestPelanggaran = Pelanggaran::with('siswa')
-            ->latest()
+
+        /*
+        |--------------------------------------------------------------------------
+        | Top Pelanggaran
+        |--------------------------------------------------------------------------
+        */
+
+        $topPelanggaran = Siswa::query()
+            ->withCount('pelanggarans')
+            ->withSum('pelanggarans', 'poin')
+            ->having('pelanggarans_count', '>', 0)
+            ->orderByDesc('pelanggarans_count')
+            ->orderByDesc('pelanggarans_sum_poin')
+            ->limit(5)
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Saldo Poin
+        |--------------------------------------------------------------------------
+        |
+        | Rumus:
+        |
+        | 100 - total pelanggaran + total prestasi
+        |
+        */
+
+        $saldoSiswa = Siswa::query()
+            ->withSum('pelanggarans', 'poin')
+            ->withSum('prestasis', 'poin')
+            ->get()
+            ->map(function ($siswa) {
+
+                $totalPelanggaran =
+                    (int) ($siswa->pelanggarans_sum_poin ?? 0);
+
+                $totalPrestasi =
+                    (int) ($siswa->prestasis_sum_poin ?? 0);
+
+                $siswa->saldo_poin =
+                    100
+                    - $totalPelanggaran
+                    + $totalPrestasi;
+
+                return $siswa;
+            })
+            ->sortByDesc('saldo_poin')
             ->take(5)
-            ->get();
+            ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Kirim ke Dashboard
+        |--------------------------------------------------------------------------
+        */
 
         return view('dashboard', compact(
             'totalSiswa',
-            'pelanggaranHariIni',
-            'totalPoin',
-            'pelanggaranHariIniList',
-            'latestPelanggaran'
+            'totalPelanggaran',
+            'totalPrestasi',
+            'topPrestasi',
+            'topPelanggaran',
+            'saldoSiswa'
         ));
     }
 }

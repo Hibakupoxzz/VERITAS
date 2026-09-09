@@ -6,6 +6,7 @@ use App\Models\Pelanggaran;
 use App\Models\Siswa;
 use App\Models\AturanPelanggaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PelanggaranHarianExport;
 use App\Exports\PelanggaranMingguanExport;
@@ -17,7 +18,10 @@ class PelanggaranController extends Controller
      */
     public function index()
     {
-        $pelanggarans = Pelanggaran::with('siswa')
+        $pelanggarans = Pelanggaran::with([
+            'siswa',
+            'aturanPelanggaran'
+        ])
             ->latest()
             ->get();
 
@@ -38,6 +42,7 @@ class PelanggaranController extends Controller
                     WHEN 'Sedang' THEN 2
                     WHEN 'Berat' THEN 3
                     WHEN 'Luar Biasa' THEN 4
+                    ELSE 5
                 END
             ")
             ->orderBy('kode')
@@ -57,38 +62,159 @@ class PelanggaranController extends Controller
         $request->validate([
             'siswa_id' => 'required|exists:siswas,id',
             'tanggal' => 'required|date',
-            'aturan_pelanggaran_id' => 'required|exists:aturan_pelanggarans,id',
+
+            // Boleh kosong
+            'aturan_pelanggaran_id' => 'nullable',
+
+            'jenis_pelanggaran_custom' => 'nullable|string|max:255',
+            'poin_custom' => 'nullable|numeric|min:0',
+
             'keterangan' => 'nullable|string',
+
             'foto_bukti' => 'nullable|image|max:5120',
         ]);
 
-        $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
-            ->where('aktif', true)
-            ->firstOrFail();
+        return DB::transaction(function () use ($request) {
 
-        $foto = null;
+            /*
+            |--------------------------------------------------------------------------
+            | Tentukan apakah menggunakan aturan resmi atau pelanggaran lainnya
+            |--------------------------------------------------------------------------
+            */
 
-        if ($request->hasFile('foto_bukti')) {
-            $foto = $request->file('foto_bukti')
-                ->store('bukti', 'public');
-        }
+            $aturan = null;
+            $namaPelanggaran = null;
+            $poin = 0;
+            $kategori = null;
 
-        Pelanggaran::create([
-            'siswa_id' => $request->siswa_id,
-            'tanggal' => $request->tanggal,
+            if (
+                $request->aturan_pelanggaran_id &&
+                $request->aturan_pelanggaran_id !== 'custom'
+            ) {
+                /*
+                 * PELANGGARAN RESMI
+                 *
+                 * Poin TIDAK boleh diambil dari input user.
+                 * Poin selalu berasal dari master 62 aturan.
+                 */
 
-            // Diambil dari master aturan
-            'aturan_pelanggaran_id' => $aturan->id,
-            'jenis_pelanggaran' => $aturan->nama,
-            'poin' => $aturan->poin,
+                $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
+                    ->where('aktif', true)
+                    ->firstOrFail();
 
-            'keterangan' => $request->keterangan,
-            'foto_bukti' => $foto,
-        ]);
+                $namaPelanggaran = $aturan->nama;
+                $poin = (int) $aturan->poin;
+                $kategori = $aturan->kategori;
+            } elseif ($request->aturan_pelanggaran_id === 'custom') {
+                /*
+                 * PELANGGARAN LAINNYA
+                 *
+                 * Nama dan poin boleh dimasukkan manual.
+                 */
 
-        return redirect()
-            ->route('pelanggaran.index')
-            ->with('success', 'Data pelanggaran berhasil ditambahkan');
+                if (!$request->jenis_pelanggaran_custom) {
+                    return back()
+                        ->withInput()
+                        ->withErrors([
+                            'jenis_pelanggaran_custom' =>
+                                'Nama pelanggaran lainnya wajib diisi.'
+                        ]);
+                }
+
+                if ($request->poin_custom === null) {
+                    return back()
+                        ->withInput()
+                        ->withErrors([
+                            'poin_custom' =>
+                                'Poin pelanggaran lainnya wajib diisi.'
+                        ]);
+                }
+
+                $namaPelanggaran = $request->jenis_pelanggaran_custom;
+                $poin = (int) $request->poin_custom;
+
+                // Kategori boleh kosong untuk pelanggaran custom
+                $kategori = $request->kategori;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hitung saldo poin siswa
+            |--------------------------------------------------------------------------
+            |
+            | Saldo awal setiap siswa = 100
+            |
+            | Contoh:
+            | 100 - 5  = 95
+            | 95  - 10 = 85
+            |
+            */
+
+            $pelanggaranTerakhir = Pelanggaran::where(
+                'siswa_id',
+                $request->siswa_id
+            )
+                ->latest('id')
+                ->first();
+
+            $poinSebelum = $pelanggaranTerakhir
+                ? (int) $pelanggaranTerakhir->poin_sesudah
+                : 100;
+
+            $poinSesudah = $poinSebelum - $poin;
+
+            /*
+            |--------------------------------------------------------------------------
+            | Upload foto
+            |--------------------------------------------------------------------------
+            */
+
+            $foto = null;
+
+            if ($request->hasFile('foto_bukti')) {
+                $foto = $request->file('foto_bukti')
+                    ->store('bukti', 'public');
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Simpan
+            |--------------------------------------------------------------------------
+            */
+
+            Pelanggaran::create([
+                'siswa_id' => $request->siswa_id,
+
+                'aturan_pelanggaran_id' => $aturan?->id,
+
+                'tanggal' => $request->tanggal,
+
+                'jenis_pelanggaran' => $namaPelanggaran,
+
+                'kategori' => $kategori,
+
+                // Tetap simpan angka positif di database
+                'poin' => $poin,
+
+                // Saldo
+                'poin_sebelum' => $poinSebelum,
+                'poin_sesudah' => $poinSesudah,
+
+                // Jika aturan resmi memiliki tahap, gunakan tahap I
+                'sanksi_tahap' => $aturan ? 1 : null,
+
+                'keterangan' => $request->keterangan,
+
+                'foto_bukti' => $foto,
+            ]);
+
+            return redirect()
+                ->route('pelanggaran.index')
+                ->with(
+                    'success',
+                    "Pelanggaran berhasil ditambahkan. Saldo siswa sekarang {$poinSesudah} poin."
+                );
+        });
     }
 
     /**
@@ -96,8 +222,10 @@ class PelanggaranController extends Controller
      */
     public function show(string $id)
     {
-        $pelanggaran = Pelanggaran::with('siswa')
-            ->findOrFail($id);
+        $pelanggaran = Pelanggaran::with([
+            'siswa',
+            'aturanPelanggaran'
+        ])->findOrFail($id);
 
         return view('pelanggaran.show', compact('pelanggaran'));
     }
@@ -107,12 +235,31 @@ class PelanggaranController extends Controller
      */
     public function edit(string $id)
     {
-        $pelanggaran = Pelanggaran::findOrFail($id);
+        $pelanggaran = Pelanggaran::with('aturanPelanggaran')
+            ->findOrFail($id);
+
         $siswas = Siswa::orderBy('nama')->get();
+
+        $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
+            ->orderByRaw("
+                CASE kategori
+                    WHEN 'Ringan' THEN 1
+                    WHEN 'Sedang' THEN 2
+                    WHEN 'Berat' THEN 3
+                    WHEN 'Luar Biasa' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('kode')
+            ->get();
 
         return view(
             'pelanggaran.edit',
-            compact('pelanggaran', 'siswas')
+            compact(
+                'pelanggaran',
+                'siswas',
+                'aturanPelanggarans'
+            )
         );
     }
 
@@ -124,27 +271,34 @@ class PelanggaranController extends Controller
         $pelanggaran = Pelanggaran::findOrFail($id);
 
         $request->validate([
-            'siswa_id' => 'required',
-            'tanggal' => 'required',
-            'jenis_pelanggaran' => 'required',
-            'poin' => 'required|numeric'
+            'siswa_id' => 'required|exists:siswas,id',
+            'tanggal' => 'required|date',
+            'jenis_pelanggaran' => 'nullable|string',
+            'poin' => 'nullable|numeric|min:0',
+            'keterangan' => 'nullable|string',
+            'foto_bukti' => 'nullable|image|max:5120',
         ]);
 
-        if ($request->hasFile('foto_bukti')) {
-            $foto = $request->file('foto_bukti')
-                ->store('bukti', 'public');
+        /*
+         * Untuk sementara update hanya mengubah data dasar.
+         *
+         * Perhitungan ulang saldo/edit poin akan kita buat
+         * setelah sistem apresiasi selesai supaya saldo tetap konsisten.
+         */
 
-            $pelanggaran->foto_bukti = $foto;
-        }
-
-        $pelanggaran->update([
+        $data = [
             'siswa_id' => $request->siswa_id,
             'tanggal' => $request->tanggal,
             'jenis_pelanggaran' => $request->jenis_pelanggaran,
-            'poin' => $request->poin,
-            'catatan' => $request->catatan,
-            'foto_bukti' => $pelanggaran->foto_bukti
-        ]);
+            'keterangan' => $request->keterangan,
+        ];
+
+        if ($request->hasFile('foto_bukti')) {
+            $data['foto_bukti'] = $request->file('foto_bukti')
+                ->store('bukti', 'public');
+        }
+
+        $pelanggaran->update($data);
 
         return redirect()
             ->route('pelanggaran.index')
@@ -170,13 +324,20 @@ class PelanggaranController extends Controller
      */
     public function rekap()
     {
-        $rekap = Siswa::withSum('pelanggarans', 'poin')
-            ->orderByDesc('pelanggarans_sum_poin')
+        $rekap = Siswa::with([
+            'pelanggarans' => function ($query) {
+                $query->latest('id');
+            }
+        ])
+            ->orderBy('nama')
             ->get();
 
         return view('pelanggaran.rekap', compact('rekap'));
     }
 
+    /**
+     * Export harian
+     */
     public function exportHarian()
     {
         return Excel::download(
@@ -185,6 +346,9 @@ class PelanggaranController extends Controller
         );
     }
 
+    /**
+     * Export mingguan
+     */
     public function exportMingguan()
     {
         return Excel::download(

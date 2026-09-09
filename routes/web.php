@@ -5,6 +5,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\PrestasiController;
 
 // ==========================
 // Auth Routes
@@ -20,9 +21,10 @@ Route::post('/logout', [LoginController::class, 'logout'])
 
 // ==========================
 // App Routes (perlu login)
-// ==========================
+// ========\==================
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     Route::resource('siswa', SiswaController::class);
     Route::resource('pelanggaran', PelanggaranController::class);
@@ -38,4 +40,11 @@ Route::middleware('auth')->group(function () {
         '/pelanggaran/export/mingguan',
         [PelanggaranController::class, 'exportMingguan']
     )->name('pelanggaran.export.mingguan');
+
+    Route::resource('prestasi', PrestasiController::class);
+
+    Route::get(
+        '/leaderboard',
+        [PrestasiController::class, 'leaderboard']
+    )->name('leaderboard');
 });

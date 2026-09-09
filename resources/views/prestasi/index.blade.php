@@ -1,23 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Data Pelanggaran')
-@section('page_title', 'Data Pelanggaran')
+@section('title', 'Data Prestasi')
+@section('page_title', 'Data Prestasi')
 
 @section('content')
 
-<div class="pelanggaran-page">
+<div class="prestasi-page">
 
     {{-- HEADER --}}
     <div class="page-header">
 
         <div class="page-heading">
-            <h1>Data Pelanggaran</h1>
-            <p>Daftar seluruh pelanggaran siswa</p>
+            <h1>Data Prestasi</h1>
+            <p>Daftar seluruh prestasi siswa</p>
         </div>
 
-        <a href="{{ route('pelanggaran.create') }}" class="btn-primary">
+        <a href="{{ route('prestasi.create') }}" class="btn-primary">
             <i class="fa-solid fa-plus"></i>
-            <span>Tambah Pelanggaran</span>
+            <span>Tambah Prestasi</span>
         </a>
 
     </div>
@@ -32,28 +32,6 @@
         </div>
 
     @endif
-
-
-    {{-- EXPORT --}}
-    <div class="export-buttons">
-
-        <a href="{{ route('pelanggaran.export.harian') }}"
-           class="btn-export">
-
-            <i class="fa-solid fa-file-export"></i>
-            <span>Export Hari Ini</span>
-
-        </a>
-
-        <a href="{{ route('pelanggaran.export.mingguan') }}"
-           class="btn-export">
-
-            <i class="fa-solid fa-file-export"></i>
-            <span>Export Mingguan</span>
-
-        </a>
-
-    </div>
 
 
     {{-- =========================
@@ -72,9 +50,10 @@
                         <th>No</th>
                         <th>Tanggal</th>
                         <th>Siswa</th>
-                        <th>Pelanggaran</th>
+                        <th>Prestasi</th>
+                        <th>Tingkat</th>
                         <th>Poin</th>
-                        <th>Foto</th>
+                        <th>Bukti</th>
                         <th>Aksi</th>
                     </tr>
 
@@ -82,7 +61,7 @@
 
                 <tbody>
 
-                    @forelse($pelanggarans as $pelanggaran)
+                    @forelse($prestasis as $prestasi)
 
                         <tr>
 
@@ -95,7 +74,7 @@
                             {{-- TANGGAL --}}
                             <td class="date-cell">
 
-                                {{ \Carbon\Carbon::parse($pelanggaran->tanggal)->format('d/m/Y') }}
+                                {{ \Carbon\Carbon::parse($prestasi->tanggal)->format('d/m/Y') }}
 
                             </td>
 
@@ -106,11 +85,11 @@
                                 <div class="student-info">
 
                                     <strong>
-                                        {{ $pelanggaran->siswa->nama }}
+                                        {{ $prestasi->siswa->nama }}
                                     </strong>
 
                                     <small>
-                                        {{ $pelanggaran->siswa->kelas }}
+                                        {{ $prestasi->siswa->kelas }}
                                     </small>
 
                                 </div>
@@ -118,19 +97,20 @@
                             </td>
 
 
-                            {{-- PELANGGARAN --}}
+                            {{-- PRESTASI --}}
                             <td>
 
-                                <div class="violation-wrapper">
+                                <div class="prestasi-wrapper">
 
-                                    <span class="badge-danger">
-                                        {{ $pelanggaran->jenis_pelanggaran }}
+                                    <span class="badge-prestasi">
+                                        <i class="fa-solid fa-trophy"></i>
+                                        {{ $prestasi->jenis_prestasi }}
                                     </span>
 
-                                    @if($pelanggaran->keterangan)
+                                    @if($prestasi->keterangan)
 
                                         <div class="description">
-                                            {{ $pelanggaran->keterangan }}
+                                            {{ $prestasi->keterangan }}
                                         </div>
 
                                     @endif
@@ -140,24 +120,44 @@
                             </td>
 
 
+                            {{-- TINGKAT --}}
+                            <td>
+
+                                @if($prestasi->tingkat)
+
+                                    <span class="badge-tingkat">
+                                        {{ $prestasi->tingkat }}
+                                    </span>
+
+                                @else
+
+                                    <span class="no-data">
+                                        -
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
                             {{-- POIN --}}
                             <td>
 
                                 <span class="badge-point">
-                                    -{{ $pelanggaran->poin }}
+                                    +{{ $prestasi->poin }}
                                 </span>
 
                             </td>
 
 
-                            {{-- FOTO --}}
+                            {{-- BUKTI --}}
                             <td>
 
-                                @if($pelanggaran->foto_bukti)
+                                @if($prestasi->bukti)
 
                                     <img
-                                        src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-                                        alt="Foto Bukti"
+                                        src="{{ asset('storage/' . $prestasi->bukti) }}"
+                                        alt="Bukti Prestasi"
                                         class="table-image"
                                     >
 
@@ -178,23 +178,25 @@
                                 <div class="action-buttons">
 
                                     <a
-                                        href="{{ route('pelanggaran.show', $pelanggaran->id) }}"
+                                        href="{{ route('prestasi.show', $prestasi->id) }}"
                                         class="btn-detail"
                                     >
+                                        <i class="fa-solid fa-eye"></i>
                                         Detail
                                     </a>
 
                                     <a
-                                        href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
+                                        href="{{ route('prestasi.edit', $prestasi->id) }}"
                                         class="btn-edit"
                                     >
+                                        <i class="fa-solid fa-pen"></i>
                                         Edit
                                     </a>
 
                                     <form
-                                        action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
+                                        action="{{ route('prestasi.destroy', $prestasi->id) }}"
                                         method="POST"
-                                        onsubmit="return confirm('Hapus data ini?')"
+                                        onsubmit="return confirm('Hapus data prestasi ini?')"
                                     >
 
                                         @csrf
@@ -204,6 +206,7 @@
                                             type="submit"
                                             class="btn-delete"
                                         >
+                                            <i class="fa-solid fa-trash"></i>
                                             Hapus
                                         </button>
 
@@ -219,12 +222,12 @@
 
                         <tr>
 
-                            <td colspan="7" class="empty">
+                            <td colspan="8" class="empty">
 
-                                <i class="fa-solid fa-inbox"></i>
+                                <i class="fa-solid fa-trophy"></i>
 
                                 <span>
-                                    Belum ada data pelanggaran
+                                    Belum ada data prestasi
                                 </span>
 
                             </td>
@@ -248,9 +251,9 @@
 
     <div class="mobile-list">
 
-        @forelse($pelanggarans as $pelanggaran)
+        @forelse($prestasis as $prestasi)
 
-            <div class="violation-card">
+            <div class="prestasi-card">
 
                 {{-- CARD HEADER --}}
                 <div class="mobile-card-header">
@@ -259,12 +262,12 @@
 
                         <i class="fa-regular fa-calendar"></i>
 
-                        {{ \Carbon\Carbon::parse($pelanggaran->tanggal)->format('d/m/Y') }}
+                        {{ \Carbon\Carbon::parse($prestasi->tanggal)->format('d/m/Y') }}
 
                     </div>
 
                     <span class="mobile-point">
-                        -{{ $pelanggaran->poin }}
+                        +{{ $prestasi->poin }}
                     </span>
 
                 </div>
@@ -274,48 +277,66 @@
                 <div class="mobile-student">
 
                     <strong>
-                        {{ $pelanggaran->siswa->nama }}
+                        {{ $prestasi->siswa->nama }}
                     </strong>
 
                     <small>
-                        {{ $pelanggaran->siswa->kelas }}
+                        {{ $prestasi->siswa->kelas }}
                     </small>
 
                 </div>
 
 
-                {{-- PELANGGARAN --}}
-                <div class="mobile-violation">
+                {{-- PRESTASI --}}
+                <div class="mobile-prestasi">
 
-                    <span class="badge-danger">
+                    <span class="badge-prestasi">
 
-                        {{ $pelanggaran->jenis_pelanggaran }}
+                        <i class="fa-solid fa-trophy"></i>
+
+                        {{ $prestasi->jenis_prestasi }}
 
                     </span>
 
                 </div>
 
 
-                {{-- KETERANGAN --}}
-                @if($pelanggaran->keterangan)
+                {{-- TINGKAT --}}
+                @if($prestasi->tingkat)
 
-                    <div class="mobile-description">
+                    <div class="mobile-tingkat">
 
-                        {{ $pelanggaran->keterangan }}
+                        <i class="fa-solid fa-ranking-star"></i>
+
+                        <span>
+                            {{ $prestasi->tingkat }}
+                        </span>
 
                     </div>
 
                 @endif
 
 
-                {{-- FOTO --}}
-                @if($pelanggaran->foto_bukti)
+                {{-- KETERANGAN --}}
+                @if($prestasi->keterangan)
+
+                    <div class="mobile-description">
+
+                        {{ $prestasi->keterangan }}
+
+                    </div>
+
+                @endif
+
+
+                {{-- BUKTI --}}
+                @if($prestasi->bukti)
 
                     <div class="mobile-photo">
 
                         <img
-                            src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-                            alt="Foto Bukti"
+                            src="{{ asset('storage/' . $prestasi->bukti) }}"
+                            alt="Bukti Prestasi"
                         >
 
                     </div>
@@ -327,7 +348,7 @@
                 <div class="mobile-actions">
 
                     <a
-                        href="{{ route('pelanggaran.show', $pelanggaran->id) }}"
+                        href="{{ route('prestasi.show', $prestasi->id) }}"
                         class="btn-detail"
                     >
                         <i class="fa-solid fa-eye"></i>
@@ -335,7 +356,7 @@
                     </a>
 
                     <a
-                        href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
+                        href="{{ route('prestasi.edit', $prestasi->id) }}"
                         class="btn-edit"
                     >
                         <i class="fa-solid fa-pen"></i>
@@ -343,9 +364,9 @@
                     </a>
 
                     <form
-                        action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
+                        action="{{ route('prestasi.destroy', $prestasi->id) }}"
                         method="POST"
-                        onsubmit="return confirm('Hapus data ini?')"
+                        onsubmit="return confirm('Hapus data prestasi ini?')"
                     >
 
                         @csrf
@@ -369,10 +390,10 @@
 
             <div class="mobile-empty">
 
-                <i class="fa-solid fa-inbox"></i>
+                <i class="fa-solid fa-trophy"></i>
 
                 <p>
-                    Belum ada data pelanggaran
+                    Belum ada data prestasi
                 </p>
 
             </div>
@@ -388,11 +409,13 @@
 
 @section('styles')
 
+<style>
+
 /* =====================================================
-   DATA PELANGGARAN
+   DATA PRESTASI
 ===================================================== */
 
-.pelanggaran-page{
+.prestasi-page{
     width:100%;
     max-width:100%;
     overflow:hidden;
@@ -434,7 +457,7 @@
     justify-content:center;
     gap:8px;
 
-    background:var(--color-secondary-red);
+    background:#6D1408;
     color:white;
 
     text-decoration:none;
@@ -453,7 +476,7 @@
 
 .btn-primary:hover{
     transform:translateY(-2px);
-    opacity:.95;
+    background:#5a1006;
 }
 
 
@@ -476,47 +499,6 @@
     margin-bottom:18px;
 
     font-size:14px;
-}
-
-
-/* =====================================================
-   EXPORT
-===================================================== */
-
-.export-buttons{
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    margin-bottom:20px;
-
-    flex-wrap:wrap;
-}
-
-.btn-export{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-
-    background:#6D1408;
-    color:white;
-
-    text-decoration:none;
-
-    padding:10px 15px;
-
-    border-radius:10px;
-
-    font-weight:600;
-    font-size:13px;
-
-    transition:.2s;
-}
-
-.btn-export:hover{
-    background:#5a1006;
-    transform:translateY(-1px);
 }
 
 
@@ -546,13 +528,13 @@
 
 table{
     width:100%;
-    min-width:900px;
+    min-width:1050px;
 
     border-collapse:collapse;
 }
 
 thead{
-    background:var(--color-primary-gray);
+    background:#1F2937;
 }
 
 th{
@@ -620,21 +602,25 @@ tbody tr:hover{
 
 
 /* =====================================================
-   PELANGGARAN
+   PRESTASI
 ===================================================== */
 
-.violation-wrapper{
-    max-width:420px;
+.prestasi-wrapper{
+    max-width:350px;
 }
 
-.badge-danger{
-    display:inline-block;
+.badge-prestasi{
+    display:inline-flex;
 
-    background:#fee2e2;
+    align-items:center;
 
-    color:#991b1b;
+    gap:6px;
 
-    padding:6px 10px;
+    background:#fef3c7;
+
+    color:#92400e;
+
+    padding:7px 10px;
 
     border-radius:999px;
 
@@ -647,6 +633,12 @@ tbody tr:hover{
     max-width:100%;
 
     word-break:break-word;
+}
+
+.badge-prestasi i{
+    font-size:10px;
+
+    flex-shrink:0;
 }
 
 .description{
@@ -663,6 +655,35 @@ tbody tr:hover{
 
 
 /* =====================================================
+   TINGKAT
+===================================================== */
+
+.badge-tingkat{
+    display:inline-flex;
+
+    align-items:center;
+
+    padding:6px 10px;
+
+    border-radius:999px;
+
+    background:#ede9fe;
+
+    color:#6d28d9;
+
+    font-size:11px;
+
+    font-weight:600;
+
+    white-space:nowrap;
+}
+
+.no-data{
+    color:#9ca3af;
+}
+
+
+/* =====================================================
    POIN
 ===================================================== */
 
@@ -672,14 +693,14 @@ tbody tr:hover{
     align-items:center;
     justify-content:center;
 
-    min-width:42px;
+    min-width:45px;
     height:32px;
 
     padding:0 10px;
 
     border-radius:999px;
 
-    background:var(--color-secondary-red);
+    background:#166534;
 
     color:white;
 
@@ -692,7 +713,7 @@ tbody tr:hover{
 
 
 /* =====================================================
-   FOTO
+   BUKTI
 ===================================================== */
 
 .table-image{
@@ -729,7 +750,7 @@ tbody tr:hover{
 
     flex-wrap:wrap;
 
-    min-width:170px;
+    min-width:180px;
 }
 
 .action-buttons form{
@@ -854,7 +875,7 @@ tbody tr:hover{
         width:100%;
     }
 
-    .pelanggaran-page{
+    .prestasi-page{
         width:100%;
         max-width:100%;
     }
@@ -900,34 +921,9 @@ tbody tr:hover{
     }
 
 
-    /* EXPORT */
-
-    .export-buttons{
-        display:flex;
-
-        flex-direction:column;
-
-        width:100%;
-
-        gap:8px;
-
-        margin-bottom:15px;
-    }
-
-    .btn-export{
-        width:100%;
-
-        min-height:42px;
-
-        padding:10px 12px;
-
-        font-size:13px;
-    }
-
-
     /* CARD */
 
-    .violation-card{
+    .prestasi-card{
         width:100%;
 
         background:white;
@@ -983,13 +979,13 @@ tbody tr:hover{
 
         justify-content:center;
 
-        min-width:40px;
+        min-width:42px;
 
         height:32px;
 
         padding:0 9px;
 
-        background:#6D1408;
+        background:#166534;
 
         color:white;
 
@@ -1034,16 +1030,16 @@ tbody tr:hover{
     }
 
 
-    /* VIOLATION */
+    /* PRESTASI */
 
-    .mobile-violation{
+    .mobile-prestasi{
         width:100%;
 
-        margin-bottom:7px;
+        margin-bottom:8px;
     }
 
-    .mobile-violation .badge-danger{
-        display:block;
+    .mobile-prestasi .badge-prestasi{
+        display:flex;
 
         width:100%;
 
@@ -1051,13 +1047,36 @@ tbody tr:hover{
 
         border-radius:10px;
 
-        padding:7px 9px;
+        padding:8px 9px;
 
         font-size:10px;
 
         line-height:1.4;
 
         overflow-wrap:anywhere;
+    }
+
+
+    /* TINGKAT */
+
+    .mobile-tingkat{
+        display:flex;
+
+        align-items:center;
+
+        gap:7px;
+
+        color:#6d28d9;
+
+        font-size:11px;
+
+        font-weight:600;
+
+        margin-bottom:8px;
+    }
+
+    .mobile-tingkat i{
+        font-size:11px;
     }
 
 
@@ -1161,5 +1180,7 @@ tbody tr:hover{
     }
 
 }
+
+</style>
 
 @endsection
