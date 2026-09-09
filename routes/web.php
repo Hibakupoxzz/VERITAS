@@ -8,29 +8,56 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PrestasiController;
 
 // ==========================
+// Root
+// ==========================
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
+// ==========================
 // Auth Routes
 // ==========================
 Route::middleware('guest')->group(function () {
-    Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+
+    // Halaman login
+    Route::get('/login', [LoginController::class, 'showLoginForm'])
+        ->name('login');
+
+    // Proses login
+    Route::post('/login', [LoginController::class, 'login'])
+        ->name('login.process');
 });
 
+// Logout
 Route::post('/logout', [LoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
 // ==========================
-// App Routes (perlu login)
-// ========\==================
+// App Routes
+// Perlu login
+// ==========================
 Route::middleware('auth')->group(function () {
+
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
+    // ==========================
+    // Siswa
+    // ==========================
     Route::resource('siswa', SiswaController::class);
+
+    // Search siswa
+    Route::get('/search-siswa', [SiswaController::class, 'search'])
+        ->name('siswa.search');
+
+    // ==========================
+    // Pelanggaran
+    // ==========================
     Route::resource('pelanggaran', PelanggaranController::class);
 
-    Route::get('/search-siswa', [SiswaController::class, 'search']);
-
+    // Export pelanggaran
     Route::get(
         '/pelanggaran/export/harian',
         [PelanggaranController::class, 'exportHarian']
@@ -41,8 +68,14 @@ Route::middleware('auth')->group(function () {
         [PelanggaranController::class, 'exportMingguan']
     )->name('pelanggaran.export.mingguan');
 
+    // ==========================
+    // Prestasi
+    // ==========================
     Route::resource('prestasi', PrestasiController::class);
 
+    // ==========================
+    // Leaderboard
+    // ==========================
     Route::get(
         '/leaderboard',
         [PrestasiController::class, 'leaderboard']
