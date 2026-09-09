@@ -161,7 +161,7 @@ class PelanggaranController extends Controller
                 ? (int) $pelanggaranTerakhir->poin_sesudah
                 : 100;
 
-            $poinSesudah = $poinSebelum - $poin;
+            $poinSesudah = max(0, $poinSebelum - $poin);
 
             /*
             |--------------------------------------------------------------------------
