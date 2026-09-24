@@ -4,14 +4,16 @@ namespace App\Imports;
 
 use App\Models\Siswa;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 
-class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class SiswaImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
     protected int $createdCount = 0;
+
     protected int $updatedCount = 0;
+
     protected array $failures = [];
 
     public function collection(Collection $rows)
@@ -31,22 +33,26 @@ class SiswaImport implements ToCollection, WithHeadingRow, SkipsEmptyRows
 
             if (empty($nisn)) {
                 $this->failures[] = "Baris {$rowNumber}: NISN wajib diisi.";
+
                 continue;
             }
 
             $nisnClean = preg_replace('/[^0-9]/', '', (string) $nisn);
             if (empty($nisnClean)) {
                 $this->failures[] = "Baris {$rowNumber}: NISN '{$nisn}' tidak valid (harus berupa angka).";
+
                 continue;
             }
 
             if (empty($nama)) {
                 $this->failures[] = "Baris {$rowNumber}: Nama siswa wajib diisi untuk NISN {$nisnClean}.";
+
                 continue;
             }
 
             if (empty($kelas)) {
                 $this->failures[] = "Baris {$rowNumber}: Kelas wajib diisi untuk siswa '{$nama}'.";
+
                 continue;
             }
 

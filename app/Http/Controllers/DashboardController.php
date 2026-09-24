@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Siswa;
 use App\Models\Pelanggaran;
 use App\Models\Prestasi;
+use App\Models\Siswa;
 
 class DashboardController extends Controller
 {
@@ -26,7 +26,6 @@ class DashboardController extends Controller
 
         $totalPrestasi = Prestasi::count();
 
-
         /*
         |--------------------------------------------------------------------------
         | Top Prestasi
@@ -42,7 +41,6 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-
         /*
         |--------------------------------------------------------------------------
         | Top Pelanggaran
@@ -57,7 +55,6 @@ class DashboardController extends Controller
             ->orderByDesc('pelanggarans_sum_poin')
             ->limit(5)
             ->get();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -94,7 +91,6 @@ class DashboardController extends Controller
             ->sortByDesc('saldo_poin')
             ->take(5)
             ->values();
-
 
         /*
         |--------------------------------------------------------------------------

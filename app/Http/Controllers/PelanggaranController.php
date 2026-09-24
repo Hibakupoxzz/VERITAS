@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PelanggaranHarianExport;
+use App\Exports\PelanggaranMingguanExport;
+use App\Models\AturanPelanggaran;
 use App\Models\Pelanggaran;
 use App\Models\Siswa;
-use App\Models\AturanPelanggaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\PelanggaranHarianExport;
-use App\Exports\PelanggaranMingguanExport;
 
 class PelanggaranController extends Controller
 {
@@ -20,7 +20,7 @@ class PelanggaranController extends Controller
     {
         $query = Pelanggaran::with([
             'siswa',
-            'aturanPelanggaran'
+            'aturanPelanggaran',
         ])
             ->verified()
             ->latest();
@@ -165,12 +165,11 @@ class PelanggaranController extends Controller
                  * Nama dan poin boleh dimasukkan manual.
                  */
 
-                if (!$request->jenis_pelanggaran_custom) {
+                if (! $request->jenis_pelanggaran_custom) {
                     return back()
                         ->withInput()
                         ->withErrors([
-                            'jenis_pelanggaran_custom' =>
-                                'Nama pelanggaran lainnya wajib diisi.'
+                            'jenis_pelanggaran_custom' => 'Nama pelanggaran lainnya wajib diisi.',
                         ]);
                 }
 
@@ -178,8 +177,7 @@ class PelanggaranController extends Controller
                     return back()
                         ->withInput()
                         ->withErrors([
-                            'poin_custom' =>
-                                'Poin pelanggaran lainnya wajib diisi.'
+                            'poin_custom' => 'Poin pelanggaran lainnya wajib diisi.',
                         ]);
                 }
 
@@ -279,7 +277,7 @@ class PelanggaranController extends Controller
     {
         $pelanggaran = Pelanggaran::with([
             'siswa',
-            'aturanPelanggaran'
+            'aturanPelanggaran',
         ])->findOrFail($id);
 
         return view('pelanggaran.show', compact('pelanggaran'));
@@ -382,7 +380,7 @@ class PelanggaranController extends Controller
         $rekap = Siswa::with([
             'pelanggarans' => function ($query) {
                 $query->latest('id');
-            }
+            },
         ])
             ->orderBy('nama')
             ->get();
@@ -446,14 +444,14 @@ class PelanggaranController extends Controller
                 $poin = (int) $aturan->poin;
                 $kategori = $aturan->kategori;
             } elseif ($request->aturan_pelanggaran_id === 'custom') {
-                if (!$request->jenis_pelanggaran_custom) {
+                if (! $request->jenis_pelanggaran_custom) {
                     return back()->withErrors([
-                        'jenis_pelanggaran_custom' => 'Nama pelanggaran wajib diisi.'
+                        'jenis_pelanggaran_custom' => 'Nama pelanggaran wajib diisi.',
                     ]);
                 }
                 if ($request->poin_custom === null) {
                     return back()->withErrors([
-                        'poin_custom' => 'Poin wajib diisi.'
+                        'poin_custom' => 'Poin wajib diisi.',
                     ]);
                 }
                 $namaPelanggaran = $request->jenis_pelanggaran_custom;
@@ -475,15 +473,15 @@ class PelanggaranController extends Controller
 
             $pelanggaran->update([
                 'aturan_pelanggaran_id' => $aturan?->id,
-                'jenis_pelanggaran'     => $namaPelanggaran,
-                'kategori'              => $kategori,
-                'poin'                  => $poin,
-                'poin_sebelum'          => $poinSebelum,
-                'poin_sesudah'          => $poinSesudah,
-                'sanksi_tahap'          => $aturan ? 1 : null,
-                'status'                => 'diverifikasi',
-                'diverifikasi_oleh'     => auth()->id(),
-                'catatan_verifikasi'    => $request->catatan_verifikasi,
+                'jenis_pelanggaran' => $namaPelanggaran,
+                'kategori' => $kategori,
+                'poin' => $poin,
+                'poin_sebelum' => $poinSebelum,
+                'poin_sesudah' => $poinSesudah,
+                'sanksi_tahap' => $aturan ? 1 : null,
+                'status' => 'diverifikasi',
+                'diverifikasi_oleh' => auth()->id(),
+                'catatan_verifikasi' => $request->catatan_verifikasi,
             ]);
 
             return redirect()
@@ -505,8 +503,8 @@ class PelanggaranController extends Controller
         ]);
 
         $pelanggaran->update([
-            'status'             => 'ditolak',
-            'diverifikasi_oleh'  => auth()->id(),
+            'status' => 'ditolak',
+            'diverifikasi_oleh' => auth()->id(),
             'catatan_verifikasi' => $request->catatan_verifikasi,
         ]);
 

@@ -4,16 +4,16 @@ namespace App\Exports;
 
 use App\Models\Pelanggaran;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PelanggaranHarianExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithTitle
+class PelanggaranHarianExport implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithTitle
 {
     public function collection()
     {
@@ -95,6 +95,6 @@ class PelanggaranHarianExport implements FromCollection, WithHeadings, WithStyle
 
     public function title(): string
     {
-        return 'Pelanggaran Harian ' . date('d-m-Y');
+        return 'Pelanggaran Harian '.date('d-m-Y');
     }
 }

@@ -13,7 +13,7 @@ class WalasFlowTest extends TestCase
     public function test_walas_is_redirected_to_lapor_index_on_login()
     {
         $walas = User::factory()->create(['role' => 'walas']);
-        
+
         $response = $this->post('/login', [
             'email' => $walas->email,
             'password' => 'password',

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pelanggarans', function (Blueprint $table) {
-            if (!Schema::hasColumn('pelanggarans', 'pelapor_id')) {
+            if (! Schema::hasColumn('pelanggarans', 'pelapor_id')) {
                 $table->foreignId('pelapor_id')
                     ->nullable()
                     ->after('siswa_id')
@@ -17,13 +17,13 @@ return new class extends Migration
                     ->nullOnDelete();
             }
 
-            if (!Schema::hasColumn('pelanggarans', 'status')) {
+            if (! Schema::hasColumn('pelanggarans', 'status')) {
                 $table->enum('status', ['pending', 'diverifikasi', 'ditolak'])
                     ->default('diverifikasi')
                     ->after('kategori');
             }
 
-            if (!Schema::hasColumn('pelanggarans', 'diverifikasi_oleh')) {
+            if (! Schema::hasColumn('pelanggarans', 'diverifikasi_oleh')) {
                 $table->foreignId('diverifikasi_oleh')
                     ->nullable()
                     ->after('status')
@@ -31,7 +31,7 @@ return new class extends Migration
                     ->nullOnDelete();
             }
 
-            if (!Schema::hasColumn('pelanggarans', 'catatan_verifikasi')) {
+            if (! Schema::hasColumn('pelanggarans', 'catatan_verifikasi')) {
                 $table->text('catatan_verifikasi')
                     ->nullable()
                     ->after('diverifikasi_oleh');

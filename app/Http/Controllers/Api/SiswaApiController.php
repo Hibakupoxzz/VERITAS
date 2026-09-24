@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Imports\SiswaImport;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaApiController extends Controller
 {
@@ -26,7 +29,7 @@ class SiswaApiController extends Controller
     {
         return response()->json([
             'controller' => 'SiswaApiController',
-            'data' => $request->all()
+            'data' => $request->all(),
         ]);
 
         // $request->validate([
@@ -57,7 +60,7 @@ class SiswaApiController extends Controller
     {
         // 1. Jika request mengirimkan file Excel / CSV
         if ($request->hasFile('file')) {
-            $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            $validator = Validator::make($request->all(), [
                 'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
             ], [
                 'file.required' => 'File Excel wajib diunggah.',
@@ -74,8 +77,8 @@ class SiswaApiController extends Controller
             }
 
             try {
-                $import = new \App\Imports\SiswaImport();
-                \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+                $import = new SiswaImport;
+                Excel::import($import, $request->file('file'));
 
                 return response()->json([
                     'success' => true,
@@ -90,7 +93,7 @@ class SiswaApiController extends Controller
             } catch (\Exception $e) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal memproses file Excel: ' . $e->getMessage(),
+                    'message' => 'Gagal memproses file Excel: '.$e->getMessage(),
                 ], 500);
             }
         }
@@ -98,7 +101,7 @@ class SiswaApiController extends Controller
         // 2. Jika request mengirimkan array JSON
         $items = $request->json()->all() ?: $request->all();
 
-        if (empty($items) || !is_array($items)) {
+        if (empty($items) || ! is_array($items)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Data payload kosong atau format tidak sesuai. Kirim file Excel atau array JSON data siswa.',
@@ -111,13 +114,15 @@ class SiswaApiController extends Controller
 
         foreach ($items as $idx => $item) {
             $rowNum = $idx + 1;
-            if (!is_array($item)) {
+            if (! is_array($item)) {
                 $errors[] = "Item {$rowNum}: Format data harus berupa objek JSON.";
+
                 continue;
             }
 
             if (empty($item['nisn']) || empty($item['nama']) || empty($item['kelas'])) {
                 $errors[] = "Item {$rowNum}: Kolom nisn, nama, dan kelas wajib diisi.";
+
                 continue;
             }
 

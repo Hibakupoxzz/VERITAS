@@ -28,8 +28,8 @@ class LaporPelanggaranController extends Controller
             ->get();
 
         $stats = [
-            'total'    => $laporans->count(),
-            'pending'  => $laporans->where('status', 'pending')->count(),
+            'total' => $laporans->count(),
+            'pending' => $laporans->where('status', 'pending')->count(),
             'verified' => $laporans->where('status', 'diverifikasi')->count(),
             'rejected' => $laporans->where('status', 'ditolak')->count(),
         ];
@@ -48,8 +48,8 @@ class LaporPelanggaranController extends Controller
             ->get();
 
         $stats = [
-            'total'    => $laporans->count(),
-            'pending'  => $laporans->where('status', 'pending')->count(),
+            'total' => $laporans->count(),
+            'pending' => $laporans->where('status', 'pending')->count(),
             'verified' => $laporans->where('status', 'diverifikasi')->count(),
             'rejected' => $laporans->where('status', 'ditolak')->count(),
         ];
@@ -63,11 +63,11 @@ class LaporPelanggaranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'siswa_id'    => 'required|exists:siswas,id',
-            'tanggal'     => 'required|date',
+            'siswa_id' => 'required|exists:siswas,id',
+            'tanggal' => 'required|date',
             'jenis_pelanggaran' => 'required|string|max:255',
-            'keterangan'  => 'nullable|string',
-            'foto_bukti'  => 'nullable|image|max:5120',
+            'keterangan' => 'nullable|string',
+            'foto_bukti' => 'nullable|image|max:5120',
         ]);
 
         $foto = null;
@@ -78,14 +78,14 @@ class LaporPelanggaranController extends Controller
         }
 
         Pelanggaran::create([
-            'siswa_id'          => $request->siswa_id,
-            'pelapor_id'        => auth()->id(),
-            'tanggal'           => $request->tanggal,
+            'siswa_id' => $request->siswa_id,
+            'pelapor_id' => auth()->id(),
+            'tanggal' => $request->tanggal,
             'jenis_pelanggaran' => $request->jenis_pelanggaran,
-            'keterangan'        => $request->keterangan,
-            'foto_bukti'        => $foto,
-            'status'            => 'pending',
-            'poin'              => 0,
+            'keterangan' => $request->keterangan,
+            'foto_bukti' => $foto,
+            'status' => 'pending',
+            'poin' => 0,
         ]);
 
         return redirect()

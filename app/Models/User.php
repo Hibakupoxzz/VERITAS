@@ -72,10 +72,9 @@ class User extends Authenticatable
         return match ($this->role) {
             'admin' => 'Super Admin',
             'walas' => 'Wali Kelas',
-            'pds'   => 'Guru PDS',
-            'bk'    => 'Guru BK',
+            'pds' => 'Guru PDS',
+            'bk' => 'Guru BK',
             default => 'Guru',
         };
     }
 }
-

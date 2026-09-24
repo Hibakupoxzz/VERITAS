@@ -31,7 +31,6 @@ class PrestasiController extends Controller
         return view('prestasi.index', compact('prestasis'));
     }
 
-
     /**
      * Form tambah prestasi.
      */
@@ -41,7 +40,6 @@ class PrestasiController extends Controller
 
         return view('prestasi.create', compact('siswas'));
     }
-
 
     /**
      * Simpan prestasi.
@@ -90,7 +88,6 @@ class PrestasiController extends Controller
             ],
         ]);
 
-
         DB::transaction(function () use ($request, $validated) {
 
             /*
@@ -101,7 +98,6 @@ class PrestasiController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-
             /*
              * Hitung total pelanggaran siswa.
              */
@@ -109,14 +105,12 @@ class PrestasiController extends Controller
                 ->pelanggarans()
                 ->sum('poin');
 
-
             /*
              * Hitung total prestasi siswa.
              */
             $totalPrestasi = $siswa
                 ->prestasis()
                 ->sum('poin');
-
 
             /*
              * Rumus saldo:
@@ -130,14 +124,12 @@ class PrestasiController extends Controller
                 - $totalPelanggaran
                 + $totalPrestasi;
 
-
             /*
              * Poin setelah mendapatkan prestasi.
              */
             $poinSesudah =
                 $poinSebelum
                 + $validated['poin'];
-
 
             /*
              * Upload bukti prestasi.
@@ -149,7 +141,6 @@ class PrestasiController extends Controller
                     ->file('bukti')
                     ->store('prestasi', 'public');
             }
-
 
             /*
              * Simpan prestasi.
@@ -169,7 +160,6 @@ class PrestasiController extends Controller
             ]);
         });
 
-
         return redirect()
             ->route('prestasi.index')
             ->with(
@@ -177,7 +167,6 @@ class PrestasiController extends Controller
                 'Prestasi berhasil ditambahkan dan poin siswa bertambah.'
             );
     }
-
 
     /**
      * Detail prestasi.
@@ -191,7 +180,6 @@ class PrestasiController extends Controller
             compact('prestasi')
         );
     }
-
 
     /**
      * Form edit prestasi.
@@ -208,7 +196,6 @@ class PrestasiController extends Controller
             )
         );
     }
-
 
     /**
      * Update prestasi.
@@ -250,7 +237,6 @@ class PrestasiController extends Controller
             ],
         ]);
 
-
         /*
          * Jika siswa diubah, kita tetap memperbarui
          * data prestasi tanpa mengubah nilai poin.
@@ -263,7 +249,6 @@ class PrestasiController extends Controller
             'keterangan' => $validated['keterangan'] ?? null,
         ]);
 
-
         return redirect()
             ->route('prestasi.index')
             ->with(
@@ -271,7 +256,6 @@ class PrestasiController extends Controller
                 'Data prestasi berhasil diperbarui.'
             );
     }
-
 
     /**
      * Hapus prestasi.
@@ -286,12 +270,10 @@ class PrestasiController extends Controller
                 ->delete($prestasi->bukti);
         }
 
-
         /*
          * Hapus data prestasi.
          */
         $prestasi->delete();
-
 
         return redirect()
             ->route('prestasi.index')
@@ -300,7 +282,6 @@ class PrestasiController extends Controller
                 'Prestasi berhasil dihapus.'
             );
     }
-
 
     /**
      * Leaderboard.
@@ -312,15 +293,15 @@ class PrestasiController extends Controller
 
         // Helper filter query untuk Siswa
         $applyFilter = function ($query) use ($search, $kelasFilter) {
-            if (!empty($search)) {
+            if (! empty($search)) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
-                      ->orWhere('nisn', 'like', "%{$search}%")
-                      ->orWhere('kelas', 'like', "%{$search}%");
+                        ->orWhere('nisn', 'like', "%{$search}%")
+                        ->orWhere('kelas', 'like', "%{$search}%");
                 });
             }
 
-            if (!empty($kelasFilter)) {
+            if (! empty($kelasFilter)) {
                 $k = trim($kelasFilter);
                 $kUpper = strtoupper($k);
 
@@ -328,11 +309,11 @@ class PrestasiController extends Controller
                     if ($kUpper === 'XII' || $kUpper === '12') {
                         $query->where(function ($q) {
                             $q->where('kelas', 'like', 'XII %')
-                              ->orWhere('kelas', 'like', 'XII-%')
-                              ->orWhere('kelas', '=', 'XII')
-                              ->orWhere('kelas', 'like', '12 %')
-                              ->orWhere('kelas', 'like', '12-%')
-                              ->orWhere('kelas', '=', '12');
+                                ->orWhere('kelas', 'like', 'XII-%')
+                                ->orWhere('kelas', '=', 'XII')
+                                ->orWhere('kelas', 'like', '12 %')
+                                ->orWhere('kelas', 'like', '12-%')
+                                ->orWhere('kelas', '=', '12');
                         });
                     } elseif ($kUpper === 'XI' || $kUpper === '11') {
                         $query->where(function ($q) {
@@ -344,8 +325,8 @@ class PrestasiController extends Controller
                                     ->orWhere('kelas', 'like', '11-%')
                                     ->orWhere('kelas', '=', '11');
                             })
-                            ->where('kelas', 'not like', 'XII %')
-                            ->where('kelas', 'not like', 'XII-%');
+                                ->where('kelas', 'not like', 'XII %')
+                                ->where('kelas', 'not like', 'XII-%');
                         });
                     } elseif ($kUpper === 'X' || $kUpper === '10') {
                         $query->where(function ($q) {
@@ -357,10 +338,10 @@ class PrestasiController extends Controller
                                     ->orWhere('kelas', 'like', '10-%')
                                     ->orWhere('kelas', '=', '10');
                             })
-                            ->where('kelas', 'not like', 'XI %')
-                            ->where('kelas', 'not like', 'XI-%')
-                            ->where('kelas', 'not like', 'XII %')
-                            ->where('kelas', 'not like', 'XII-%');
+                                ->where('kelas', 'not like', 'XI %')
+                                ->where('kelas', 'not like', 'XI-%')
+                                ->where('kelas', 'not like', 'XII %')
+                                ->where('kelas', 'not like', 'XII-%');
                         });
                     }
                 } else {
@@ -386,7 +367,6 @@ class PrestasiController extends Controller
             ->limit(50)
             ->get();
 
-
         // ==========================================
         // TOP PELANGGARAN
         // ==========================================
@@ -403,7 +383,6 @@ class PrestasiController extends Controller
             ->orderByDesc('pelanggarans_sum_poin')
             ->limit(50)
             ->get();
-
 
         // ==========================================
         // SALDO POIN SISWA
@@ -432,7 +411,6 @@ class PrestasiController extends Controller
             ->sortByDesc('saldo_poin')
             ->values();
 
-
         // ==========================================
         // DAFTAR KELAS
         // ==========================================
@@ -442,7 +420,6 @@ class PrestasiController extends Controller
             ->distinct()
             ->orderBy('kelas')
             ->pluck('kelas');
-
 
         // ==========================================
         // TAMPILKAN VIEW

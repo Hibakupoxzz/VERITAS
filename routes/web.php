@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\PelanggaranController;
-use App\Http\Controllers\LaporPelanggaranController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporPelanggaranController;
+use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\PrestasiController;
+use App\Http\Controllers\SiswaController;
+use Illuminate\Support\Facades\Route;
 
 // ==========================
 // Root
@@ -16,8 +16,10 @@ Route::get('/', function () {
         if (auth()->user()->isWalas()) {
             return redirect()->route('lapor.index');
         }
+
         return redirect()->route('dashboard');
     }
+
     return redirect()->route('login');
 })->name('home');
 
@@ -95,4 +97,3 @@ Route::middleware('auth')->group(function () {
             ->name('leaderboard');
     });
 });
-

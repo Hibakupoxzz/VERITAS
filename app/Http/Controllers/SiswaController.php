@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SiswaTemplateExport;
+use App\Imports\SiswaImport;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\SiswaImport;
-use App\Exports\SiswaTemplateExport;
 
 class SiswaController extends Controller
 {
@@ -19,8 +19,8 @@ class SiswaController extends Controller
 
         $siswas = Siswa::when($search, function ($query) use ($search) {
             $query->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nisn', 'like', "%{$search}%")
-                  ->orWhere('kelas', 'like', "%{$search}%");
+                ->orWhere('nisn', 'like', "%{$search}%")
+                ->orWhere('kelas', 'like', "%{$search}%");
         })->latest()->get();
 
         return view('siswa.index', compact('siswas'));
@@ -84,7 +84,7 @@ class SiswaController extends Controller
         $siswa = Siswa::findOrFail($id);
 
         $request->validate([
-            'nisn' => 'required|string|max:20|unique:siswas,nisn,' . $id,
+            'nisn' => 'required|string|max:20|unique:siswas,nisn,'.$id,
             'nama' => 'required|string|max:255',
             'kelas' => 'required|string|max:100',
         ]);
@@ -152,7 +152,7 @@ class SiswaController extends Controller
         ]);
 
         try {
-            $import = new SiswaImport();
+            $import = new SiswaImport;
             Excel::import($import, $request->file('file'));
 
             $created = $import->getCreatedCount();
@@ -175,7 +175,7 @@ class SiswaController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('siswa.index')
-                ->with('error', 'Gagal memproses file Excel: ' . $e->getMessage());
+                ->with('error', 'Gagal memproses file Excel: '.$e->getMessage());
         }
     }
 }

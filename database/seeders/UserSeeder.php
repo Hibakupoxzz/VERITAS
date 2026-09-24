@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -46,18 +45,18 @@ class UserSeeder extends Seeder
             'XI-RPL-1', 'XI-RPL-2', 'XI-TOI-1', 'XI-TKJ-1', 'XI-TKJ-2',
             'XI-DKV-1', 'XI-DKV-2', 'XI-DKV-3', 'XI-LPB-1', 'XI-LPB-2',
             'XII-RPL-1', 'XII-RPL-2', 'XII-TKJ-1', 'XII-TKJ-2', 'XII-TKJ-3',
-            'XII-DKV-1', 'XII-DKV-2', 'XII-DKV-3', 'XII-DKV-4', 'XII-LPB-1', 'XII-LPB-2'
+            'XII-DKV-1', 'XII-DKV-2', 'XII-DKV-3', 'XII-DKV-4', 'XII-LPB-1', 'XII-LPB-2',
         ];
 
         // 3. Buat Akun Walas Untuk Masing-masing Kelas
         foreach ($kelas as $k) {
-            // Hapus tanda strip dan jadikan huruf kecil. 
+            // Hapus tanda strip dan jadikan huruf kecil.
             // Contoh 'X-RPL-1' menjadi 'xrpl1'
             $emailPrefix = strtolower(str_replace('-', '', $k));
-            
+
             User::create([
-                'name' => 'Walas ' . $k,
-                'email' => $emailPrefix . '@guru.com', // Hasil: xrpl1@guru.com
+                'name' => 'Walas '.$k,
+                'email' => $emailPrefix.'@guru.com', // Hasil: xrpl1@guru.com
                 'password' => Hash::make('walas123'),
                 'role' => 'walas',
                 'kelas' => $k,

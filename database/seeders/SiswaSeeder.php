@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Siswa;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class SiswaSeeder extends Seeder
 {
@@ -25,7 +24,7 @@ class SiswaSeeder extends Seeder
             'XI-RPL-1', 'XI-RPL-2', 'XI-TOI-1', 'XI-TKJ-1', 'XI-TKJ-2',
             'XI-DKV-1', 'XI-DKV-2', 'XI-DKV-3', 'XI-LPB-1', 'XI-LPB-2',
             'XII-RPL-1', 'XII-RPL-2', 'XII-TKJ-1', 'XII-TKJ-2', 'XII-TKJ-3',
-            'XII-DKV-1', 'XII-DKV-2', 'XII-DKV-3', 'XII-DKV-4', 'XII-LPB-1', 'XII-LPB-2'
+            'XII-DKV-1', 'XII-DKV-2', 'XII-DKV-3', 'XII-DKV-4', 'XII-LPB-1', 'XII-LPB-2',
         ];
 
         $data = [];
