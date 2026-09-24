@@ -11,14 +11,21 @@
     <div class="page-header">
 
         <div class="page-heading">
-            <h1>Data Pelanggaran</h1>
-            <p>Daftar seluruh pelanggaran siswa</p>
+            @if(auth()->user()->isWalas())
+                <h1>Pelanggaran Kelas {{ auth()->user()->kelas }}</h1>
+                <p>Daftar pelanggaran siswa di kelas Anda</p>
+            @else
+                <h1>Data Pelanggaran</h1>
+                <p>Daftar seluruh pelanggaran siswa</p>
+            @endif
         </div>
 
+        @if(!auth()->user()->isWalas())
         <a href="{{ route('pelanggaran.create') }}" class="btn-primary">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Pelanggaran</span>
         </a>
+        @endif
 
     </div>
 
@@ -35,6 +42,7 @@
 
 
     {{-- EXPORT --}}
+    @if(!auth()->user()->isWalas())
     <div class="export-buttons">
 
         <a href="{{ route('pelanggaran.export.harian') }}"
@@ -54,6 +62,7 @@
         </a>
 
     </div>
+    @endif
 
 
     {{-- =========================
@@ -75,7 +84,9 @@
                         <th>Pelanggaran</th>
                         <th>Poin</th>
                         <th>Foto</th>
+                        @if(!auth()->user()->isWalas())
                         <th>Aksi</th>
+                        @endif
                     </tr>
 
                 </thead>
@@ -173,6 +184,7 @@
 
 
                             {{-- AKSI --}}
+                            @if(!auth()->user()->isWalas())
                             <td>
 
                                 <div class="action-buttons">
@@ -212,6 +224,7 @@
                                 </div>
 
                             </td>
+                            @endif
 
                         </tr>
 
@@ -324,6 +337,7 @@
 
 
                 {{-- AKSI --}}
+                @if(!auth()->user()->isWalas())
                 <div class="mobile-actions">
 
                     <a
@@ -362,6 +376,7 @@
                     </form>
 
                 </div>
+                @endif
 
             </div>
 
@@ -379,6 +394,78 @@
 
         @endforelse
 
+    </div>
+
+    <!-- APPROVE MODAL -->
+    <div class="modal-overlay" id="approveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Verifikasi Laporan Walas</h3>
+                <button type="button" onclick="closeModal('approveModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="approveForm" method="POST" action="">
+                @csrf
+                <div class="modal-body">
+                    <p style="font-size:13px; margin-bottom:5px;">Siswa: <strong id="approveSiswaName"></strong></p>
+                    <p style="font-size:13px; margin-bottom:15px; color:#6D1408;">Laporan: <strong id="approvePelanggaranText"></strong></p>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Aturan Pelanggaran Terkait <span style="color:red">*</span></label>
+                        <select name="aturan_pelanggaran_id" class="form-control" onchange="toggleCustomApprove(this.value)" required>
+                            <option value="">-- Pilih Sesuai Pedoman Tata Tertib --</option>
+                            @foreach($aturanPelanggarans as $aturan)
+                                <option value="{{ $aturan->id }}">{{ $aturan->kode }} - {{ $aturan->nama }} (-{{ $aturan->poin }} poin)</option>
+                            @endforeach
+                            <option value="custom">-- Pelanggaran Lainnya (Custom) --</option>
+                        </select>
+                    </div>
+
+                    <div id="customApproveDiv" style="display:none; margin-top:10px;">
+                        <div class="form-group">
+                            <label class="form-label">Nama Pelanggaran</label>
+                            <input type="text" name="jenis_pelanggaran_custom" class="form-control" placeholder="Contoh: Bermain judi online di kelas">
+                        </div>
+                        <div class="form-group" style="margin-top:10px;">
+                            <label class="form-label">Poin Sanksi</label>
+                            <input type="number" name="poin_custom" class="form-control" min="0" placeholder="Misal: 20">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:10px;">
+                        <label class="form-label">Catatan Verifikasi (Opsional)</label>
+                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Pesan kepada siswa atau wali kelas terkait keputusan ini..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('approveModal')">Batal</button>
+                    <button type="submit" class="btn-primary">Verifikasi & Terapkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- REJECT MODAL -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Tolak Laporan Walas</h3>
+                <button type="button" onclick="closeModal('rejectModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="rejectForm" method="POST" action="">
+                @csrf
+                <div class="modal-body">
+                    <p style="font-size:13px; margin-bottom:15px;">Anda akan menolak laporan untuk siswa: <strong id="rejectSiswaName"></strong>.</p>
+                    <div class="form-group">
+                        <label class="form-label">Alasan Penolakan <span style="color:red">*</span></label>
+                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Jelaskan alasan penolakan (misal: Bukti tidak cukup kuat, laporan ganda, dll)" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeModal('rejectModal')">Batal</button>
+                    <button type="submit" class="btn-danger">Tolak Laporan</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>
@@ -1162,4 +1249,99 @@ tbody tr:hover{
 
 }
 
+/* =====================================================
+   MODAL STYLES
+===================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(2px);
+}
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 14px;
+    overflow: hidden;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.modal-overlay.show .modal-content {
+    transform: translateY(0) scale(1);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+.modal-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+}
+.close-btn {
+    background: none; border: none; font-size: 18px; cursor: pointer; color: #9ca3af;
+    transition: color 0.15s;
+}
+.close-btn:hover {
+    color: #ef4444;
+}
+.modal-body {
+    padding: 20px;
+}
+.modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f9fafb;
+}
+
+@endsection
+
+@section('scripts')
+<script>
+    function openApproveModal(id, siswa, pelanggaran) {
+        document.getElementById('approveForm').action = '/pelanggaran/' + id + '/approve';
+        document.getElementById('approveSiswaName').innerText = siswa;
+        document.getElementById('approvePelanggaranText').innerText = pelanggaran;
+        document.getElementById('approveModal').classList.add('show');
+    }
+
+    function openRejectModal(id, siswa) {
+        document.getElementById('rejectForm').action = '/pelanggaran/' + id + '/reject';
+        document.getElementById('rejectSiswaName').innerText = siswa;
+        document.getElementById('rejectModal').classList.add('show');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+
+    function toggleCustomApprove(val) {
+        if(val === 'custom') {
+            document.getElementById('customApproveDiv').style.display = 'block';
+        } else {
+            document.getElementById('customApproveDiv').style.display = 'none';
+        }
+    }
+</script>
 @endsection

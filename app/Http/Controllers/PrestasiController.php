@@ -15,10 +15,18 @@ class PrestasiController extends Controller
      */
     public function index()
     {
-        $prestasis = Prestasi::with('siswa')
+        $query = Prestasi::with('siswa')
             ->latest('tanggal')
-            ->latest('id')
-            ->get();
+            ->latest('id');
+
+        // Jika walas, hanya tampilkan prestasi siswa di kelasnya
+        if (auth()->user()->isWalas() && auth()->user()->kelas) {
+            $query->whereHas('siswa', function ($q) {
+                $q->where('kelas', auth()->user()->kelas);
+            });
+        }
+
+        $prestasis = $query->get();
 
         return view('prestasi.index', compact('prestasis'));
     }
@@ -297,19 +305,85 @@ class PrestasiController extends Controller
     /**
      * Leaderboard.
      */
-    public function leaderboard()
+    public function leaderboard(Request $request)
     {
+        $search = $request->query('search');
+        $kelasFilter = $request->query('kelas');
+
+        // Helper filter query untuk Siswa
+        $applyFilter = function ($query) use ($search, $kelasFilter) {
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                      ->orWhere('nisn', 'like', "%{$search}%")
+                      ->orWhere('kelas', 'like', "%{$search}%");
+                });
+            }
+
+            if (!empty($kelasFilter)) {
+                $k = trim($kelasFilter);
+                $kUpper = strtoupper($k);
+
+                if (in_array($kUpper, ['X', 'XI', 'XII', '10', '11', '12'])) {
+                    if ($kUpper === 'XII' || $kUpper === '12') {
+                        $query->where(function ($q) {
+                            $q->where('kelas', 'like', 'XII %')
+                              ->orWhere('kelas', 'like', 'XII-%')
+                              ->orWhere('kelas', '=', 'XII')
+                              ->orWhere('kelas', 'like', '12 %')
+                              ->orWhere('kelas', 'like', '12-%')
+                              ->orWhere('kelas', '=', '12');
+                        });
+                    } elseif ($kUpper === 'XI' || $kUpper === '11') {
+                        $query->where(function ($q) {
+                            $q->where(function ($sub) {
+                                $sub->where('kelas', 'like', 'XI %')
+                                    ->orWhere('kelas', 'like', 'XI-%')
+                                    ->orWhere('kelas', '=', 'XI')
+                                    ->orWhere('kelas', 'like', '11 %')
+                                    ->orWhere('kelas', 'like', '11-%')
+                                    ->orWhere('kelas', '=', '11');
+                            })
+                            ->where('kelas', 'not like', 'XII %')
+                            ->where('kelas', 'not like', 'XII-%');
+                        });
+                    } elseif ($kUpper === 'X' || $kUpper === '10') {
+                        $query->where(function ($q) {
+                            $q->where(function ($sub) {
+                                $sub->where('kelas', 'like', 'X %')
+                                    ->orWhere('kelas', 'like', 'X-%')
+                                    ->orWhere('kelas', '=', 'X')
+                                    ->orWhere('kelas', 'like', '10 %')
+                                    ->orWhere('kelas', 'like', '10-%')
+                                    ->orWhere('kelas', '=', '10');
+                            })
+                            ->where('kelas', 'not like', 'XI %')
+                            ->where('kelas', 'not like', 'XI-%')
+                            ->where('kelas', 'not like', 'XII %')
+                            ->where('kelas', 'not like', 'XII-%');
+                        });
+                    }
+                } else {
+                    $query->where('kelas', $k);
+                }
+            }
+        };
+
         // ==========================================
         // TOP PRESTASI
         // ==========================================
 
-        $topPrestasi = Siswa::query()
+        $topPrestasiQuery = Siswa::query()
             ->withCount('prestasis')
             ->withSum('prestasis', 'poin')
-            ->having('prestasis_count', '>', 0)
+            ->having('prestasis_count', '>', 0);
+
+        $applyFilter($topPrestasiQuery);
+
+        $topPrestasi = $topPrestasiQuery
             ->orderByDesc('prestasis_count')
             ->orderByDesc('prestasis_sum_poin')
-            ->limit(20)
+            ->limit(50)
             ->get();
 
 
@@ -317,13 +391,17 @@ class PrestasiController extends Controller
         // TOP PELANGGARAN
         // ==========================================
 
-        $topPelanggaran = Siswa::query()
+        $topPelanggaranQuery = Siswa::query()
             ->withCount('pelanggarans')
             ->withSum('pelanggarans', 'poin')
-            ->having('pelanggarans_count', '>', 0)
+            ->having('pelanggarans_count', '>', 0);
+
+        $applyFilter($topPelanggaranQuery);
+
+        $topPelanggaran = $topPelanggaranQuery
             ->orderByDesc('pelanggarans_count')
             ->orderByDesc('pelanggarans_sum_poin')
-            ->limit(20)
+            ->limit(50)
             ->get();
 
 
@@ -331,43 +409,39 @@ class PrestasiController extends Controller
         // SALDO POIN SISWA
         // ==========================================
 
-        $saldoSiswa = Siswa::query()
+        $saldoSiswaQuery = Siswa::query()
             ->withSum('pelanggarans', 'poin')
-            ->withSum('prestasis', 'poin')
+            ->withSum('prestasis', 'poin');
+
+        $applyFilter($saldoSiswaQuery);
+
+        $saldoSiswa = $saldoSiswaQuery
             ->get()
             ->map(function ($siswa) {
-
-                $totalPelanggaran =
-                    (int) (
-                        $siswa->pelanggarans_sum_poin
-                        ?? 0
-                    );
-
-
-                $totalPrestasi =
-                    (int) (
-                        $siswa->prestasis_sum_poin
-                        ?? 0
-                    );
-
+                $totalPelanggaran = (int) ($siswa->pelanggarans_sum_poin ?? 0);
+                $totalPrestasi = (int) ($siswa->prestasis_sum_poin ?? 0);
 
                 /*
                  * Rumus saldo poin:
-                 *
-                 * 100
-                 * - pelanggaran
-                 * + prestasi
+                 * 100 - pelanggaran + prestasi
                  */
-                $siswa->saldo_poin =
-                    100
-                    - $totalPelanggaran
-                    + $totalPrestasi;
-
+                $siswa->saldo_poin = 100 - $totalPelanggaran + $totalPrestasi;
 
                 return $siswa;
             })
             ->sortByDesc('saldo_poin')
             ->values();
+
+
+        // ==========================================
+        // DAFTAR KELAS
+        // ==========================================
+
+        $kelasList = Siswa::whereNotNull('kelas')
+            ->where('kelas', '!=', '')
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
 
 
         // ==========================================
@@ -379,7 +453,8 @@ class PrestasiController extends Controller
             compact(
                 'topPrestasi',
                 'topPelanggaran',
-                'saldoSiswa'
+                'saldoSiswa',
+                'kelasList'
             )
         );
     }

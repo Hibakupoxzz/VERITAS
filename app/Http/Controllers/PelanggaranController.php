@@ -18,14 +18,67 @@ class PelanggaranController extends Controller
      */
     public function index()
     {
-        $pelanggarans = Pelanggaran::with([
+        $query = Pelanggaran::with([
             'siswa',
             'aturanPelanggaran'
         ])
+            ->verified()
+            ->latest();
+
+        // Jika walas, hanya tampilkan pelanggaran siswa di kelasnya
+        if (auth()->user()->isWalas() && auth()->user()->kelas) {
+            $query->whereHas('siswa', function ($q) {
+                $q->where('kelas', auth()->user()->kelas);
+            });
+        }
+
+        $pelanggarans = $query->get();
+
+        // No pendingLaporans anymore in index
+
+        $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
+            ->orderByRaw("
+                CASE kategori
+                    WHEN 'Ringan' THEN 1
+                    WHEN 'Sedang' THEN 2
+                    WHEN 'Berat' THEN 3
+                    WHEN 'Luar Biasa' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('kode')
+            ->get();
+
+        return view('pelanggaran.index', compact(
+            'pelanggarans',
+            'aturanPelanggarans'
+        ));
+    }
+
+    /**
+     * Menampilkan daftar pending laporan dari Walas
+     */
+    public function pending()
+    {
+        $pendingLaporans = Pelanggaran::with(['siswa', 'pelapor'])
+            ->pending()
             ->latest()
             ->get();
 
-        return view('pelanggaran.index', compact('pelanggarans'));
+        $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
+            ->orderByRaw("
+                CASE kategori
+                    WHEN 'Ringan' THEN 1
+                    WHEN 'Sedang' THEN 2
+                    WHEN 'Berat' THEN 3
+                    WHEN 'Luar Biasa' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('kode')
+            ->get();
+
+        return view('pelanggaran.pending', compact('pendingLaporans', 'aturanPelanggarans'));
     }
 
     /**
@@ -150,10 +203,8 @@ class PelanggaranController extends Controller
             |
             */
 
-            $pelanggaranTerakhir = Pelanggaran::where(
-                'siswa_id',
-                $request->siswa_id
-            )
+            $pelanggaranTerakhir = Pelanggaran::where('siswa_id', $request->siswa_id)
+                ->where('status', 'diverifikasi')
                 ->latest('id')
                 ->first();
 
@@ -184,6 +235,7 @@ class PelanggaranController extends Controller
 
             Pelanggaran::create([
                 'siswa_id' => $request->siswa_id,
+                'pelapor_id' => auth()->id(), // Ditambahkan oleh BK/PDS sendiri
 
                 'aturan_pelanggaran_id' => $aturan?->id,
 
@@ -202,6 +254,9 @@ class PelanggaranController extends Controller
 
                 // Jika aturan resmi memiliki tahap, gunakan tahap I
                 'sanksi_tahap' => $aturan ? 1 : null,
+
+                'status' => 'diverifikasi',
+                'diverifikasi_oleh' => auth()->id(), // Langsung diverifikasi oleh pembuat (BK/PDS)
 
                 'keterangan' => $request->keterangan,
 
@@ -355,5 +410,108 @@ class PelanggaranController extends Controller
             new PelanggaranMingguanExport,
             'pelanggaran-mingguan.xlsx'
         );
+    }
+
+    /**
+     * Approve (Verifikasi) laporan dari Walas.
+     */
+    public function approve(Request $request, string $id)
+    {
+        $pelanggaran = Pelanggaran::where('status', 'pending')
+            ->findOrFail($id);
+
+        $request->validate([
+            'aturan_pelanggaran_id' => 'nullable',
+            'jenis_pelanggaran_custom' => 'nullable|string|max:255',
+            'poin_custom' => 'nullable|numeric|min:0',
+            'catatan_verifikasi' => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request, $pelanggaran) {
+
+            $aturan = null;
+            $namaPelanggaran = $pelanggaran->jenis_pelanggaran;
+            $poin = 0;
+            $kategori = null;
+
+            if (
+                $request->aturan_pelanggaran_id &&
+                $request->aturan_pelanggaran_id !== 'custom'
+            ) {
+                $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
+                    ->where('aktif', true)
+                    ->firstOrFail();
+
+                $namaPelanggaran = $aturan->nama;
+                $poin = (int) $aturan->poin;
+                $kategori = $aturan->kategori;
+            } elseif ($request->aturan_pelanggaran_id === 'custom') {
+                if (!$request->jenis_pelanggaran_custom) {
+                    return back()->withErrors([
+                        'jenis_pelanggaran_custom' => 'Nama pelanggaran wajib diisi.'
+                    ]);
+                }
+                if ($request->poin_custom === null) {
+                    return back()->withErrors([
+                        'poin_custom' => 'Poin wajib diisi.'
+                    ]);
+                }
+                $namaPelanggaran = $request->jenis_pelanggaran_custom;
+                $poin = (int) $request->poin_custom;
+                $kategori = $request->kategori;
+            }
+
+            // Hitung saldo poin siswa
+            $pelanggaranTerakhir = Pelanggaran::where('siswa_id', $pelanggaran->siswa_id)
+                ->where('status', 'diverifikasi')
+                ->latest('id')
+                ->first();
+
+            $poinSebelum = $pelanggaranTerakhir
+                ? (int) $pelanggaranTerakhir->poin_sesudah
+                : 100;
+
+            $poinSesudah = max(0, $poinSebelum - $poin);
+
+            $pelanggaran->update([
+                'aturan_pelanggaran_id' => $aturan?->id,
+                'jenis_pelanggaran'     => $namaPelanggaran,
+                'kategori'              => $kategori,
+                'poin'                  => $poin,
+                'poin_sebelum'          => $poinSebelum,
+                'poin_sesudah'          => $poinSesudah,
+                'sanksi_tahap'          => $aturan ? 1 : null,
+                'status'                => 'diverifikasi',
+                'diverifikasi_oleh'     => auth()->id(),
+                'catatan_verifikasi'    => $request->catatan_verifikasi,
+            ]);
+
+            return redirect()
+                ->route('pelanggaran.index')
+                ->with('success', "Laporan diverifikasi. Saldo poin siswa sekarang {$poinSesudah}.");
+        });
+    }
+
+    /**
+     * Tolak laporan dari Walas.
+     */
+    public function reject(Request $request, string $id)
+    {
+        $pelanggaran = Pelanggaran::where('status', 'pending')
+            ->findOrFail($id);
+
+        $request->validate([
+            'catatan_verifikasi' => 'required|string|max:500',
+        ]);
+
+        $pelanggaran->update([
+            'status'             => 'ditolak',
+            'diverifikasi_oleh'  => auth()->id(),
+            'catatan_verifikasi' => $request->catatan_verifikasi,
+        ]);
+
+        return redirect()
+            ->route('pelanggaran.index')
+            ->with('success', 'Laporan telah ditolak.');
     }
 }

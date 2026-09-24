@@ -51,26 +51,106 @@ class SiswaApiController extends Controller
 
     /**
      * POST /api/siswa/import
-     * Import banyak siswa sekaligus
+     * Import banyak siswa sekaligus (Mendukung File Excel/CSV atau Payload JSON)
      */
     public function bulkStore(Request $request)
     {
-        foreach ($request->all() as $item) {
+        // 1. Jika request mengirimkan file Excel / CSV
+        if ($request->hasFile('file')) {
+            $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+                'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            ], [
+                'file.required' => 'File Excel wajib diunggah.',
+                'file.mimes' => 'Format file harus berupa .xlsx, .xls, atau .csv.',
+                'file.max' => 'Ukuran file maksimal adalah 5MB.',
+            ]);
 
-            Siswa::updateOrCreate(
-                [
-                    'nisn' => $item['nisn']
-                ],
-                [
-                    'nama' => $item['nama'],
-                    'kelas' => $item['kelas']
-                ]
-            );
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi file gagal',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            try {
+                $import = new \App\Imports\SiswaImport();
+                \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data siswa berhasil diimport dari file Excel',
+                    'data' => [
+                        'total' => $import->getTotalSuccess(),
+                        'created' => $import->getCreatedCount(),
+                        'updated' => $import->getUpdatedCount(),
+                        'failures' => $import->getFailures(),
+                    ],
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memproses file Excel: ' . $e->getMessage(),
+                ], 500);
+            }
+        }
+
+        // 2. Jika request mengirimkan array JSON
+        $items = $request->json()->all() ?: $request->all();
+
+        if (empty($items) || !is_array($items)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data payload kosong atau format tidak sesuai. Kirim file Excel atau array JSON data siswa.',
+            ], 422);
+        }
+
+        $created = 0;
+        $updated = 0;
+        $errors = [];
+
+        foreach ($items as $idx => $item) {
+            $rowNum = $idx + 1;
+            if (!is_array($item)) {
+                $errors[] = "Item {$rowNum}: Format data harus berupa objek JSON.";
+                continue;
+            }
+
+            if (empty($item['nisn']) || empty($item['nama']) || empty($item['kelas'])) {
+                $errors[] = "Item {$rowNum}: Kolom nisn, nama, dan kelas wajib diisi.";
+                continue;
+            }
+
+            $nisnClean = preg_replace('/[^0-9]/', '', (string) $item['nisn']);
+            $namaClean = trim(preg_replace('/\s+/', ' ', (string) $item['nama']));
+            $kelasClean = strtoupper(trim(preg_replace('/\s+/', ' ', (string) $item['kelas'])));
+
+            $existing = Siswa::where('nisn', $nisnClean)->first();
+            if ($existing) {
+                $existing->update([
+                    'nama' => $namaClean,
+                    'kelas' => $kelasClean,
+                ]);
+                $updated++;
+            } else {
+                Siswa::create([
+                    'nisn' => $nisnClean,
+                    'nama' => $namaClean,
+                    'kelas' => $kelasClean,
+                ]);
+                $created++;
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Data siswa berhasil diimport'
+            'message' => "Data siswa berhasil diproses ({$created} baru, {$updated} diperbarui).",
+            'data' => [
+                'total' => $created + $updated,
+                'created' => $created,
+                'updated' => $updated,
+                'errors' => $errors,
+            ],
         ]);
     }
 }

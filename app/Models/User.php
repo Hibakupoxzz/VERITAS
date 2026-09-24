@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'kelas'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,4 +29,53 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Role Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isWalas(): bool
+    {
+        return $this->role === 'walas';
+    }
+
+    public function isPds(): bool
+    {
+        return $this->role === 'pds';
+    }
+
+    public function isBk(): bool
+    {
+        return $this->role === 'bk';
+    }
+
+    /**
+     * Apakah user berwenang memverifikasi laporan?
+     */
+    public function canVerify(): bool
+    {
+        return in_array($this->role, ['admin', 'pds', 'bk']);
+    }
+
+    /**
+     * Label role yang ditampilkan di UI.
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match ($this->role) {
+            'admin' => 'Super Admin',
+            'walas' => 'Wali Kelas',
+            'pds'   => 'Guru PDS',
+            'bk'    => 'Guru BK',
+            default => 'Guru',
+        };
+    }
 }
+

@@ -50,6 +50,79 @@
 
 
 {{-- =========================================
+     TOOLBAR: SEARCH & KELAS FILTER
+========================================= --}}
+
+<div class="leaderboard-toolbar">
+
+    <div class="lb-search-wrap">
+        <i class="fa-solid fa-magnifying-glass lb-search-icon"></i>
+        <input
+            type="text"
+            id="leaderboardSearch"
+            class="lb-search-input"
+            placeholder="Cari nama, NISN, atau kelas siswa..."
+            value="{{ request('search') }}"
+            autocomplete="off"
+        >
+        <button type="button" id="clearSearchBtn" class="lb-clear-btn" style="display: none;" title="Hapus pencarian">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div class="lb-filter-wrap">
+        <div class="lb-class-pills">
+            <button
+                type="button"
+                class="lb-pill {{ !request('kelas') ? 'active' : '' }}"
+                data-kelas=""
+            >
+                Semua Kelas
+            </button>
+            <button
+                type="button"
+                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'X' ? 'active' : '' }}"
+                data-kelas="X"
+            >
+                Kelas X
+            </button>
+            <button
+                type="button"
+                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'XI' ? 'active' : '' }}"
+                data-kelas="XI"
+            >
+                Kelas XI
+            </button>
+            <button
+                type="button"
+                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'XII' ? 'active' : '' }}"
+                data-kelas="XII"
+            >
+                Kelas XII
+            </button>
+        </div>
+
+        @if(isset($kelasList) && $kelasList->count() > 0)
+            <div class="lb-select-wrap">
+                <select id="leaderboardSelectKelas" class="lb-select-kelas">
+                    <option value="">Semua Rombel</option>
+                    @foreach($kelasList as $kelasOption)
+                        <option
+                            value="{{ $kelasOption }}"
+                            {{ request('kelas') == $kelasOption ? 'selected' : '' }}
+                        >
+                            {{ $kelasOption }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
+    </div>
+
+</div>
+
+
+{{-- =========================================
      TOP PRESTASI
 ========================================= --}}
 
@@ -86,7 +159,10 @@
 
                 @foreach($topPrestasi as $index => $siswa)
 
-                    <div class="ranking-item">
+                    <div class="ranking-item"
+                        data-nama="{{ strtolower($siswa->nama) }}"
+                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
+                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
 
                         <div class="rank-number
                             {{ $index === 0 ? 'rank-first' : '' }}
@@ -104,9 +180,16 @@
 
                         <div class="student-info">
 
-                            <strong>
-                                {{ $siswa->nama }}
-                            </strong>
+                            <div class="student-name-row">
+                                <strong>
+                                    {{ $siswa->nama }}
+                                </strong>
+                                @if($siswa->kelas)
+                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
+                                @else
+                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
+                                @endif
+                            </div>
 
                             <span>
                                 NISN: {{ $siswa->nisn ?? '-' }}
@@ -153,6 +236,14 @@
 
                 @endforeach
 
+            </div>
+
+            <div class="empty-state empty-filter-state" style="display: none;">
+                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <strong>Tidak Ada Siswa Ditemukan</strong>
+                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
             </div>
 
         @else
@@ -215,7 +306,10 @@
 
                 @foreach($topPelanggaran as $index => $siswa)
 
-                    <div class="ranking-item">
+                    <div class="ranking-item"
+                        data-nama="{{ strtolower($siswa->nama) }}"
+                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
+                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
 
                         <div class="rank-number
                             {{ $index === 0 ? 'rank-first' : '' }}
@@ -233,9 +327,16 @@
 
                         <div class="student-info">
 
-                            <strong>
-                                {{ $siswa->nama }}
-                            </strong>
+                            <div class="student-name-row">
+                                <strong>
+                                    {{ $siswa->nama }}
+                                </strong>
+                                @if($siswa->kelas)
+                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
+                                @else
+                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
+                                @endif
+                            </div>
 
                             <span>
                                 NISN: {{ $siswa->nisn ?? '-' }}
@@ -282,6 +383,14 @@
 
                 @endforeach
 
+            </div>
+
+            <div class="empty-state empty-filter-state" style="display: none;">
+                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <strong>Tidak Ada Siswa Ditemukan</strong>
+                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
             </div>
 
         @else
@@ -344,7 +453,10 @@
 
                 @foreach($saldoSiswa as $index => $siswa)
 
-                    <div class="ranking-item">
+                    <div class="ranking-item"
+                        data-nama="{{ strtolower($siswa->nama) }}"
+                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
+                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
 
                         <div class="rank-number
                             {{ $index === 0 ? 'rank-first' : '' }}
@@ -362,9 +474,16 @@
 
                         <div class="student-info">
 
-                            <strong>
-                                {{ $siswa->nama }}
-                            </strong>
+                            <div class="student-name-row">
+                                <strong>
+                                    {{ $siswa->nama }}
+                                </strong>
+                                @if($siswa->kelas)
+                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
+                                @else
+                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
+                                @endif
+                            </div>
 
                             <span>
                                 NISN: {{ $siswa->nisn ?? '-' }}
@@ -413,6 +532,14 @@
 
                 @endforeach
 
+            </div>
+
+            <div class="empty-state empty-filter-state" style="display: none;">
+                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <strong>Tidak Ada Siswa Ditemukan</strong>
+                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
             </div>
 
 
@@ -1043,6 +1170,194 @@
         margin-right: 16px;
     }
 
+    .leaderboard-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lb-filter-wrap {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lb-class-pills {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .lb-select-kelas {
+        width: 100%;
+    }
+
+}
+
+/* ========================================
+   LEADERBOARD TOOLBAR & FILTER
+======================================== */
+
+.leaderboard-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.lb-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.lb-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.lb-search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 36px 0 38px;
+    border: 1px solid #E5E7EB;
+    border-radius: 9px;
+    background: #F9FAFB;
+    font-size: 13px;
+    font-family: inherit;
+    color: #1F2937;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.lb-search-input:focus {
+    background: #ffffff;
+    border-color: #6D1408;
+    box-shadow: 0 0 0 3px rgba(109, 20, 8, 0.12);
+}
+
+.lb-clear-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.lb-clear-btn:hover {
+    color: #6D1408;
+    background: #F3F4F6;
+}
+
+.lb-filter-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lb-class-pills {
+    display: flex;
+    background: #F3F4F6;
+    padding: 4px;
+    border-radius: 9px;
+    gap: 4px;
+}
+
+.lb-pill {
+    border: none;
+    background: transparent;
+    padding: 6px 13px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.lb-pill:hover {
+    color: #6D1408;
+}
+
+.lb-pill.active {
+    background: #6D1408;
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(109, 20, 8, 0.2);
+}
+
+.lb-select-wrap {
+    position: relative;
+}
+
+.lb-select-kelas {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background: #F9FAFB;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.lb-select-kelas:focus {
+    border-color: #6D1408;
+}
+
+.student-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+}
+
+.student-name-row strong {
+    margin-bottom: 0 !important;
+}
+
+.student-kelas-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #FBEAE8;
+    color: #6D1408;
+    border: 1px solid #E8C2BD;
+    white-space: nowrap;
+}
+
+.student-kelas-badge.empty {
+    background: #F3F4F6;
+    color: #6B7280;
+    border: 1px solid #E5E7EB;
 }
 
 </style>
@@ -1054,47 +1369,192 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const tabs = document.querySelectorAll('.leaderboard-tab');
     const panels = document.querySelectorAll('.leaderboard-panel');
+    const searchInput = document.getElementById('leaderboardSearch');
+    const clearBtn = document.getElementById('clearSearchBtn');
+    const pillButtons = document.querySelectorAll('.lb-pill');
+    const selectKelas = document.getElementById('leaderboardSelectKelas');
 
+    let activeGradeFilter = '';
+    let activeSpecificClass = '';
 
+    // Inisialisasi awal nilai dari tombol active
+    const defaultActivePill = document.querySelector('.lb-pill.active');
+    if (defaultActivePill) {
+        activeGradeFilter = defaultActivePill.dataset.kelas || '';
+    }
+    if (selectKelas && selectKelas.value) {
+        activeSpecificClass = selectKelas.value;
+    }
+
+    // Tab navigasi
     tabs.forEach(tab => {
-
         tab.addEventListener('click', function () {
-
             const target = this.dataset.tab;
 
-
-            /* Hapus active dari semua tab */
-
-            tabs.forEach(item => {
-                item.classList.remove('active');
-            });
-
-
-            /* Hapus active dari semua panel */
-
-            panels.forEach(panel => {
-                panel.classList.remove('active');
-            });
-
-
-            /* Aktifkan tab */
+            tabs.forEach(item => item.classList.remove('active'));
+            panels.forEach(panel => panel.classList.remove('active'));
 
             this.classList.add('active');
 
-
-            /* Aktifkan panel */
-
-            const panel = document.getElementById(
-                `panel-${target}`
-            );
-
+            const panel = document.getElementById(`panel-${target}`);
             if (panel) {
                 panel.classList.add('active');
             }
 
+            applyFilters();
         });
-
     });
+
+    // Helper: Ekstraksi tingkatan kelas (XII, XI, X)
+    function extractGrade(kelasStr) {
+        if (!kelasStr) return '';
+        let k = kelasStr.trim().toLowerCase();
+        if (k.startsWith('kelas ')) {
+            k = k.substring(6).trim();
+        }
+        if (k.startsWith('xii') || k.startsWith('12')) return 'XII';
+        if (k.startsWith('xi') || k.startsWith('11')) return 'XI';
+        if (k.startsWith('x') || k.startsWith('10')) return 'X';
+        return '';
+    }
+
+    // Helper: Cek kecocokan kelas siswa dengan filter
+    function checkClassMatch(studentKelas, filterGrade, specificClass) {
+        if (!studentKelas) studentKelas = '';
+        const lowerK = studentKelas.trim().toLowerCase();
+
+        // 1. Jika rombel spesifik dipilih dari dropdown
+        if (specificClass) {
+            return lowerK === specificClass.trim().toLowerCase();
+        }
+
+        // 2. Jika filter pil tingkatan kelas dipilih ('X', 'XI', 'XII')
+        if (filterGrade) {
+            const studentGrade = extractGrade(studentKelas);
+            return studentGrade === filterGrade;
+        }
+
+        // 3. 'Semua Kelas'
+        return true;
+    }
+
+    // Fungsi utama filter real-time
+    function applyFilters() {
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+        // Tampilkan/sembunyikan tombol clear search
+        if (clearBtn) {
+            clearBtn.style.display = query ? 'flex' : 'none';
+        }
+
+        panels.forEach(panel => {
+            const items = panel.querySelectorAll('.ranking-item');
+            const rankingList = panel.querySelector('.ranking-list');
+            const emptyFilterState = panel.querySelector('.empty-filter-state');
+
+            if (items.length === 0) {
+                return;
+            }
+
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const nama = item.dataset.nama || '';
+                const nisn = item.dataset.nisn || '';
+                const kelas = item.dataset.kelas || '';
+
+                const matchesSearch = !query ||
+                    nama.includes(query) ||
+                    nisn.includes(query) ||
+                    kelas.includes(query);
+
+                const matchesClass = checkClassMatch(kelas, activeGradeFilter, activeSpecificClass);
+
+                if (matchesSearch && matchesClass) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+
+                    // Update nomor peringkat dinamis sesuai hasil filter
+                    const rankEl = item.querySelector('.rank-number');
+                    if (rankEl) {
+                        rankEl.textContent = visibleCount;
+                        rankEl.classList.remove('rank-first', 'rank-second', 'rank-third');
+                        if (visibleCount === 1) rankEl.classList.add('rank-first');
+                        else if (visibleCount === 2) rankEl.classList.add('rank-second');
+                        else if (visibleCount === 3) rankEl.classList.add('rank-third');
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Tampilkan empty state jika pencarian tidak menemukan hasil
+            if (emptyFilterState) {
+                if (visibleCount === 0) {
+                    emptyFilterState.style.display = 'flex';
+                    if (rankingList) rankingList.style.display = 'none';
+                } else {
+                    emptyFilterState.style.display = 'none';
+                    if (rankingList) rankingList.style.display = '';
+                }
+            }
+        });
+    }
+
+    // Event listener search input
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
+
+    // Event listener clear search button
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            applyFilters();
+            searchInput.focus();
+        });
+    }
+
+    // Event listener pil kelas (Semua, X, XI, XII)
+    pillButtons.forEach(pill => {
+        pill.addEventListener('click', function () {
+            pillButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            activeGradeFilter = this.dataset.kelas || '';
+            activeSpecificClass = '';
+
+            if (selectKelas) {
+                selectKelas.value = '';
+            }
+
+            applyFilters();
+        });
+    });
+
+    // Event listener select dropdown rombel spesifik
+    if (selectKelas) {
+        selectKelas.addEventListener('change', function () {
+            activeSpecificClass = this.value;
+
+            if (activeSpecificClass) {
+                pillButtons.forEach(b => b.classList.remove('active'));
+                activeGradeFilter = '';
+            } else {
+                // Kembalikan ke pil pertama (Semua)
+                const firstPill = pillButtons[0];
+                if (firstPill) {
+                    firstPill.classList.add('active');
+                    activeGradeFilter = firstPill.dataset.kelas || '';
+                }
+            }
+
+            applyFilters();
+        });
+    }
+
+    // Jalankan filter saat halaman selesai dimuat
+    applyFilters();
 
 });
 

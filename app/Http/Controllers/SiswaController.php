@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\SiswaImport;
+use App\Exports\SiswaTemplateExport;
 
 class SiswaController extends Controller
 {
@@ -122,5 +125,57 @@ class SiswaController extends Controller
             ->orWhere('nisn', 'like', "%{$keyword}%")
             ->limit(10)
             ->get();
+    }
+
+    /**
+     * Download template Excel untuk import data siswa.
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new SiswaTemplateExport,
+            'template-import-siswa.xlsx'
+        );
+    }
+
+    /**
+     * Import data siswa dari file Excel / CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Silakan pilih file Excel terlebih dahulu.',
+            'file.mimes' => 'Format file harus berupa .xlsx, .xls, atau .csv.',
+            'file.max' => 'Ukuran file maksimal adalah 5MB.',
+        ]);
+
+        try {
+            $import = new SiswaImport();
+            Excel::import($import, $request->file('file'));
+
+            $created = $import->getCreatedCount();
+            $updated = $import->getUpdatedCount();
+            $total = $import->getTotalSuccess();
+            $failures = $import->getFailures();
+
+            $message = "Berhasil memproses {$total} data siswa ({$created} data baru ditambahkan, {$updated} data diperbarui).";
+
+            if (count($failures) > 0) {
+                return redirect()
+                    ->route('siswa.index')
+                    ->with('success', $message)
+                    ->with('import_errors', $failures);
+            }
+
+            return redirect()
+                ->route('siswa.index')
+                ->with('success', $message);
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Gagal memproses file Excel: ' . $e->getMessage());
+        }
     }
 }

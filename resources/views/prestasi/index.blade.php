@@ -11,14 +11,21 @@
     <div class="page-header">
 
         <div class="page-heading">
-            <h1>Data Prestasi</h1>
-            <p>Daftar seluruh prestasi siswa</p>
+            @if(auth()->user()->isWalas())
+                <h1>Prestasi Kelas {{ auth()->user()->kelas }}</h1>
+                <p>Daftar prestasi siswa di kelas Anda</p>
+            @else
+                <h1>Data Prestasi</h1>
+                <p>Daftar seluruh prestasi siswa</p>
+            @endif
         </div>
 
+        @if(!auth()->user()->isWalas())
         <a href="{{ route('prestasi.create') }}" class="btn-primary">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Prestasi</span>
         </a>
+        @endif
 
     </div>
 
@@ -54,7 +61,9 @@
                         <th>Tingkat</th>
                         <th>Poin</th>
                         <th>Bukti</th>
+                        @if(!auth()->user()->isWalas())
                         <th>Aksi</th>
+                        @endif
                     </tr>
 
                 </thead>
@@ -173,6 +182,7 @@
 
 
                             {{-- AKSI --}}
+                            @if(!auth()->user()->isWalas())
                             <td>
 
                                 <div class="action-buttons">
@@ -215,6 +225,7 @@
                                 </div>
 
                             </td>
+                            @endif
 
                         </tr>
 
@@ -345,6 +356,7 @@
 
 
                 {{-- AKSI --}}
+                @if(!auth()->user()->isWalas())
                 <div class="mobile-actions">
 
                     <a
@@ -383,6 +395,7 @@
                     </form>
 
                 </div>
+                @endif
 
             </div>
 

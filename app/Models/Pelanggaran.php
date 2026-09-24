@@ -8,11 +8,15 @@ class Pelanggaran extends Model
 {
     protected $fillable = [
         'siswa_id',
+        'pelapor_id',
         'aturan_pelanggaran_id',
         'tahun_pelajaran_id',
         'tanggal',
         'jenis_pelanggaran',
         'kategori',
+        'status',
+        'diverifikasi_oleh',
+        'catatan_verifikasi',
         'poin',
         'poin_sebelum',
         'poin_sesudah',
@@ -35,22 +39,59 @@ class Pelanggaran extends Model
         'klarifikasi' => 'boolean',
     ];
 
-    /**
-     * Relasi ke siswa
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Relasi
+    |--------------------------------------------------------------------------
+    */
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class);
     }
 
-    /**
-     * Relasi ke aturan/master pelanggaran
-     */
     public function aturanPelanggaran()
     {
         return $this->belongsTo(
             AturanPelanggaran::class,
             'aturan_pelanggaran_id'
         );
+    }
+
+    /**
+     * Guru yang melaporkan (Walas).
+     */
+    public function pelapor()
+    {
+        return $this->belongsTo(User::class, 'pelapor_id');
+    }
+
+    /**
+     * Guru BK/PDS yang memverifikasi.
+     */
+    public function verifikator()
+    {
+        return $this->belongsTo(User::class, 'diverifikasi_oleh');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeVerified($query)
+    {
+        return $query->where('status', 'diverifikasi');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'ditolak');
     }
 }

@@ -10,6 +10,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (auth()->check() && auth()->user()->isWalas()) {
+            return redirect()->route('lapor.index');
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Statistik
@@ -18,7 +22,7 @@ class DashboardController extends Controller
 
         $totalSiswa = Siswa::count();
 
-        $totalPelanggaran = Pelanggaran::count();
+        $totalPelanggaran = Pelanggaran::where('status', 'diverifikasi')->count();
 
         $totalPrestasi = Prestasi::count();
 
@@ -32,7 +36,7 @@ class DashboardController extends Controller
         $topPrestasi = Siswa::query()
             ->withCount('prestasis')
             ->withSum('prestasis', 'poin')
-            ->having('prestasis_count', '>', 0)
+            ->has('prestasis')
             ->orderByDesc('prestasis_count')
             ->orderByDesc('prestasis_sum_poin')
             ->limit(5)
@@ -48,7 +52,7 @@ class DashboardController extends Controller
         $topPelanggaran = Siswa::query()
             ->withCount('pelanggarans')
             ->withSum('pelanggarans', 'poin')
-            ->having('pelanggarans_count', '>', 0)
+            ->has('pelanggarans')
             ->orderByDesc('pelanggarans_count')
             ->orderByDesc('pelanggarans_sum_poin')
             ->limit(5)
@@ -67,7 +71,9 @@ class DashboardController extends Controller
         */
 
         $saldoSiswa = Siswa::query()
-            ->withSum('pelanggarans', 'poin')
+            ->withSum(['pelanggarans as pelanggarans_sum_poin' => function ($q) {
+                $q->where('status', 'diverifikasi');
+            }], 'poin')
             ->withSum('prestasis', 'poin')
             ->get()
             ->map(function ($siswa) {

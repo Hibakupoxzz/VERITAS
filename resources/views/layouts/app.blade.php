@@ -28,6 +28,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
           rel="stylesheet">
 
+    {{-- Tom Select CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+
     <style>
 
         /* =========================================================
@@ -1194,128 +1197,123 @@
 
         <nav class="menu">
 
+            @if(auth()->check() && auth()->user()->isWalas())
 
-            {{-- DASHBOARD --}}
+                {{-- =================================================
+                     MENU KHUSUS WALI KELAS (HANYA PELAPORAN)
+                ================================================== --}}
+                <div class="menu-title">
+                    Menu Wali Kelas
+                </div>
 
-            <div class="menu-title">
-                Utama
-            </div>
+                <a href="{{ route('lapor.index') }}"
+                   class="{{ request()->routeIs('lapor.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Lapor Pelanggaran</span>
+                </a>
 
-            <a href="{{ route('dashboard') }}"
-               class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('lapor.riwayat') }}"
+                   class="{{ request()->routeIs('lapor.riwayat') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Laporan</span>
+                </a>
 
-                <i class="fa-solid fa-house"></i>
+                {{-- KELAS SAYA --}}
+                <div class="menu-title">
+                    Kelas Saya
+                </div>
 
-                <span>
-                    Dashboard
-                </span>
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Pelanggaran Kelas</span>
+                </a>
 
-            </a>
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Prestasi Kelas</span>
+                </a>
 
+            @else
 
-            {{-- =================================================
-                 PELANGGARAN
-            ================================================== --}}
+                {{-- =================================================
+                     MENU SUPER ADMIN, BK & PDS
+                ================================================== --}}
+                <div class="menu-title">
+                    Utama
+                </div>
 
-            <div class="menu-title">
-                Pelanggaran
-            </div>
+                <a href="{{ route('dashboard') }}"
+                   class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
 
-            <a href="{{ route('pelanggaran.index') }}"
-               class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                {{-- PELANGGARAN --}}
+                <div class="menu-title">
+                    Pelanggaran
+                </div>
 
-                <i class="fa-solid fa-list-check"></i>
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Data Pelanggaran</span>
+                </a>
 
-                <span>
-                    Data Pelanggaran
-                </span>
+                <a href="{{ route('pelanggaran.pending') }}"
+                   class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Pending Laporan</span>
+                </a>
 
-            </a>
+                <a href="{{ route('pelanggaran.create') }}"
+                   class="{{ request()->routeIs('pelanggaran.create') ? 'active' : '' }}">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Tambah Pelanggaran</span>
+                </a>
 
-            <a href="{{ route('pelanggaran.create') }}"
-               class="{{ request()->routeIs('pelanggaran.create') ? 'active' : '' }}">
+                {{-- DATA MASTER --}}
+                <div class="menu-title">
+                    Data Master
+                </div>
 
-                <i class="fa-solid fa-plus-circle"></i>
+                <a href="{{ route('siswa.index') }}"
+                   class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Data Siswa</span>
+                </a>
 
-                <span>
-                    Tambah Pelanggaran
-                </span>
+                <a href="{{ route('siswa.create') }}"
+                   class="{{ request()->routeIs('siswa.create') ? 'active' : '' }}">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Tambah Siswa</span>
+                </a>
 
-            </a>
+                {{-- PRESTASI --}}
+                <div class="menu-title">
+                    Prestasi
+                </div>
 
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Data Prestasi</span>
+                </a>
 
-            {{-- =================================================
-                 DATA MASTER
-            ================================================== --}}
+                <a href="{{ route('prestasi.create') }}"
+                   class="{{ request()->routeIs('prestasi.create') ? 'active' : '' }}">
+                    <i class="fa-solid fa-medal"></i>
+                    <span>Tambah Prestasi</span>
+                </a>
 
-            <div class="menu-title">
-                Data Master
-            </div>
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
 
-            <a href="{{ route('siswa.index') }}"
-               class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
-
-                <i class="fa-solid fa-users"></i>
-
-                <span>
-                    Data Siswa
-                </span>
-
-            </a>
-
-            <a href="{{ route('siswa.create') }}"
-               class="{{ request()->routeIs('siswa.create') ? 'active' : '' }}">
-
-                <i class="fa-solid fa-user-plus"></i>
-
-                <span>
-                    Tambah Siswa
-                </span>
-
-            </a>
-
-
-            {{-- =================================================
-                 PRESTASI
-            ================================================== --}}
-
-            <div class="menu-title">
-                Prestasi
-            </div>
-
-            <a href="{{ route('prestasi.index') }}"
-               class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
-
-                <i class="fa-solid fa-trophy"></i>
-
-                <span>
-                    Data Prestasi
-                </span>
-
-            </a>
-
-            <a href="{{ route('prestasi.create') }}"
-               class="{{ request()->routeIs('prestasi.create') ? 'active' : '' }}">
-
-                <i class="fa-solid fa-medal"></i>
-
-                <span>
-                    Tambah Prestasi
-                </span>
-
-            </a>
-
-            <a href="{{ route('leaderboard') }}"
-               class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
-
-                <i class="fa-solid fa-ranking-star"></i>
-
-                <span>
-                    Leaderboard
-                </span>
-
-            </a>
-
+            @endif
 
         </nav>
 
@@ -1328,28 +1326,18 @@
 
             <div class="user-box">
 
-
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
-
                 <div class="user-info">
-
                     <div class="user-name">
-
                         {{ auth()->user()->name ?? 'Administrator' }}
-
                     </div>
 
                     <div class="user-role">
-
-                        Administrator
-
+                        {{ auth()->user()->role_label ?? 'Administrator' }}
                     </div>
-
                 </div>
 
 
@@ -1431,11 +1419,21 @@
                 <div class="page-heading">
 
                     <h1>
-                        @yield('page-title', 'Dashboard')
+                        @if(trim($__env->yieldContent('page_title')))
+                            @yield('page_title')
+                        @elseif(trim($__env->yieldContent('page-title')))
+                            @yield('page-title')
+                        @else
+                            Dashboard
+                        @endif
                     </h1>
 
                     <p>
-                        Sistem Monitoring Siswa
+                        @if(auth()->check() && auth()->user()->isWalas())
+                            Portal Pelaporan Wali Kelas
+                        @else
+                            Sistem Monitoring Siswa
+                        @endif
                     </p>
 
                 </div>
@@ -1691,6 +1689,22 @@
 {{-- =============================================================
      PAGE SCRIPTS
 ============================================================= --}}
+
+{{-- Tom Select JS --}}
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.searchable-select').forEach(function(el) {
+            new TomSelect(el, {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                }
+            });
+        });
+    });
+</script>
 
 @yield('scripts')
 
