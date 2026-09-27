@@ -18,6 +18,9 @@ class PelanggaranController extends Controller
      */
     public function index()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $query = Pelanggaran::with([
             'siswa',
             'aturanPelanggaran',
@@ -26,15 +29,23 @@ class PelanggaranController extends Controller
             ->latest();
 
         // Jika walas, hanya tampilkan pelanggaran siswa di kelasnya
-        if (auth()->user()->isWalas() && auth()->user()->kelas) {
-            $query->whereHas('siswa', function ($q) {
-                $q->where('kelas', auth()->user()->kelas);
+        if ($user->isWalas() && $user->kelas) {
+            $query->whereHas('siswa', function ($q) use ($user) {
+                $q->where('kelas', $user->kelas);
             });
         }
 
-        $pelanggarans = $query->get();
+        // Jika PDS, hanya tampilkan pelanggaran siswa di kelas binaannya
+        if ($user->isPds()) {
+            $pdsKelas = $user->getPdsKelasList();
+            if (! empty($pdsKelas)) {
+                $query->whereHas('siswa', function ($q) use ($pdsKelas) {
+                    $q->whereIn('kelas', $pdsKelas);
+                });
+            }
+        }
 
-        // No pendingLaporans anymore in index
+        $pelanggarans = $query->get();
 
         $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
             ->orderByRaw("
@@ -86,7 +97,20 @@ class PelanggaranController extends Controller
      */
     public function create()
     {
-        $siswas = Siswa::orderBy('nama')->get();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $query = Siswa::orderBy('nama');
+
+        // Jika PDS, hanya tampilkan siswa di kelas binaannya
+        if ($user->isPds()) {
+            $pdsKelas = $user->getPdsKelasList();
+            if (! empty($pdsKelas)) {
+                $query->whereIn('kelas', $pdsKelas);
+            }
+        }
+
+        $siswas = $query->get();
 
         $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
             ->orderByRaw("
@@ -127,7 +151,10 @@ class PelanggaranController extends Controller
             'foto_bukti' => 'nullable|image|max:5120',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return DB::transaction(function () use ($request, $user) {
 
             /*
             |--------------------------------------------------------------------------
@@ -233,7 +260,7 @@ class PelanggaranController extends Controller
 
             Pelanggaran::create([
                 'siswa_id' => $request->siswa_id,
-                'pelapor_id' => auth()->id(), // Ditambahkan oleh BK/PDS sendiri
+                'pelapor_id' => $user->id, // Ditambahkan oleh BK/PDS sendiri
 
                 'aturan_pelanggaran_id' => $aturan?->id,
 
@@ -254,7 +281,7 @@ class PelanggaranController extends Controller
                 'sanksi_tahap' => $aturan ? 1 : null,
 
                 'status' => 'diverifikasi',
-                'diverifikasi_oleh' => auth()->id(), // Langsung diverifikasi oleh pembuat (BK/PDS)
+                'diverifikasi_oleh' => $user->id, // Langsung diverifikasi oleh pembuat (BK/PDS)
 
                 'keterangan' => $request->keterangan,
 
@@ -425,7 +452,10 @@ class PelanggaranController extends Controller
             'catatan_verifikasi' => 'nullable|string',
         ]);
 
-        return DB::transaction(function () use ($request, $pelanggaran) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return DB::transaction(function () use ($request, $pelanggaran, $user) {
 
             $aturan = null;
             $namaPelanggaran = $pelanggaran->jenis_pelanggaran;
@@ -480,7 +510,7 @@ class PelanggaranController extends Controller
                 'poin_sesudah' => $poinSesudah,
                 'sanksi_tahap' => $aturan ? 1 : null,
                 'status' => 'diverifikasi',
-                'diverifikasi_oleh' => auth()->id(),
+                'diverifikasi_oleh' => $user->id,
                 'catatan_verifikasi' => $request->catatan_verifikasi,
             ]);
 
@@ -502,9 +532,12 @@ class PelanggaranController extends Controller
             'catatan_verifikasi' => 'required|string|max:500',
         ]);
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $pelanggaran->update([
             'status' => 'ditolak',
-            'diverifikasi_oleh' => auth()->id(),
+            'diverifikasi_oleh' => $user->id,
             'catatan_verifikasi' => $request->catatan_verifikasi,
         ]);
 

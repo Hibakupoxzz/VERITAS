@@ -17,11 +17,21 @@ class SiswaController extends Controller
     {
         $search = $request->search;
 
-        $siswas = Siswa::when($search, function ($query) use ($search) {
+        $query = Siswa::when($search, function ($query) use ($search) {
             $query->where('nama', 'like', "%{$search}%")
                 ->orWhere('nisn', 'like', "%{$search}%")
                 ->orWhere('kelas', 'like', "%{$search}%");
-        })->latest()->get();
+        });
+
+        // Jika PDS, hanya tampilkan siswa di kelas binaannya
+        if (auth()->user()->isPds()) {
+            $pdsKelas = auth()->user()->getPdsKelasList();
+            if (! empty($pdsKelas)) {
+                $query->whereIn('kelas', $pdsKelas);
+            }
+        }
+
+        $siswas = $query->latest()->get();
 
         return view('siswa.index', compact('siswas'));
     }

@@ -15,15 +15,18 @@ class LaporPelanggaranController extends Controller
     {
         $query = Siswa::orderBy('nama');
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         // Jika walas, hanya tampilkan siswa di kelasnya
-        if (auth()->user()->isWalas() && auth()->user()->kelas) {
-            $query->where('kelas', auth()->user()->kelas);
+        if ($user && $user->isWalas() && $user->kelas) {
+            $query->where('kelas', $user->kelas);
         }
 
         $siswas = $query->get();
 
         $laporans = Pelanggaran::with(['siswa', 'verifikator'])
-            ->where('pelapor_id', auth()->id())
+            ->where('pelapor_id', $user->id)
             ->latest()
             ->get();
 
@@ -42,8 +45,11 @@ class LaporPelanggaranController extends Controller
      */
     public function riwayat()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $laporans = Pelanggaran::with(['siswa', 'verifikator'])
-            ->where('pelapor_id', auth()->id())
+            ->where('pelapor_id', $user->id)
             ->latest()
             ->get();
 
@@ -77,9 +83,12 @@ class LaporPelanggaranController extends Controller
                 ->store('bukti', 'public');
         }
 
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         Pelanggaran::create([
             'siswa_id' => $request->siswa_id,
-            'pelapor_id' => auth()->id(),
+            'pelapor_id' => $user->id,
             'tanggal' => $request->tanggal,
             'jenis_pelanggaran' => $request->jenis_pelanggaran,
             'keterangan' => $request->keterangan,

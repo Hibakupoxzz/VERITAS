@@ -10,13 +10,21 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Jalankan seeder sesuai urutan dependency data.
      */
     public function run(): void
     {
         $this->call([
-            UserSeeder::class,
+            // Akun pengguna
+            AdminUserSeeder::class,
+            PdsUserSeeder::class,
+            BkUserSeeder::class,
+            WalasUserSeeder::class,
+
+            // Data referensi & master
             AturanPelanggaranSeeder::class,
+
+            // Data operasional
             SiswaSeeder::class,
         ]);
     }

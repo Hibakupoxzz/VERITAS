@@ -14,65 +14,82 @@ class DashboardController extends Controller
             return redirect()->route('lapor.index');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Statistik
-        |--------------------------------------------------------------------------
-        */
+        // PDS: Ambil daftar kelas binaan untuk filtering
 
-        $totalSiswa = Siswa::count();
+        $pdsKelas = [];
+        if (auth()->user()->isPds()) {
+            $pdsKelas = auth()->user()->getPdsKelasList();
+        }
 
-        $totalPelanggaran = Pelanggaran::where('status', 'diverifikasi')->count();
+        // Statistik Umum
 
-        $totalPrestasi = Prestasi::count();
+        $siswaQuery = Siswa::query();
+        if (! empty($pdsKelas)) {
+            $siswaQuery->whereIn('kelas', $pdsKelas);
+        }
+        $totalSiswa = $siswaQuery->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Top Prestasi
-        |--------------------------------------------------------------------------
-        */
+        $pelanggaranQuery = Pelanggaran::where('status', 'diverifikasi');
+        if (! empty($pdsKelas)) {
+            $pelanggaranQuery->whereHas('siswa', function ($q) use ($pdsKelas) {
+                $q->whereIn('kelas', $pdsKelas);
+            });
+        }
+        $totalPelanggaran = $pelanggaranQuery->count();
 
-        $topPrestasi = Siswa::query()
+        $prestasiQuery = Prestasi::query();
+        if (! empty($pdsKelas)) {
+            $prestasiQuery->whereHas('siswa', function ($q) use ($pdsKelas) {
+                $q->whereIn('kelas', $pdsKelas);
+            });
+        }
+        $totalPrestasi = $prestasiQuery->count();
+
+        // Top Prestasi
+
+        $topPrestasiQuery = Siswa::query()
             ->withCount('prestasis')
             ->withSum('prestasis', 'poin')
             ->has('prestasis')
             ->orderByDesc('prestasis_count')
             ->orderByDesc('prestasis_sum_poin')
-            ->limit(5)
-            ->get();
+            ->limit(5);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Top Pelanggaran
-        |--------------------------------------------------------------------------
-        */
+        if (! empty($pdsKelas)) {
+            $topPrestasiQuery->whereIn('kelas', $pdsKelas);
+        }
 
-        $topPelanggaran = Siswa::query()
+        $topPrestasi = $topPrestasiQuery->get();
+
+        // Top Pelanggaran
+
+        $topPelanggaranQuery = Siswa::query()
             ->withCount('pelanggarans')
             ->withSum('pelanggarans', 'poin')
             ->has('pelanggarans')
             ->orderByDesc('pelanggarans_count')
             ->orderByDesc('pelanggarans_sum_poin')
-            ->limit(5)
-            ->get();
+            ->limit(5);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Saldo Poin
-        |--------------------------------------------------------------------------
-        |
-        | Rumus:
-        |
-        | 100 - total pelanggaran + total prestasi
-        |
-        */
+        if (! empty($pdsKelas)) {
+            $topPelanggaranQuery->whereIn('kelas', $pdsKelas);
+        }
 
-        $saldoSiswa = Siswa::query()
+        $topPelanggaran = $topPelanggaranQuery->get();
+
+        // Saldo Poin (100 - total pelanggaran + total prestasi)
+
+        $saldoQuery = Siswa::query()
             ->withSum(['pelanggarans as pelanggarans_sum_poin' => function ($q) {
                 $q->where('status', 'diverifikasi');
             }], 'poin')
-            ->withSum('prestasis', 'poin')
-            ->get()
+            ->withSum('prestasis', 'poin');
+
+        if (! empty($pdsKelas)) {
+            $saldoQuery->whereIn('kelas', $pdsKelas);
+        }
+
+        $saldoSiswa = $saldoQuery->get()
             ->map(function ($siswa) {
 
                 $totalPelanggaran =
@@ -92,11 +109,7 @@ class DashboardController extends Controller
             ->take(5)
             ->values();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Kirim ke Dashboard
-        |--------------------------------------------------------------------------
-        */
+        // Render View
 
         return view('dashboard', compact(
             'totalSiswa',

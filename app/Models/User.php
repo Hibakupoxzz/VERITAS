@@ -77,4 +77,20 @@ class User extends Authenticatable
             default => 'Guru',
         };
     }
+
+    /**
+     * Decode JSON daftar kelas binaan PDS.
+     *
+     * @return array<string>
+     */
+    public function getPdsKelasList(): array
+    {
+        if (! $this->isPds() || empty($this->kelas)) {
+            return [];
+        }
+
+        $decoded = json_decode($this->kelas, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
 }

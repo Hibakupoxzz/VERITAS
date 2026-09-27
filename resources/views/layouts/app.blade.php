@@ -1313,6 +1313,35 @@
                     <span>Leaderboard</span>
                 </a>
 
+                {{-- KELAS BINAAN PDS --}}
+                @if(auth()->user()->isPds() && count(auth()->user()->getPdsKelasList()) > 0)
+                    <div class="menu-title">
+                        Kelas Binaan Saya
+                    </div>
+
+                    <div style="
+                        padding: 8px 13px;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                    ">
+                        @foreach(auth()->user()->getPdsKelasList() as $kelasPds)
+                            <span style="
+                                display: inline-block;
+                                padding: 4px 10px;
+                                background: rgba(109,20,8,0.15);
+                                color: #D1D5DB;
+                                font-size: 11px;
+                                font-weight: 600;
+                                border-radius: 6px;
+                                border: 1px solid rgba(109,20,8,0.3);
+                            ">
+                                {{ $kelasPds }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
             @endif
 
         </nav>
@@ -1431,6 +1460,8 @@
                     <p>
                         @if(auth()->check() && auth()->user()->isWalas())
                             Portal Pelaporan Wali Kelas
+                        @elseif(auth()->check() && auth()->user()->isPds())
+                            Monitoring Kelas Binaan PDS
                         @else
                             Sistem Monitoring Siswa
                         @endif

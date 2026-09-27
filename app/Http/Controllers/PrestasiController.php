@@ -26,6 +26,16 @@ class PrestasiController extends Controller
             });
         }
 
+        // Jika PDS, hanya tampilkan prestasi siswa di kelas binaannya
+        if (auth()->user()->isPds()) {
+            $pdsKelas = auth()->user()->getPdsKelasList();
+            if (! empty($pdsKelas)) {
+                $query->whereHas('siswa', function ($q) use ($pdsKelas) {
+                    $q->whereIn('kelas', $pdsKelas);
+                });
+            }
+        }
+
         $prestasis = $query->get();
 
         return view('prestasi.index', compact('prestasis'));
@@ -36,7 +46,17 @@ class PrestasiController extends Controller
      */
     public function create()
     {
-        $siswas = Siswa::orderBy('nama')->get();
+        $query = Siswa::orderBy('nama');
+
+        // Jika PDS, hanya tampilkan siswa di kelas binaannya
+        if (auth()->user()->isPds()) {
+            $pdsKelas = auth()->user()->getPdsKelasList();
+            if (! empty($pdsKelas)) {
+                $query->whereIn('kelas', $pdsKelas);
+            }
+        }
+
+        $siswas = $query->get();
 
         return view('prestasi.create', compact('siswas'));
     }
