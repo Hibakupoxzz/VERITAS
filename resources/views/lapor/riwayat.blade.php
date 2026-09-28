@@ -117,7 +117,7 @@
                             </div>
                             <div class="feedback-text">
                                 <strong>Laporan Diterima & Disetujui</strong>
-                                <span>Diverifikasi oleh: <strong>{{ $laporan->verifikator->name ?? 'Tim BK/PDS' }}</strong></span>
+                                <span>Diverifikasi oleh: <strong>{{ $laporan->verifikator->name ?? 'Petugas PDS' }}</strong></span>
                                 <span class="points-badge">Poin Pengurang Dikenakan: -{{ $laporan->poin }}</span>
                                 @if($laporan->catatan_verifikasi)
                                     <p class="feedback-note">"{{ $laporan->catatan_verifikasi }}"</p>
@@ -131,7 +131,7 @@
                             </div>
                             <div class="feedback-text">
                                 <strong>Laporan Ditolak</strong>
-                                <span>Ditinjau oleh: <strong>{{ $laporan->verifikator->name ?? 'Tim BK/PDS' }}</strong></span>
+                                <span>Ditinjau oleh: <strong>{{ $laporan->verifikator->name ?? 'Petugas PDS' }}</strong></span>
                                 @if($laporan->catatan_verifikasi)
                                     <p class="feedback-note">Alasan Penolakan: "{{ $laporan->catatan_verifikasi }}"</p>
                                 @endif
@@ -144,7 +144,7 @@
                             </div>
                             <div class="feedback-text">
                                 <strong>Dalam Antrean Peninjauan</strong>
-                                <span>Laporan ini belum diverifikasi. Tim BK atau PDS akan segera meninjau bukti dan menentukan poin pelanggaran.</span>
+                                <span>Laporan ini belum diverifikasi. Petugas PDS akan segera meninjau bukti dan menentukan poin pelanggaran.</span>
                             </div>
                         </div>
                     @endif

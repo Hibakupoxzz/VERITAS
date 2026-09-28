@@ -61,7 +61,31 @@ class User extends Authenticatable
      */
     public function canVerify(): bool
     {
-        return in_array($this->role, ['admin', 'pds', 'bk']);
+        return in_array($this->role, ['admin', 'pds']);
+    }
+
+    /**
+     * Apakah user berwenang menambah/mengedit/menghapus prestasi?
+     */
+    public function canManagePrestasi(): bool
+    {
+        return in_array($this->role, ['admin', 'bk']);
+    }
+
+    /**
+     * Apakah user berwenang menambah/mengedit/menghapus data pelanggaran secara langsung?
+     */
+    public function canDirectAddPelanggaran(): bool
+    {
+        return in_array($this->role, ['admin', 'pds']);
+    }
+
+    /**
+     * Apakah user berwenang melaporkan pelanggaran via form pelaporan?
+     */
+    public function canReportPelanggaran(): bool
+    {
+        return in_array($this->role, ['admin', 'walas', 'bk']);
     }
 
     /**

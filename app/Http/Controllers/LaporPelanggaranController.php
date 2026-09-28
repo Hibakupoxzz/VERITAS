@@ -99,6 +99,6 @@ class LaporPelanggaranController extends Controller
 
         return redirect()
             ->route('lapor.index')
-            ->with('success', 'Laporan pelanggaran berhasil dikirim. Menunggu verifikasi BK / PDS.');
+            ->with('success', 'Laporan pelanggaran berhasil dikirim. Menunggu verifikasi PDS.');
     }
 }

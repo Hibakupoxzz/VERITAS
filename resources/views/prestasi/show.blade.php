@@ -12,10 +12,12 @@
     </div>
 
     <div class="heading-actions">
+        @if(auth()->user()->canManagePrestasi())
         <a href="{{ route('prestasi.edit', $prestasi->id) }}" class="btn btn-primary">
             <i class="fa-solid fa-pen"></i>
             Edit
         </a>
+        @endif
 
         <a href="{{ route('prestasi.index') }}" class="btn btn-secondary">
             <i class="fa-solid fa-arrow-left"></i>

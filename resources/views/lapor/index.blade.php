@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Portal Lapor Pelanggaran - Wali Kelas')
+@section('title', 'Portal Lapor Pelanggaran - ' . (auth()->user()->role_label ?? 'Guru'))
 @section('page_title', 'Portal Lapor Pelanggaran')
 
 @section('content')
@@ -8,19 +8,25 @@
 <div class="walas-container">
 
     {{-- =========================================================
-         1. WELCOME BANNER KHUSUS WALI KELAS
+         1. WELCOME BANNER
     ========================================================= --}}
     <div class="walas-banner">
         <div class="walas-banner-content">
             <div class="walas-banner-badge">
-                <i class="fa-solid fa-user-tie"></i>
-                <span>Portal Khusus Guru Wali Kelas</span>
+                <i class="fa-solid {{ auth()->user()->isBk() ? 'fa-user-nurse' : (auth()->user()->isWalas() ? 'fa-user-tie' : 'fa-shield-halved') }}"></i>
+                <span>Portal Pelaporan {{ auth()->user()->role_label }}</span>
             </div>
             <h1 class="walas-banner-title">
                 Selamat Datang, {{ auth()->user()->name }}
             </h1>
             <p class="walas-banner-subtitle">
-                Sebagai Wali Kelas, tugas Anda adalah melaporkan temuan pelanggaran siswa. Laporan yang Anda kirim akan masuk ke antrean verifikasi untuk ditinjau dan ditentukan sanksi/poin oleh tim <strong>Guru BK & PDS</strong>.
+                @if(auth()->user()->isBk())
+                    Sebagai Guru BK, Anda dapat melaporkan temuan pelanggaran siswa. Laporan yang Anda kirim akan masuk ke antrean verifikasi untuk ditinjau dan ditentukan sanksi/poin oleh tim <strong>Guru PDS</strong>.
+                @elseif(auth()->user()->isWalas())
+                    Sebagai Wali Kelas, tugas Anda adalah melaporkan temuan pelanggaran siswa di kelas Anda. Laporan yang Anda kirim akan masuk ke antrean verifikasi untuk ditinjau dan diverifikasi oleh tim <strong>Guru PDS</strong>.
+                @else
+                    Laporan yang Anda kirim akan masuk ke antrean verifikasi untuk ditinjau dan diverifikasi oleh tim <strong>Guru PDS</strong>.
+                @endif
             </p>
         </div>
         <div class="walas-banner-actions">
@@ -57,7 +63,7 @@
             </div>
             <div class="stat-data">
                 <span class="stat-number">{{ $stats['pending'] ?? 0 }}</span>
-                <span class="stat-label">Menunggu Verifikasi BK/PDS</span>
+                <span class="stat-label">Menunggu Verifikasi PDS</span>
             </div>
         </div>
 

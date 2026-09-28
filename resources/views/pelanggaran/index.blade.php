@@ -20,10 +20,15 @@
             @endif
         </div>
 
-        @if(!auth()->user()->isWalas())
+        @if(auth()->user()->canDirectAddPelanggaran())
         <a href="{{ route('pelanggaran.create') }}" class="btn-primary">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Pelanggaran</span>
+        </a>
+        @elseif(auth()->user()->canReportPelanggaran())
+        <a href="{{ route('lapor.index') }}" class="btn-primary">
+            <i class="fa-solid fa-bullhorn"></i>
+            <span>Lapor Pelanggaran</span>
         </a>
         @endif
 
@@ -196,6 +201,7 @@
                                         Detail
                                     </a>
 
+                                    @if(auth()->user()->canDirectAddPelanggaran())
                                     <a
                                         href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
                                         class="btn-edit"
@@ -220,6 +226,7 @@
                                         </button>
 
                                     </form>
+                                    @endif
 
                                 </div>
 
@@ -348,6 +355,7 @@
                         Detail
                     </a>
 
+                    @if(auth()->user()->canDirectAddPelanggaran())
                     <a
                         href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
                         class="btn-edit"
@@ -374,6 +382,7 @@
                         </button>
 
                     </form>
+                    @endif
 
                 </div>
                 @endif

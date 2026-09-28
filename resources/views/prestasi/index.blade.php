@@ -20,7 +20,7 @@
             @endif
         </div>
 
-        @if(!auth()->user()->isWalas())
+        @if(auth()->user()->canManagePrestasi())
         <a href="{{ route('prestasi.create') }}" class="btn-primary">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Prestasi</span>
@@ -195,6 +195,7 @@
                                         Detail
                                     </a>
 
+                                    @if(auth()->user()->canManagePrestasi())
                                     <a
                                         href="{{ route('prestasi.edit', $prestasi->id) }}"
                                         class="btn-edit"
@@ -221,6 +222,7 @@
                                         </button>
 
                                     </form>
+                                    @endif
 
                                 </div>
 
@@ -367,6 +369,7 @@
                         Detail
                     </a>
 
+                    @if(auth()->user()->canManagePrestasi())
                     <a
                         href="{{ route('prestasi.edit', $prestasi->id) }}"
                         class="btn-edit"
@@ -393,6 +396,7 @@
                         </button>
 
                     </form>
+                    @endif
 
                 </div>
                 @endif
