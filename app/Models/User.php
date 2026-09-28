@@ -56,6 +56,11 @@ class User extends Authenticatable
         return $this->role === 'bk';
     }
 
+    public function isGuru(): bool
+    {
+        return $this->role === 'guru';
+    }
+
     /**
      * Apakah user berwenang memverifikasi laporan?
      */
@@ -85,7 +90,7 @@ class User extends Authenticatable
      */
     public function canReportPelanggaran(): bool
     {
-        return in_array($this->role, ['admin', 'walas', 'bk']);
+        return in_array($this->role, ['admin', 'walas', 'bk', 'guru']);
     }
 
     /**
@@ -98,6 +103,7 @@ class User extends Authenticatable
             'walas' => 'Wali Kelas',
             'pds' => 'Guru PDS',
             'bk' => 'Guru BK',
+            'guru' => 'Guru Khusus / Piket',
             default => 'Guru',
         };
     }

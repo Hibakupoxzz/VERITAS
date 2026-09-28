@@ -23,7 +23,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
-            if (Auth::user()->isWalas()) {
+            if (Auth::user()->isWalas() || Auth::user()->isGuru()) {
                 return redirect()->route('lapor.index');
             }
 

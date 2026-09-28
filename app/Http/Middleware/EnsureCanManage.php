@@ -40,6 +40,26 @@ class EnsureCanManage
                 ->with('error', 'Akses dibatasi. Guru Walas hanya memiliki akses untuk pelaporan dan melihat data kelasnya.');
         }
 
+        // 2. Guru Khusus / Piket: Read-only Siswa, Pelanggaran, Prestasi, Leaderboard
+        if ($user->isGuru()) {
+            $allowedRoutes = [
+                'siswa.index',
+                'siswa.search',
+                'pelanggaran.index',
+                'pelanggaran.show',
+                'prestasi.index',
+                'prestasi.show',
+                'leaderboard',
+            ];
+
+            if (in_array($routeName, $allowedRoutes)) {
+                return $next($request);
+            }
+
+            return redirect()->route('lapor.index')
+                ->with('error', 'Akses dibatasi. Guru hanya memiliki akses untuk pelaporan dan melihat direktori siswa/kelas.');
+        }
+
         // 2. BK: Bisa nambah prestasi & report, tapi TIDAK BISA verify/acc pelanggaran
         // Jadi akses ke pelanggaran.pending, approve, reject ditolak.
         // Juga ditolak dari pelanggaran.create/store/edit/update/destroy (harus report via Lapor)

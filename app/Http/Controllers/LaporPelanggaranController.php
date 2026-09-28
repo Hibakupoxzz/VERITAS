@@ -21,9 +21,17 @@ class LaporPelanggaranController extends Controller
         // Jika walas, hanya tampilkan siswa di kelasnya
         if ($user && $user->isWalas() && $user->kelas) {
             $query->where('kelas', $user->kelas);
+            $kelasList = collect([$user->kelas]);
+        } else {
+            $kelasList = Siswa::select('kelas')
+                ->whereNotNull('kelas')
+                ->distinct()
+                ->orderBy('kelas')
+                ->pluck('kelas');
         }
 
         $siswas = $query->get();
+        $selectedSiswaId = request('siswa_id');
 
         $laporans = Pelanggaran::with(['siswa', 'verifikator'])
             ->where('pelapor_id', $user->id)
@@ -37,7 +45,7 @@ class LaporPelanggaranController extends Controller
             'rejected' => $laporans->where('status', 'ditolak')->count(),
         ];
 
-        return view('lapor.index', compact('siswas', 'laporans', 'stats'));
+        return view('lapor.index', compact('siswas', 'laporans', 'stats', 'kelasList', 'selectedSiswaId'));
     }
 
     /**

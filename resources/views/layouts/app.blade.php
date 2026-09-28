@@ -1241,6 +1241,63 @@
                     <span>Leaderboard</span>
                 </a>
 
+            @elseif(auth()->check() && auth()->user()->isGuru())
+
+                {{-- =================================================
+                     MENU GURU KHUSUS / GURU PIKET
+                     - Bisa: Report Pelanggaran SEMUA KELAS & SISWA
+                     - Bisa: Lihat Data Siswa & Semua Kelas
+                ================================================== --}}
+                <div class="menu-title">
+                    Menu Guru Khusus
+                </div>
+
+                <a href="{{ route('lapor.index') }}"
+                   class="{{ request()->routeIs('lapor.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Lapor Pelanggaran</span>
+                </a>
+
+                <a href="{{ route('lapor.riwayat') }}"
+                   class="{{ request()->routeIs('lapor.riwayat') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Laporan Saya</span>
+                </a>
+
+                {{-- DIREKTORI DATA KELAS & SISWA --}}
+                <div class="menu-title">
+                    Data Kelas & Siswa
+                </div>
+
+                <a href="{{ route('siswa.index') }}"
+                   class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Semua Data Siswa</span>
+                </a>
+
+                {{-- MONITORING SEKOLAH --}}
+                <div class="menu-title">
+                    Monitoring
+                </div>
+
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Pelanggaran Siswa</span>
+                </a>
+
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Prestasi Siswa</span>
+                </a>
+
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
+
             @elseif(auth()->check() && auth()->user()->isBk())
 
                 {{-- =================================================
@@ -1631,6 +1688,8 @@
                     <p>
                         @if(auth()->check() && auth()->user()->isWalas())
                             Portal Pelaporan Wali Kelas
+                        @elseif(auth()->check() && auth()->user()->isGuru())
+                            Portal Pelaporan Guru Khusus (Semua Kelas)
                         @elseif(auth()->check() && auth()->user()->isPds())
                             Monitoring Kelas Binaan PDS
                         @elseif(auth()->check() && auth()->user()->isBk())
