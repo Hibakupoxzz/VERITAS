@@ -503,20 +503,27 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
     gap:20px;
     margin-bottom:20px;
 }
 
+.page-heading{
+    min-width:0;
+}
+
 .page-heading h1{
-    font-size:34px;
+    font-size:clamp(20px, 4.5vw, 34px);
     color:var(--color-primary-gray);
     margin-bottom:5px;
     line-height:1.2;
+    overflow-wrap:anywhere;
 }
 
 .page-heading p{
     color:#6b7280;
     font-size:14px;
+    overflow-wrap:anywhere;
 }
 
 
@@ -559,7 +566,7 @@
 
 .alert-success{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap:10px;
 
     background:#dcfce7;
@@ -572,6 +579,8 @@
     margin-bottom:18px;
 
     font-size:14px;
+
+    overflow-wrap:anywhere;
 }
 
 
@@ -607,6 +616,12 @@
     font-weight:600;
     font-size:13px;
 
+    min-height:40px;
+
+    flex:1 1 150px;
+
+    max-width:100%;
+
     transition:.2s;
 }
 
@@ -636,7 +651,9 @@
 
 .table-responsive{
     width:100%;
+    max-width:100%;
     overflow-x:auto;
+    overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
 }
 
@@ -700,6 +717,8 @@ tbody tr:hover{
     font-size:13px;
 
     line-height:1.4;
+
+    overflow-wrap:anywhere;
 }
 
 .student-info small{
@@ -720,7 +739,7 @@ tbody tr:hover{
 ===================================================== */
 
 .violation-wrapper{
-    max-width:420px;
+    max-width:min(420px, 100%);
 }
 
 .badge-danger{
@@ -793,6 +812,7 @@ tbody tr:hover{
 
 .table-image{
     width:58px;
+    max-width:100%;
     height:58px;
 
     border-radius:10px;
@@ -910,6 +930,38 @@ tbody tr:hover{
 
 .mobile-list{
     display:none;
+}
+
+.mobile-empty{
+    width:100%;
+
+    background:white;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:15px;
+
+    padding:40px 20px;
+
+    text-align:center;
+
+    color:#6b7280;
+}
+
+.mobile-empty i{
+    display:block;
+
+    font-size:26px;
+
+    margin-bottom:10px;
+}
+
+.mobile-empty p{
+    margin:0;
+
+    font-size:12px;
+
+    overflow-wrap:anywhere;
 }
 
 
@@ -1231,6 +1283,31 @@ tbody tr:hover{
         border-radius:8px;
     }
 
+
+    /* HARDENING */
+
+    .violation-card{
+        overflow:hidden;
+    }
+
+    .mobile-card-header{
+        flex-wrap:wrap;
+    }
+
+    .mobile-date{
+        min-width:0;
+
+        white-space:normal;
+    }
+
+    .mobile-empty{
+        padding:28px 14px;
+    }
+
+    .empty{
+        padding:28px 14px !important;
+    }
+
 }
 
 
@@ -1282,8 +1359,10 @@ tbody tr:hover{
     background: white;
     width: 90%;
     max-width: 450px;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border-radius: 14px;
-    overflow: hidden;
     transform: translateY(-20px) scale(0.95);
     transition: all 0.2s ease;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -1304,6 +1383,8 @@ tbody tr:hover{
     font-size: 15px;
     font-weight: 700;
     color: #111827;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 .close-btn {
     background: none; border: none; font-size: 18px; cursor: pointer; color: #9ca3af;
@@ -1319,9 +1400,139 @@ tbody tr:hover{
     padding: 16px 20px;
     border-top: 1px solid #e5e7eb;
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
     background: #f9fafb;
+    position: sticky;
+    bottom: 0;
+}
+
+
+/* =====================================================
+   RESPONSIVE OVERRIDES (MOBILE-FIRST HARDENING)
+   ===================================================== */
+
+@media(max-width:1200px){
+
+    table{
+        min-width:820px;
+    }
+
+    th,
+    td{
+        padding:13px 12px;
+    }
+
+}
+
+@media(max-width:1024px){
+
+    table{
+        min-width:760px;
+    }
+
+    th,
+    td{
+        padding:11px 10px;
+
+        font-size:12px;
+    }
+
+    .student-info{
+        min-width:110px;
+    }
+
+    .action-buttons{
+        min-width:150px;
+    }
+
+    .table-image{
+        width:46px;
+        height:46px;
+    }
+
+    .btn-primary{
+        font-size:13px;
+
+        padding:11px 15px;
+    }
+
+}
+
+@media(max-width:640px){
+
+    .export-buttons{
+        gap:8px;
+    }
+
+    .btn-export{
+        font-size:12px;
+    }
+
+}
+
+@media(max-width:576px){
+
+    .modal-overlay{
+        align-items:flex-end;
+    }
+
+    .modal-content{
+        width:100%;
+        max-width:100%;
+        max-height:92vh;
+
+        border-radius:16px 16px 0 0;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer{
+        padding:14px 16px;
+    }
+
+    .modal-footer{
+        flex-direction:column;
+    }
+
+    .modal-footer .btn-secondary,
+    .modal-footer .btn-primary,
+    .modal-footer .btn-danger{
+        width:100%;
+
+        min-height:40px;
+    }
+
+    .form-control,
+    .modal-body select,
+    .modal-body input,
+    .modal-body textarea{
+        width:100%;
+        max-width:100%;
+
+        font-size:16px;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .violation-card{
+        padding:11px;
+
+        border-radius:13px;
+    }
+
+    .mobile-violation .badge-danger{
+        font-size:11px;
+    }
+
+    .mobile-photo img{
+        width:56px;
+        height:56px;
+    }
+
 }
 
 @endsection

@@ -22,6 +22,7 @@
 .pv-page-icon{
     width:44px;
     height:44px;
+    flex:0 0 44px;
     border-radius:12px;
     background:#eff6ff;
     display:flex;
@@ -129,6 +130,160 @@
 .pv-btn:hover{
     background:#1d4ed8;
 }
+
+/* ── Overflow safety ── */
+.pv-body{
+    width:100%;
+}
+
+.pv-inner{
+    width:100%;
+    max-width:800px;
+}
+
+.pv-page-header,
+.pv-page-header > div,
+.pv-item,
+.pv-key,
+.pv-value{
+    min-width:0;
+}
+
+.pv-page-title,
+.pv-page-sub,
+.pv-key,
+.pv-value{
+    overflow-wrap:anywhere;
+}
+
+.pv-item{
+    overflow-wrap:anywhere;
+}
+
+.pv-img{
+    height:auto;
+    max-width:100%;
+    display:block;
+}
+
+.pv-badge{
+    max-width:100%;
+    overflow-wrap:anywhere;
+}
+
+.pv-footer{
+    flex-wrap:wrap;
+}
+
+.pv-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+}
+
+/* ── Responsive ── */
+@media (max-width:900px){
+    .pv-body{
+        padding:1.25rem 0.9rem;
+    }
+}
+
+@media (max-width:768px){
+    .pv-grid{
+        grid-template-columns:150px 1fr;
+        gap:10px;
+    }
+    .pv-card{
+        padding:1.1rem;
+    }
+    .pv-page-header{
+        gap:10px;
+        margin-bottom:1rem;
+    }
+    .pv-item{
+        padding:10px 0;
+    }
+}
+
+@media (max-width:576px){
+    .pv-body{
+        padding:1rem 0.75rem;
+    }
+    .pv-grid{
+        grid-template-columns:1fr;
+        gap:4px;
+    }
+    .pv-card{
+        padding:1rem;
+    }
+    .pv-page-icon{
+        width:40px;
+        height:40px;
+        flex:0 0 40px;
+    }
+    .pv-page-icon svg{
+        width:20px;
+        height:20px;
+    }
+    .pv-page-title{
+        font-size:1.1rem;
+    }
+    .pv-page-sub{
+        font-size:.72rem;
+    }
+    .pv-key{
+        font-size:.75rem;
+        text-transform:uppercase;
+        letter-spacing:.04em;
+        color:#9ca3af;
+    }
+    .pv-value{
+        font-size:.9rem;
+        margin-bottom:2px;
+    }
+    .pv-img{
+        border-radius:10px;
+    }
+    .pv-footer{
+        justify-content:stretch;
+    }
+    .pv-btn{
+        width:100%;
+        min-height:46px;
+    }
+}
+
+@media (max-width:480px){
+    .pv-body{
+        padding:0.9rem 0.5rem;
+    }
+    .pv-card{
+        padding:0.85rem;
+    }
+    .pv-page-title{
+        font-size:1rem;
+    }
+    .pv-page-sub{
+        font-size:.68rem;
+    }
+    .pv-badge{
+        font-size:.75rem;
+        padding:5px 10px;
+    }
+}
+
+@media (max-width:400px){
+    .pv-body{
+        padding:0.75rem 0.4rem;
+    }
+    .pv-card{
+        padding:0.7rem;
+    }
+    .pv-section-label{
+        font-size:.65rem;
+    }
+}
 </style>
 
 @endsection
@@ -137,7 +292,7 @@
 
 <div class="pv-body">
 
-<div class="container" style="max-width:800px">
+<div class="container pv-inner">
 
 
 <div class="pv-page-header">

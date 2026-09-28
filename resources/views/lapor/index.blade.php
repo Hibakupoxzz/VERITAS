@@ -159,19 +159,23 @@
 
         <div class="walas-card-header">
 
-            <div class="walas-card-icon">
-                <i class="fa-solid fa-bullhorn"></i>
-            </div>
+            <div class="walas-card-header-main">
 
-            <div>
+                <div class="walas-card-icon">
+                    <i class="fa-solid fa-bullhorn"></i>
+                </div>
 
-                <h2>
-                    Formulir Lapor Pelanggaran
-                </h2>
+                <div class="walas-card-header-text">
 
-                <p>
-                    Isi rincian temuan pelanggaran siswa di bawah ini secara objektif dan lengkap.
-                </p>
+                    <h2>
+                        Formulir Lapor Pelanggaran
+                    </h2>
+
+                    <p>
+                        Isi rincian temuan pelanggaran siswa di bawah ini secara objektif dan lengkap.
+                    </p>
+
+                </div>
 
             </div>
 
@@ -714,9 +718,9 @@
 
                     <img
                         id="imagePreview"
+                        class="walas-preview-img"
                         src=""
                         alt="Preview Bukti"
-                        style="max-width:200px; max-height:160px; border-radius:10px; border:1px solid #e5e7eb;"
                     >
 
                 </div>
@@ -750,30 +754,32 @@
     ========================================================= --}}
     <div class="walas-card" id="direktori-siswa">
         <div class="walas-card-header" style="justify-content:space-between; flex-wrap:wrap; gap:16px;">
-            <div style="display:flex; align-items:center; gap:14px;">
+            <div class="walas-card-header-main">
                 <div class="walas-card-icon" style="background:#fef2f2; color:#b91c1c;">
                     <i class="fa-solid fa-users-viewfinder"></i>
                 </div>
-                <div>
+                <div class="walas-card-header-text">
                     <h2>Direktori Data Kelas &amp; Siswa</h2>
                     <p>Cari siswa dari kelas manapun untuk langsung mengisi formulir pelaporan pelanggaran.</p>
                 </div>
             </div>
 
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <div style="position:relative; min-width:220px;">
-                    <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:13px;"></i>
+            <div class="dir-controls">
+                <div class="dir-search">
+                    <i class="fa-solid fa-magnifying-glass dir-search-icon"></i>
                     <input type="text"
                            id="searchSiswaInput"
+                           class="dir-search-input"
                            onkeyup="filterDirectoryTable()"
                            placeholder="Cari nama atau NISN..."
-                           style="width:100%; padding:8px 12px 8px 34px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; outline:none;">
+                           style="width:100%; padding:8px 12px 8px 34px; border:1px solid #d1d5db; border-radius:10px; outline:none;">
                 </div>
 
                 @if(isset($kelasList) && count($kelasList) > 1)
                 <select id="selectDirectoryKelas"
+                        class="dir-kelas-select"
                         onchange="filterDirectoryTable()"
-                        style="padding:8px 14px; border:1px solid #d1d5db; border-radius:10px; font-size:13px; outline:none; background:#fff; font-weight:600; color:#374151;">
+                        style="padding:8px 14px; border:1px solid #d1d5db; border-radius:10px; outline:none; background:#fff; font-weight:600; color:#374151;">
                     <option value="">Semua Kelas ({{ count($kelasList) }})</option>
                     @foreach($kelasList as $kelasItem)
                         <option value="{{ strtolower($kelasItem) }}">{{ $kelasItem }}</option>
@@ -785,8 +791,8 @@
 
         {{-- Class Pill Filters --}}
         @if(isset($kelasList) && count($kelasList) > 1)
-        <div style="padding: 12px 24px 0; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
-            <span style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; margin-right:4px;">Filter Cepat Kelas:</span>
+        <div class="dir-pill-row">
+            <span class="dir-pill-label">Filter Cepat Kelas:</span>
             <button type="button"
                     class="class-pill-btn active"
                     onclick="setQuickClassFilter('', this)">
@@ -803,16 +809,16 @@
         @endif
 
         {{-- Table Container --}}
-        <div style="padding:18px 24px 24px;">
-            <div style="max-height: 480px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 12px;">
-                <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+        <div class="dir-table-area">
+            <div class="dir-table-scroll">
+                <table class="dir-table" style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
                     <thead style="background:#f9fafb; position:sticky; top:0; z-index:5; border-bottom:1px solid #e5e7eb;">
                         <tr>
-                            <th style="padding:12px 16px; color:#4b5563; font-weight:700; width:60px;">No</th>
-                            <th style="padding:12px 16px; color:#4b5563; font-weight:700;">Nama Siswa</th>
-                            <th style="padding:12px 16px; color:#4b5563; font-weight:700;">NISN</th>
-                            <th style="padding:12px 16px; color:#4b5563; font-weight:700;">Kelas</th>
-                            <th style="padding:12px 16px; color:#4b5563; font-weight:700; text-align:right;">Aksi</th>
+                            <th class="dir-th dir-th-no" style="color:#4b5563; font-weight:700;">No</th>
+                            <th class="dir-th" style="color:#4b5563; font-weight:700;">Nama Siswa</th>
+                            <th class="dir-th" style="color:#4b5563; font-weight:700;">NISN</th>
+                            <th class="dir-th" style="color:#4b5563; font-weight:700;">Kelas</th>
+                            <th class="dir-th" style="color:#4b5563; font-weight:700; text-align:right;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="directoryTableBody">
@@ -822,22 +828,23 @@
                                 data-nisn="{{ $siswa->nisn }}"
                                 data-kelas="{{ strtolower($siswa->kelas) }}"
                                 style="border-bottom:1px solid #f3f4f6;">
-                                <td style="padding:12px 16px; color:#9ca3af;">{{ $loop->iteration }}</td>
-                                <td style="padding:12px 16px; font-weight:600; color:#111827;">
+                                <td class="dir-td dir-td-num" style="color:#9ca3af;">{{ $loop->iteration }}</td>
+                                <td class="dir-td dir-td-name" style="font-weight:600; color:#111827;">
                                     {{ $siswa->nama }}
                                 </td>
-                                <td style="padding:12px 16px; color:#6b7280; font-family:monospace;">
+                                <td class="dir-td" style="color:#6b7280; font-family:monospace;">
                                     {{ $siswa->nisn ?? '-' }}
                                 </td>
-                                <td style="padding:12px 16px;">
+                                <td class="dir-td">
                                     <span style="background:rgba(109,20,8,0.1); color:#6D1408; font-weight:700; font-size:11px; padding:3px 8px; border-radius:6px; border:1px solid rgba(109,20,8,0.2);">
                                         {{ $siswa->kelas }}
                                     </span>
                                 </td>
-                                <td style="padding:12px 16px; text-align:right;">
+                                <td class="dir-td" style="text-align:right;">
                                     <button type="button"
+                                            class="dir-pick-btn"
                                             onclick="selectStudentForReport({{ $siswa->id }}, '{{ addslashes($siswa->nama) }}', '{{ $siswa->kelas }}')"
-                                            style="background:#6D1408; color:#fff; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                                            style="background:#6D1408; color:#fff; border:none; border-radius:8px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                                         <i class="fa-solid fa-bullhorn"></i>
                                         Pilih untuk Melapor
                                     </button>
@@ -845,7 +852,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" style="text-align:center; padding:30px; color:#9ca3af;">
+                                <td colspan="5" class="dir-td dir-td-empty">
                                     Belum ada data siswa ditemukan.
                                 </td>
                             </tr>
@@ -853,7 +860,7 @@
                     </tbody>
                 </table>
             </div>
-            <div id="dirEmptyMessage" style="display:none; text-align:center; padding:30px; color:#9ca3af;">
+            <div id="dirEmptyMessage" class="dir-empty-msg" style="display:none;">
                 <i class="fa-solid fa-user-slash" style="font-size:28px; margin-bottom:8px; display:block;"></i>
                 Tidak ada siswa yang sesuai dengan filter pencarian.
             </div>
@@ -872,19 +879,23 @@
 
         <div class="walas-card-header">
 
-            <div class="walas-card-icon">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
+            <div class="walas-card-header-main">
 
-            <div>
+                <div class="walas-card-icon">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
 
-                <h2>
-                    Riwayat Laporan Saya
-                </h2>
+                <div class="walas-card-header-text">
 
-                <p>
-                    Daftar laporan pelanggaran yang telah Anda kirim.
-                </p>
+                    <h2>
+                        Riwayat Laporan Saya
+                    </h2>
+
+                    <p>
+                        Daftar laporan pelanggaran yang telah Anda kirim.
+                    </p>
+
+                </div>
 
             </div>
 
@@ -908,7 +919,7 @@
                                     <i class="fa-solid fa-user"></i>
                                 </div>
 
-                                <div>
+                                <div class="student-info">
 
                                     <h3 class="student-name">
 
@@ -1206,6 +1217,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    overflow-wrap: anywhere;
 }
 
 
@@ -1258,6 +1270,7 @@
 
 .walas-banner-content {
     max-width: 680px;
+    min-width: 0;
 }
 
 .walas-banner-badge {
@@ -1284,22 +1297,26 @@
 }
 
 .walas-banner-title {
-    font-size: 26px;
+    font-size: clamp(19px, 5.2vw, 26px);
     font-weight: 700;
 
     margin: 0 0 10px;
 
     line-height: 1.3;
+
+    overflow-wrap: anywhere;
 }
 
 .walas-banner-subtitle {
-    font-size: 14px;
+    font-size: clamp(12px, 3.4vw, 14px);
 
     line-height: 1.6;
 
     color: rgba(255, 255, 255, 0.88);
 
     margin: 0;
+
+    overflow-wrap: anywhere;
 }
 
 .walas-banner-actions {
@@ -1373,7 +1390,7 @@
 .walas-stats-grid {
     display: grid;
 
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
     gap: 18px;
 }
@@ -1394,6 +1411,8 @@
     align-items: center;
 
     gap: 16px;
+
+    min-width: 0;
 
     transition:
         transform 0.2s ease,
@@ -1446,6 +1465,8 @@
 .stat-data {
     display: flex;
     flex-direction: column;
+
+    min-width: 0;
 }
 
 .stat-number {
@@ -1484,12 +1505,16 @@
 
     box-shadow:
         0 6px 24px rgba(0, 0, 0, 0.04);
+
+    min-width: 0;
 }
 
 .walas-card-header {
     display: flex;
 
     align-items: flex-start;
+
+    flex-wrap: wrap;
 
     gap: 16px;
 
@@ -1498,6 +1523,22 @@
     padding-bottom: 18px;
 
     border-bottom: 1px solid #f3f4f6;
+}
+
+.walas-card-header-main {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 14px;
+
+    min-width: 0;
+
+    flex: 1 1 320px;
+}
+
+.walas-card-header-text {
+    min-width: 0;
 }
 
 .walas-card-icon {
@@ -1583,6 +1624,12 @@
     padding: 0;
 }
 
+.walas-alert > div {
+    min-width: 0;
+
+    overflow-wrap: anywhere;
+}
+
 
 /* =========================================================
    FORM STYLING
@@ -1599,7 +1646,7 @@
 .walas-form-row {
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
     gap: 20px;
 }
@@ -1608,6 +1655,8 @@
     display: flex;
 
     flex-direction: column;
+
+    min-width: 0;
 }
 
 .walas-label {
@@ -1635,6 +1684,8 @@
 .walas-input,
 .walas-textarea {
     width: 100%;
+
+    max-width: 100%;
 
     padding: 11px 14px;
 
@@ -1687,6 +1738,39 @@
     color: #6b7280;
 
     margin-top: 5px;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   TOM SELECT (ENHANCED SELECT)
+   ========================================================= */
+
+.searchable-select,
+.searchable-select.ts-wrapper,
+.ts-wrapper,
+.ts-control {
+    width: 100%;
+
+    max-width: 100%;
+}
+
+.ts-wrapper .ts-control {
+    min-height: 42px;
+    border-radius: 10px;
+}
+
+.ts-wrapper .ts-dropdown {
+    max-width: 100%;
+
+    max-height: 260px;
+
+    overflow-y: auto;
+}
+
+.ts-wrapper .ts-dropdown .active {
+    overflow-wrap: anywhere;
 }
 
 
@@ -1697,7 +1781,7 @@
 .pelanggaran-mode {
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 
     gap: 12px;
 
@@ -1769,6 +1853,10 @@
     flex-direction: column;
 
     gap: 2px;
+
+    min-width: 0;
+
+    overflow-wrap: anywhere;
 }
 
 .mode-option-text strong {
@@ -1817,7 +1905,7 @@
 .walas-detail-row {
     display: grid;
 
-    grid-template-columns: 1fr 160px;
+    grid-template-columns: minmax(0, 1fr) 160px;
 
     gap: 20px;
 }
@@ -1897,6 +1985,16 @@
     color: #9ca3af;
 }
 
+.walas-preview-img {
+    max-width: min(200px, 100%);
+    width: auto;
+    height: auto;
+    max-height: 160px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    display: block;
+}
+
 
 /* =========================================================
    SUBMIT BUTTON
@@ -1970,6 +2068,8 @@
 
     background: #ffffff;
 
+    min-width: 0;
+
     transition: all 0.2s ease;
 }
 
@@ -1987,6 +2087,8 @@
 
     align-items: center;
 
+    gap: 10px;
+
     margin-bottom: 14px;
 }
 
@@ -1996,6 +2098,14 @@
     align-items: center;
 
     gap: 12px;
+
+    min-width: 0;
+}
+
+.student-info {
+    min-width: 0;
+
+    overflow-wrap: anywhere;
 }
 
 .student-avatar {
@@ -2024,6 +2134,8 @@
     color: #111827;
 
     margin: 0;
+
+    overflow-wrap: anywhere;
 }
 
 .student-class {
@@ -2112,6 +2224,10 @@
     font-size: 12px;
 
     color: #6b7280;
+
+    max-width: 100%;
+
+    overflow-wrap: anywhere;
 }
 
 .meta-violation {
@@ -2142,10 +2258,16 @@
     border-radius: 8px;
 
     border-left: 3px solid #6D1408;
+
+    overflow-wrap: anywhere;
 }
 
 .report-photo img {
-    max-width: 140px;
+    max-width: min(140px, 100%);
+
+    width: auto;
+
+    height: auto;
 
     max-height: 90px;
 
@@ -2231,6 +2353,10 @@
     flex-direction: column;
 
     gap: 2px;
+
+    min-width: 0;
+
+    overflow-wrap: anywhere;
 }
 
 .points-badge {
@@ -2336,16 +2462,144 @@
     border-color: #6D1408;
 }
 
+.class-pill-btn {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DIREKTORI SISWA (SEARCH + TABLE)
+   ========================================================= */
+
+.dir-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+    flex: 1 1 260px;
+}
+
+.dir-search {
+    position: relative;
+    min-width: 0;
+    flex: 1 1 220px;
+    max-width: 100%;
+}
+
+.dir-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.dir-search-input,
+.dir-kelas-select {
+    max-width: 100%;
+    min-width: 0;
+    font-size: 13px;
+}
+
+.dir-pill-row {
+    padding: 12px 24px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.dir-pill-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-right: 4px;
+}
+
+.dir-table-area {
+    padding: 18px 24px 24px;
+    min-width: 0;
+}
+
+.dir-table-scroll {
+    max-height: 480px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.dir-table {
+    min-width: 560px;
+}
+
+.dir-th {
+    padding: 12px 16px;
+    white-space: nowrap;
+}
+
+.dir-th-no {
+    width: 60px;
+}
+
+.dir-td {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.dir-td-name {
+    overflow-wrap: anywhere;
+}
+
+.dir-td-num {
+    white-space: nowrap;
+}
+
+.dir-td-empty {
+    text-align: center;
+    padding: 30px;
+    color: #9ca3af;
+}
+
+.dir-empty-msg {
+    text-align: center;
+    padding: 30px;
+    color: #9ca3af;
+}
+
+.dir-pick-btn {
+    padding: 7px 14px;
+    font-size: 12px;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
 
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+
+    .walas-card {
+        padding: 24px 24px;
+    }
+
+    .walas-banner {
+        padding: 26px 26px;
+    }
 
     .walas-stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+
+@media (max-width: 900px) {
 
     .walas-banner {
         flex-direction: column;
@@ -2377,18 +2631,6 @@
     .pelanggaran-mode {
         grid-template-columns: 1fr;
     }
-}
-
-
-@media (max-width: 600px) {
-
-    .walas-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .walas-banner-actions {
-        flex-direction: column;
-    }
 
     .walas-card-header {
         flex-direction: column;
@@ -2396,8 +2638,47 @@
         align-items: flex-start;
     }
 
+    .walas-card-header-main,
+    .dir-controls {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .walas-container {
+        gap: 16px;
+    }
+
     .walas-card {
+        padding: 20px 16px;
+
+        border-radius: 16px;
+    }
+
+    .walas-banner {
         padding: 22px 18px;
+
+        border-radius: 16px;
+    }
+
+    .walas-banner-actions {
+        flex-direction: column;
+    }
+
+    .btn-banner-primary,
+    .btn-banner-secondary {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .walas-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .report-item {
+        padding: 16px;
     }
 
     .report-header {
@@ -2406,6 +2687,10 @@
         flex-direction: column;
 
         gap: 12px;
+    }
+
+    .report-feedback {
+        padding: 12px;
     }
 
     .walas-form-actions {
@@ -2418,6 +2703,196 @@
         justify-content: center;
     }
 
+    /* Directory table: tighter cells + narrower min width so it
+       stays usable with horizontal scroll on phones. */
+    .dir-table {
+        min-width: 460px;
+    }
+
+    .dir-table-area {
+        padding: 14px 16px 18px;
+    }
+
+    .dir-pill-row {
+        padding: 12px 16px 0;
+    }
+
+    .dir-table-scroll {
+        max-height: 60vh;
+    }
+
+    .class-pill-btn {
+        min-height: 36px;
+    }
+}
+
+
+@media (max-width: 640px) {
+
+    .walas-stats-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .walas-stat-card {
+        padding: 16px 16px;
+    }
+
+    .stat-icon-wrapper {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .dir-controls {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .dir-search,
+    .dir-kelas-select {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+
+@media (max-width: 576px) {
+
+    .walas-input,
+    .walas-textarea,
+    .dir-search-input,
+    .dir-kelas-select {
+        font-size: 16px;
+    }
+
+    .walas-form-row,
+    .walas-detail-row,
+    .pelanggaran-mode {
+        gap: 14px;
+    }
+
+    .mode-option {
+        padding: 12px;
+    }
+
+    .walas-card-header-main {
+        flex-wrap: wrap;
+    }
+
+    .walas-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        font-size: 16px;
+    }
+
+    .walas-alert {
+        padding: 12px 14px;
+    }
+
+    .ts-wrapper .ts-dropdown {
+        position: static !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+
+        max-height: 260px;
+        overflow-y: auto;
+    }
+
+    .ts-wrapper.dropdown-open .ts-control {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .walas-empty-state {
+        padding: 30px 10px;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .walas-card {
+        padding: 16px 12px;
+
+        border-radius: 14px;
+    }
+
+    .walas-banner {
+        padding: 20px 15px;
+    }
+
+    .walas-banner-badge {
+        font-size: 10px;
+        padding: 5px 11px;
+    }
+
+    .report-item {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .student-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+    }
+
+    .dir-table {
+        min-width: 400px;
+    }
+
+    .dir-th,
+    .dir-td {
+        padding: 9px 10px;
+    }
+
+    .class-pill-btn {
+        padding: 6px 10px;
+    }
+
+    .dir-pick-btn {
+        padding: 6px 10px;
+
+        font-size: 11px;
+    }
+
+    .walas-file-wrapper {
+        padding: 18px 12px;
+    }
+}
+
+
+@media (max-width: 400px) {
+
+    .walas-card {
+        padding: 14px 10px;
+    }
+
+    .walas-banner {
+        padding: 18px 12px;
+    }
+
+    .walas-card-header h2 {
+        font-size: 16px;
+    }
+
+    .btn-submit-laporan {
+        padding: 12px 14px;
+
+        font-size: 13px;
+    }
+
+    .badge-status {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+
+    .dir-table {
+        min-width: 360px;
+    }
 }
 
 @endsection

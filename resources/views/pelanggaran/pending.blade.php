@@ -132,10 +132,10 @@
     </div>
 
     @else
-        <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb;">
-            <i class="fa-solid fa-inbox" style="font-size: 40px; color: #9ca3af; margin-bottom: 15px;"></i>
-            <h3 style="font-size: 18px; color: #111827; margin: 0 0 5px;">Tidak Ada Laporan Pending</h3>
-            <p style="color: #6b7280; font-size: 14px; margin: 0;">Semua laporan masuk telah diproses.</p>
+        <div class="pending-empty">
+            <i class="fa-solid fa-inbox"></i>
+            <h3>Tidak Ada Laporan Pending</h3>
+            <p>Semua laporan masuk telah diproses.</p>
         </div>
     @endif
 
@@ -229,25 +229,32 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
     gap:20px;
     margin-bottom:20px;
 }
 
+.page-heading{
+    min-width:0;
+}
+
 .page-heading h1{
-    font-size:34px;
+    font-size:clamp(20px, 4.5vw, 34px);
     color:var(--color-primary-gray);
     margin-bottom:5px;
     line-height:1.2;
+    overflow-wrap:anywhere;
 }
 
 .page-heading p{
     color:#6b7280;
     font-size:14px;
+    overflow-wrap:anywhere;
 }
 
 .alert-success{
     display:flex;
-    align-items:center;
+    align-items:flex-start;
     gap:10px;
     background:#dcfce7;
     color:#166534;
@@ -255,6 +262,33 @@
     border-radius:12px;
     margin-bottom:18px;
     font-size:14px;
+    overflow-wrap:anywhere;
+}
+
+/* EMPTY STATE */
+.pending-empty {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+.pending-empty i {
+    font-size: 40px;
+    color: #9ca3af;
+    margin-bottom: 15px;
+    display: block;
+}
+.pending-empty h3 {
+    font-size: 18px;
+    color: #111827;
+    margin: 0 0 5px;
+}
+.pending-empty p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+    overflow-wrap: anywhere;
 }
 
 /* PENDING SECTION */
@@ -276,19 +310,24 @@
 .pending-title {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
+    min-width: 0;
 }
 
 .pending-title i {
     color: #d97706;
     font-size: 20px;
+    flex-shrink: 0;
 }
 
 .pending-title h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: clamp(15px, 2.4vw, 18px);
     font-weight: 700;
     color: #111827;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .pending-count {
@@ -298,17 +337,19 @@
     border-radius: 20px;
     font-size: 13px;
     font-weight: 700;
+    flex-shrink: 0;
 }
 
 .pending-header p {
     color: #6b7280;
     font-size: 13px;
     margin: 6px 0 0 32px;
+    overflow-wrap: anywhere;
 }
 
 .pending-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     gap: 16px;
 }
 
@@ -319,15 +360,24 @@
     background: #f9fafb;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .pending-card-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 12px;
     padding-bottom: 12px;
     border-bottom: 1px dashed #e5e7eb;
+}
+
+.pending-student {
+    min-width: 0;
+    flex: 1 1 140px;
 }
 
 .pending-student strong {
@@ -335,11 +385,13 @@
     color: #111827;
     font-size: 14px;
     margin-bottom: 2px;
+    overflow-wrap: anywhere;
 }
 
 .pending-student small {
     color: #6b7280;
     font-size: 12px;
+    overflow-wrap: anywhere;
 }
 
 .pending-badge {
@@ -352,6 +404,8 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .pending-meta {
@@ -359,18 +413,27 @@
     flex-direction: column;
     gap: 4px;
     margin-bottom: 12px;
+    min-width: 0;
 }
 
 .pending-meta span {
     font-size: 12px;
     color: #4b5563;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.pending-meta i {
+    flex-shrink: 0;
+    margin-top: 2px;
 }
 
 .pending-violation-label {
     margin-bottom: 10px;
+    max-width: 100%;
 }
 
 .pending-violation-label .badge-danger, .badge-danger {
@@ -381,6 +444,8 @@
     font-size: 11px;
     font-weight: 600;
     display: inline-block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
 }
 
 .pending-desc {
@@ -392,10 +457,12 @@
     border-radius: 8px;
     border: 1px solid #e5e7eb;
     margin-bottom: 12px;
+    overflow-wrap: anywhere;
 }
 
 .pending-photo {
     width: 100%;
+    max-width: 100%;
     height: 140px;
     object-fit: cover;
     border-radius: 8px;
@@ -405,12 +472,15 @@
 
 .pending-card-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: auto;
 }
 
 .btn-approve {
-    flex: 1;
+    flex: 1 1 110px;
+    min-width: 0;
+    min-height: 40px;
     background: #16a34a;
     color: white;
     border: none;
@@ -431,7 +501,9 @@
 }
 
 .btn-reject {
-    flex: 1;
+    flex: 1 1 110px;
+    min-width: 0;
+    min-height: 40px;
     background: #dc2626;
     color: white;
     border: none;
@@ -471,6 +543,9 @@
     background: #fff;
     width: 100%;
     max-width: 500px;
+    max-height: 92vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     animation: modalSlideUp 0.3s ease;
@@ -486,9 +561,10 @@
     justify-content: space-between;
     align-items: center;
 }
-.modal-header h3 { margin: 0; font-size: 18px; color: #111827; }
+.modal-header h3 { margin: 0; font-size: 18px; color: #111827; min-width: 0; overflow-wrap: anywhere; }
 .close-btn {
     background: none; border: none; font-size: 20px; color: #9ca3af; cursor: pointer;
+    min-width: 32px; min-height: 32px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .close-btn:hover { color: #111827; }
 .modal-body { padding: 20px; }
@@ -496,8 +572,12 @@
     padding: 16px 20px;
     border-top: 1px solid #e5e7eb;
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 10px;
+    background: #f9fafb;
+    position: sticky;
+    bottom: 0;
 }
 .form-group { margin-bottom: 15px; }
 .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
@@ -514,6 +594,124 @@
 }
 .btn-danger {
     background: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;
+}
+
+/* =====================================================
+   RESPONSIVE OVERRIDES (MOBILE-FIRST HARDENING)
+   ===================================================== */
+
+@media (max-width: 1024px) {
+    .pending-section {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pending-section {
+        padding: 16px 14px;
+        border-radius: 14px;
+    }
+
+    .pending-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+    }
+
+    .pending-header p {
+        margin-left: 0;
+    }
+
+    .pending-cards {
+        gap: 12px;
+    }
+
+    .pending-empty {
+        padding: 28px 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .pending-card {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-overlay {
+        align-items: flex-end;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        max-height: 92vh;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 14px 16px;
+    }
+
+    .modal-header h3 {
+        font-size: 16px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .modal-footer .btn-secondary,
+    .modal-footer .btn-primary,
+    .modal-footer .btn-danger {
+        width: 100%;
+        min-height: 40px;
+    }
+
+    .form-control {
+        width: 100%;
+        max-width: 100%;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pending-title {
+        gap: 8px;
+    }
+
+    .pending-title h2 {
+        font-size: 15px;
+    }
+
+    .pending-card-actions {
+        flex-direction: column;
+    }
+
+    .btn-approve,
+    .btn-reject {
+        width: 100%;
+        min-height: 42px;
+    }
+
+    .pending-empty h3 {
+        font-size: 16px;
+    }
+
+    .pending-empty p {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 400px) {
+    .pending-section {
+        padding: 13px 11px;
+    }
+
+    .pending-photo {
+        height: 120px;
+    }
 }
 @endsection
 

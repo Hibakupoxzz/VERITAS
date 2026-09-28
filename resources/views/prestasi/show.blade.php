@@ -489,6 +489,16 @@
     .heading-actions {
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .page-heading > div:first-child {
+        min-width: 0;
+        flex: 1 1 240px;
+    }
+
+    .detail-card-header > div:last-child {
+        min-width: 0;
     }
 
 
@@ -718,6 +728,7 @@
     }
 
     .description-box p {
+        overflow-wrap: anywhere;
         margin: 0;
         color: #6B7280;
         font-size: 13px;
@@ -792,6 +803,7 @@
         gap: 15px;
         padding: 13px 0;
         border-bottom: 1px solid #F0F0F0;
+        flex-wrap: wrap;
     }
 
     .data-row:last-child {
@@ -804,10 +816,12 @@
         gap: 8px;
         color: #6B7280;
         font-size: 12px;
+        min-width: 0;
     }
 
     .data-row span i {
         width: 16px;
+        flex-shrink: 0;
         color: #9CA3AF;
     }
 
@@ -815,6 +829,8 @@
         color: #374151;
         font-size: 12px;
         text-align: right;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
 
@@ -826,6 +842,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 25px;
         padding: 28px 20px;
     }
@@ -837,6 +854,7 @@
         border: 1px solid #E5E7EB;
         border-radius: 11px;
         background: #FAFAFA;
+        box-sizing: border-box;
     }
 
     .point-step span {
@@ -879,6 +897,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 8px;
         padding: 12px;
         margin: 0 22px 22px;
@@ -912,11 +931,14 @@
         border: 1px solid #E5E7EB;
         border-radius: 11px;
         padding: 15px;
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .evidence-image {
         display: block;
         max-width: 100%;
+        height: auto;
         max-height: 500px;
         border-radius: 8px;
         object-fit: contain;
@@ -1030,10 +1052,15 @@
 
         .page-heading {
             align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .page-heading h1 {
             font-size: 22px;
+        }
+
+        .page-heading p {
+            font-size: 13px;
         }
 
         .heading-actions {
@@ -1050,16 +1077,59 @@
 
         .point-step {
             min-width: 0;
-            flex: 1;
+            flex: 1 1 90px;
+        }
+
+        .point-step strong {
+            font-size: clamp(17px, 5.2vw, 25px);
+        }
+
+        .btn {
+            height: auto;
+            min-height: 42px;
+            padding: 10px 15px;
+        }
+
+        .evidence-actions {
+            justify-content: stretch;
+        }
+
+        .evidence-actions .btn {
+            width: 100%;
         }
 
     }
 
 
-    @media (max-width: 560px) {
+    @media (max-width: 640px) {
+
+        .detail-card-header {
+            padding: 18px;
+        }
+
+        .detail-body,
+        .evidence-body {
+            padding: 18px;
+        }
+
+        .no-evidence {
+            min-height: 160px;
+            padding: 24px 16px;
+        }
+
+    }
+
+
+    @media (max-width: 576px) {
 
         .page-heading {
             flex-direction: column;
+            align-items: stretch;
+        }
+
+        .page-heading > div:first-child {
+            flex: 0 0 auto;
+            width: 100%;
         }
 
         .heading-actions {
@@ -1067,12 +1137,15 @@
         }
 
         .heading-actions .btn {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .prestasi-highlight {
             align-items: flex-start;
             flex-wrap: wrap;
+            gap: 12px;
+            padding: 14px;
         }
 
         .point-box {
@@ -1089,7 +1162,7 @@
 
         .point-step {
             width: 100%;
-            box-sizing: border-box;
+            flex: 0 0 auto;
         }
 
         .point-arrow {
@@ -1103,12 +1176,103 @@
         }
 
         .detail-card-header {
-            padding: 17px;
+            padding: 16px;
         }
 
         .detail-body,
         .evidence-body {
-            padding: 17px;
+            padding: 16px;
+        }
+
+        .student-profile {
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 14px;
+        }
+
+        .data-row {
+            gap: 6px;
+        }
+
+        .data-row strong {
+            text-align: left;
+            width: 100%;
+            padding-left: 24px;
+        }
+
+    }
+
+
+    @media (max-width: 400px) {
+
+        .page-heading h1 {
+            font-size: 20px;
+        }
+
+        .header-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 15px;
+        }
+
+        .detail-card-header h2 {
+            font-size: 15px;
+        }
+
+        .detail-card-header,
+        .detail-body,
+        .evidence-body {
+            padding: 14px 12px;
+        }
+
+        .detail-grid {
+            gap: 14px;
+        }
+
+        .prestasi-icon {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+        }
+
+        .point-box strong {
+            font-size: 20px;
+        }
+
+        .point-flow {
+            padding: 16px 12px;
+        }
+
+        .point-info {
+            margin-left: 12px;
+            margin-right: 12px;
+        }
+
+        .heading-actions .btn {
+            width: 100%;
+            flex: 1 1 100%;
+        }
+
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+        }
+
+        .student-profile-info h3 {
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .no-evidence {
+            min-height: 140px;
+            padding: 20px 12px;
+        }
+
+        .no-evidence-icon {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
         }
 
     }

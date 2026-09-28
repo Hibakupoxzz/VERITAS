@@ -445,22 +445,30 @@
 
 .page-header{
     display:flex;
+    flex-wrap:wrap;
     justify-content:space-between;
     align-items:center;
-    gap:20px;
+    gap:16px;
     margin-bottom:20px;
 }
 
+.page-heading{
+    flex:1 1 260px;
+    min-width:0;
+}
+
 .page-heading h1{
-    font-size:34px;
+    font-size:clamp(24px,4.4vw,34px);
     color:var(--color-primary-gray);
     margin-bottom:5px;
     line-height:1.2;
+    overflow-wrap:anywhere;
 }
 
 .page-heading p{
     color:#6b7280;
     font-size:14px;
+    overflow-wrap:anywhere;
 }
 
 
@@ -487,6 +495,8 @@
     font-size:14px;
 
     white-space:nowrap;
+
+    flex-shrink:0;
 
     transition:.2s;
 }
@@ -543,18 +553,20 @@
     -webkit-overflow-scrolling:touch;
 }
 
-table{
+.table-responsive table{
     width:100%;
-    min-width:1050px;
+    min-width:min(1050px,100%);
 
     border-collapse:collapse;
+
+    table-layout:auto;
 }
 
-thead{
+.table-responsive thead{
     background:#1F2937;
 }
 
-th{
+.table-responsive th{
     color:white;
 
     padding:16px 14px;
@@ -567,7 +579,7 @@ th{
     white-space:nowrap;
 }
 
-td{
+.table-responsive td{
     padding:16px 14px;
 
     border-bottom:1px solid #eeeeee;
@@ -575,13 +587,15 @@ td{
     vertical-align:middle;
 
     font-size:13px;
+
+    overflow-wrap:anywhere;
 }
 
-tbody tr{
+.table-responsive tbody tr{
     transition:.2s;
 }
 
-tbody tr:hover{
+.table-responsive tbody tr:hover{
     background:#f9fafb;
 }
 
@@ -735,7 +749,9 @@ tbody tr:hover{
 
 .table-image{
     width:58px;
-    height:58px;
+    max-width:100%;
+    height:auto;
+    aspect-ratio:1/1;
 
     border-radius:10px;
 
@@ -1124,8 +1140,9 @@ tbody tr:hover{
         display:block;
 
         width:64px;
-
-        height:64px;
+        max-width:100%;
+        height:auto;
+        aspect-ratio:1/1;
 
         object-fit:cover;
 
@@ -1140,7 +1157,7 @@ tbody tr:hover{
     .mobile-actions{
         display:grid;
 
-        grid-template-columns:1fr 1fr 1fr;
+        grid-template-columns:repeat(auto-fit,minmax(min(110px,100%),1fr));
 
         gap:6px;
 
@@ -1193,6 +1210,149 @@ tbody tr:hover{
     .mobile-actions .btn-delete{
         min-height:38px;
 
+        font-size:11px;
+    }
+
+}
+
+
+/* =====================================================
+   RESPONSIVE REFINEMENTS
+   ===================================================== */
+
+@media(max-width:1024px){
+
+    .table-responsive table{
+        min-width:min(900px,100%);
+    }
+
+    .table-responsive th,
+    .table-responsive td{
+        padding:13px 11px;
+    }
+
+    .student-info{
+        min-width:110px;
+    }
+
+    .prestasi-wrapper{
+        max-width:260px;
+    }
+
+    .action-buttons{
+        min-width:150px;
+    }
+
+}
+
+@media(max-width:900px){
+
+    .page-header{
+        align-items:stretch;
+    }
+
+    .table-responsive table{
+        min-width:min(820px,100%);
+    }
+
+}
+
+@media(max-width:640px){
+
+    .table-responsive table{
+        min-width:min(760px,100%);
+    }
+
+    .table-responsive th,
+    .table-responsive td{
+        padding:11px 9px;
+
+        font-size:12px;
+    }
+
+    .table-card{
+        border-radius:16px;
+    }
+
+    .alert-success{
+        font-size:13px;
+
+        padding:12px 13px;
+
+        align-items:flex-start;
+    }
+
+    .empty{
+        padding:32px 16px !important;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .page-heading h1{
+        font-size:clamp(20px,4.6vw,24px);
+    }
+
+    .page-heading p{
+        font-size:13px;
+    }
+
+    .table-responsive table{
+        min-width:min(680px,100%);
+    }
+
+    .table-responsive th,
+    .table-responsive td{
+        padding:10px 8px;
+
+        font-size:11px;
+    }
+
+    .table-image{
+        width:44px;
+    }
+
+    .mobile-card-header{
+        flex-wrap:wrap;
+    }
+
+    .mobile-description{
+        font-size:11px;
+    }
+
+}
+
+@media(max-width:400px){
+
+    .page-heading h1{
+        font-size:20px;
+    }
+
+    .btn-primary{
+        padding:11px 12px;
+
+        font-size:12px;
+    }
+
+    .table-responsive th,
+    .table-responsive td{
+        padding:9px 6px;
+
+        font-size:11px;
+    }
+
+    .table-image{
+        width:38px;
+    }
+
+    .mobile-card-header{
+        gap:8px;
+    }
+
+    .mobile-actions .btn-detail,
+    .mobile-actions .btn-edit,
+    .mobile-actions .btn-delete{
         font-size:11px;
     }
 

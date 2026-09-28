@@ -26,6 +26,7 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 8px 25px rgba(109, 20, 8, .15);
+        max-width: 100%;
     }
 
     .dashboard-welcome::after {
@@ -53,6 +54,7 @@
     .welcome-content {
         position: relative;
         z-index: 2;
+        max-width: 100%;
     }
 
     .welcome-label {
@@ -64,9 +66,10 @@
 
     .welcome-title {
         margin: 0;
-        font-size: 28px;
+        font-size: clamp(20px, 4.5vw, 28px);
         font-weight: 800;
         letter-spacing: -.5px;
+        overflow-wrap: anywhere;
     }
 
     .welcome-description {
@@ -84,7 +87,7 @@
 
     .dashboard-stats {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
         gap: 18px;
         margin-bottom: 26px;
     }
@@ -151,9 +154,10 @@
 
     .stat-value {
         color: #1F2937;
-        font-size: 24px;
+        font-size: clamp(17px, 2.2vw, 24px);
         font-weight: 800;
         line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
 
@@ -170,6 +174,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 15px;
+        flex-wrap: wrap;
         margin-bottom: 15px;
     }
 
@@ -177,6 +182,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        min-width: 0;
+        flex: 1 1 200px;
     }
 
     .leaderboard-heading-icon {
@@ -213,6 +220,11 @@
         font-size: 12px;
         font-weight: 700;
         white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 40px;
+        flex: 0 0 auto;
         transition: .2s ease;
     }
 
@@ -228,7 +240,7 @@
 
     .leaderboard-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
         gap: 18px;
     }
 
@@ -246,6 +258,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+        flex-wrap: wrap;
         padding-bottom: 15px;
         border-bottom: 1px solid #F0F1F3;
         margin-bottom: 5px;
@@ -258,6 +271,7 @@
         color: #1F2937;
         font-size: 15px;
         font-weight: 800;
+        min-width: 0;
     }
 
     .leaderboard-card-title i {
@@ -288,6 +302,7 @@
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-wrap: wrap;
         padding: 13px 0;
         border-bottom: 1px solid #F3F4F6;
         min-width: 0;
@@ -327,7 +342,7 @@
     }
 
     .leaderboard-student {
-        flex: 1;
+        flex: 1 1 120px;
         min-width: 0;
     }
 
@@ -344,11 +359,14 @@
         color: #9CA3AF;
         font-size: 11px;
         margin-top: 2px;
+        overflow-wrap: anywhere;
     }
 
     .leaderboard-score {
         text-align: right;
         white-space: nowrap;
+        flex: 0 0 auto;
+        margin-left: auto;
     }
 
     .score-value {
@@ -391,6 +409,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
         margin-bottom: 14px;
     }
 
@@ -409,7 +429,7 @@
 
     .saldo-list {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
         gap: 10px;
     }
 
@@ -477,24 +497,18 @@
 
     @media (max-width: 1100px) {
 
-        .dashboard-stats {
-            grid-template-columns: repeat(2, 1fr);
+        .dashboard-welcome {
+            padding: 24px 22px;
         }
 
-        .saldo-list {
-            grid-template-columns: repeat(3, 1fr);
-        }
     }
 
     @media (max-width: 800px) {
 
-        .leaderboard-grid {
-            grid-template-columns: 1fr;
+        .dashboard-welcome {
+            padding: 22px 18px;
         }
 
-        .saldo-list {
-            grid-template-columns: repeat(2, 1fr);
-        }
     }
 
     @media (max-width: 600px) {
@@ -510,11 +524,6 @@
 
         .welcome-description {
             font-size: 12px;
-        }
-
-        .dashboard-stats {
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
         }
 
         .stat-card {
@@ -561,20 +570,12 @@
             border-radius: 15px;
         }
 
-        .saldo-list {
-            grid-template-columns: 1fr 1fr;
+        .leaderboard-empty {
+            padding: 20px 8px;
         }
     }
 
     @media (max-width: 400px) {
-
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
-
-        .saldo-list {
-            grid-template-columns: 1fr;
-        }
 
         .leaderboard-heading-icon {
             width: 36px;
@@ -584,6 +585,138 @@
 
         .leaderboard-title {
             font-size: 16px;
+        }
+    }
+
+
+    /* =========================================================
+       RESPONSIVE OVERRIDES (MOBILE-FIRST HARDENING)
+       ========================================================= */
+
+    @media (max-width: 768px) {
+
+        .dashboard {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .leaderboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .leaderboard-heading {
+            width: 100%;
+        }
+
+        .leaderboard-item {
+            gap: 10px;
+        }
+
+        .score-value {
+            font-size: 14px;
+        }
+
+        .saldo-item {
+            padding: 11px;
+        }
+
+        .saldo-poin {
+            font-size: 17px;
+        }
+    }
+
+    @media (max-width: 640px) {
+
+        .leaderboard-empty i {
+            font-size: 20px;
+        }
+
+        .leaderboard-empty p {
+            font-size: 11px;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        .dashboard-welcome {
+            padding: 18px 15px;
+            border-radius: 14px;
+        }
+
+        .welcome-label {
+            font-size: 11px;
+        }
+
+        .welcome-title {
+            font-size: 20px;
+            letter-spacing: 0;
+        }
+
+        .welcome-description {
+            font-size: 11px;
+            line-height: 1.55;
+        }
+
+        .stat-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .dashboard-stats {
+            gap: 10px;
+        }
+
+        .stat-icon {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            font-size: 14px;
+            border-radius: 10px;
+        }
+
+        .leaderboard-heading {
+            gap: 10px;
+        }
+
+        .leaderboard-heading-icon {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .leaderboard-link {
+            min-height: 40px;
+            font-size: 12px;
+        }
+
+        .leaderboard-item {
+            padding: 11px 0;
+        }
+
+        .leaderboard-empty {
+            padding: 18px 6px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .dashboard-welcome::after,
+        .dashboard-welcome::before {
+            display: none;
+        }
+
+        .saldo-item {
+            padding: 10px;
+        }
+
+        .saldo-name {
+            font-size: 11px;
         }
     }
 </style>

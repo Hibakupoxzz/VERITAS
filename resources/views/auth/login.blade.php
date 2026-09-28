@@ -22,6 +22,10 @@
     box-sizing:border-box;
 }
 
+html,body{
+    max-width:100%;
+}
+
 body{
     font-family:'Inter',sans-serif;
     background:linear-gradient(135deg,#1F2937,#111827);
@@ -30,6 +34,7 @@ body{
     align-items:center;
     justify-content:center;
     padding:20px;
+    overflow-x:hidden;
 }
 
 .login-wrapper{
@@ -184,11 +189,52 @@ body{
 }
 
 @media(max-width:480px){
+    body{
+        padding:14px 12px;
+        align-items:flex-start;
+    }
+    .login-card{
+        border-radius:16px;
+    }
     .login-header{
         padding:28px 20px;
     }
+    .login-header h2{
+        font-size:24px;
+        letter-spacing:1.5px;
+    }
     .login-body{
         padding:28px 20px;
+    }
+    /* Cegah auto-zoom iOS saat input difokuskan */
+    .form-group input{
+        font-size:16px;
+    }
+    .remember-row{
+        margin-bottom:20px;
+    }
+    .login-footer{
+        margin-top:18px;
+    }
+}
+
+@media(max-width:360px){
+    body{
+        padding:10px 8px;
+    }
+    .login-header,
+    .login-body{
+        padding:24px 16px;
+    }
+    .login-header h2{
+        font-size:21px;
+    }
+    .form-group input{
+        padding:12px 14px 12px 42px;
+    }
+    .input-wrap i{
+        left:15px;
+        font-size:14px;
     }
 }
 

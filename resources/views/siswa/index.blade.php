@@ -15,11 +15,14 @@
         gap: 12px;
         flex-wrap: wrap;
     }
-    .pv-page-left { display: flex; align-items: center; gap: 14px; }
+    .pv-page-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .pv-page-left > div:last-child { min-width: 0; }
 
     .pv-icon{
         width:55px;
         height:55px;
+        min-width:55px;
+        flex-shrink:0;
         border-radius:16px;
         background:#FBEAE8;
         color:#6D1408;
@@ -28,7 +31,7 @@
         justify-content:center;
         font-size:24px;
     }
-    .pv-page-title { font-size: 1.25rem; font-weight: 600; color: #1a1a2e; margin: 0; }
+    .pv-page-title { font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.25rem); font-weight: 600; color: #1a1a2e; margin: 0; overflow-wrap: anywhere; }
     .pv-page-sub   { font-size: 0.8rem; color: #6b7280; margin: 2px 0 0; }
 
     .pv-btn-add {
@@ -76,6 +79,7 @@
     .pv-stat-icon.red   { background: #fff1f1; } .pv-stat-icon.red   svg { stroke: #e53e3e; }
     .pv-stat-val { font-size: 1.35rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
     .pv-stat-lbl { font-size: 0.72rem; color: #6b7280; margin-top: 3px; }
+    .pv-stat-card > div:last-child { min-width: 0; }
 
     /* ── Toolbar ── */
     .pv-toolbar {
@@ -84,7 +88,7 @@
         margin-bottom: 1rem;
         display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
     }
-    .pv-search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .pv-search-wrap { position: relative; flex: 1 1 220px; min-width: 0; max-width: 100%; }
     .pv-search-wrap svg {
         position: absolute; left: 10px; top: 50%;
         transform: translateY(-50%);
@@ -106,6 +110,7 @@
         border-radius: 8px; font-size: 0.85rem;
         background: #fafbfc; outline: none;
         cursor: pointer; font-family: inherit; color: #374151;
+        flex: 0 1 auto; min-width: 0; max-width: 100%;
     }
     .pv-filter-select:focus { border-color: #2563eb; }
 
@@ -133,6 +138,7 @@
 
     /* ── Siswa cell ── */
     .pv-siswa-cell { display: flex; align-items: center; gap: 10px; }
+    .pv-siswa-cell > div:last-child { min-width: 0; }
     .pv-avatar {
         width: 36px; height: 36px; border-radius: 50%;
         background:#6D1408;
@@ -140,8 +146,8 @@
         font-size: 0.72rem; font-weight: 700;
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .pv-siswa-name  { font-weight: 500; color: #1a1a2e; font-size: 0.875rem; }
-    .pv-siswa-nisn  { font-size: 0.72rem; color: #6b7280; margin-top: 2px; }
+    .pv-siswa-name  { font-weight: 500; color: #1a1a2e; font-size: 0.875rem; overflow-wrap: anywhere; }
+    .pv-siswa-nisn  { font-size: 0.72rem; color: #6b7280; margin-top: 2px; overflow-wrap: anywhere; }
 
     /* ── Kelas badge ── */
     .pv-kelas-badge {
@@ -218,19 +224,8 @@
 
     .container-page{
         max-width:1100px;
+        width:100%;
         margin:auto;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-        .pv-stats { grid-template-columns: 1fr 1fr; }
-        .pv-table th:nth-child(5),
-        .pv-table td:nth-child(5) { display: none; }
-    }
-    @media (max-width: 576px) {
-        .pv-stats { grid-template-columns: 1fr; }
-        .pv-table-card { overflow-x: auto; }
-        .pv-table { min-width: 520px; }
     }
 
     /* =========================
@@ -239,11 +234,97 @@
 
     .table-responsive{
         width:100%;
+        max-width:100%;
         overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
     }
 
-    table{
+    .pv-table{
         min-width:700px;
+    }
+
+    /* =========================
+    RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1024px) {
+        .pv-table { min-width: 640px; }
+    }
+
+    @media (max-width: 900px) {
+        .pv-table { min-width: 600px; }
+        .pv-table th,
+        .pv-table td { padding: 11px 12px; }
+    }
+
+    @media (max-width: 768px) {
+        .pv-stats { grid-template-columns: 1fr 1fr; }
+        .pv-table th:nth-child(5),
+        .pv-table td:nth-child(5) { display: none; }
+        .pv-table { min-width: 520px; }
+        .pv-table th { padding: 9px 10px; font-size: 0.66rem; }
+        .pv-table td { padding: 10px 10px; }
+        .pv-toolbar { padding: 12px 1rem; }
+        .pv-action-wrap { flex-wrap: wrap; }
+        .pv-siswa-cell { gap: 8px; }
+    }
+
+    @media (max-width: 640px) {
+        .pv-page-header { gap: 10px; }
+        .pv-page-left { gap: 10px; }
+        .pv-icon { width: 46px; height: 46px; min-width: 46px; border-radius: 14px; font-size: 20px; }
+        .pv-btn-add {
+            width: 100%;
+            justify-content: center;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pv-toolbar { flex-direction: column; align-items: stretch; }
+        .pv-search-wrap { flex: 1 1 auto; width: 100%; }
+        .pv-search-wrap input,
+        .pv-filter-select {
+            width: 100%;
+            max-width: 100%;
+            font-size: 16px; /* anti-zoom on iOS */
+            min-height: 40px;
+        }
+        .pv-btn-edit,
+        .pv-btn-delete {
+            min-height: 40px;
+            padding: 9px 12px;
+        }
+        .pv-action-wrap { width: 100%; }
+        .pv-table { min-width: 460px; }
+    }
+
+    @media (max-width: 576px) {
+        .pv-stats { grid-template-columns: 1fr; }
+        .pv-table { min-width: 420px; }
+        .pv-empty { padding: 2.25rem 1rem; }
+        .pv-empty svg { width: 40px; height: 40px; }
+    }
+
+    @media (max-width: 480px) {
+        .container-page { max-width: 100%; }
+        .pv-page-header { flex-direction: column; align-items: stretch; }
+        .pv-alert-success { padding: 11px 13px; font-size: 0.82rem; }
+        .pv-stat-card { padding: 0.9rem 1rem; }
+        .pv-table { min-width: 380px; }
+        .pv-table th { padding: 8px 8px; }
+        .pv-table td { padding: 9px 8px; }
+        .pv-avatar { width: 32px; height: 32px; font-size: 0.66rem; }
+    }
+
+    @media (max-width: 400px) {
+        .pv-table { min-width: 340px; }
+        .pv-table th { font-size: 0.6rem; letter-spacing: 0.03em; }
+        .pv-table td { padding: 8px 6px; }
+        .pv-btn-edit,
+        .pv-btn-delete { padding: 8px 10px; font-size: 12px; }
+        .pv-kelas-badge,
+        .pv-poin-badge { padding: 3px 8px; }
     }
 </style>
 @endsection
@@ -346,7 +427,7 @@
 
     {{-- Table --}}
     <div class="pv-table-card">
-        <div class="table-responsive">
+        <div class="table-wrapper table-responsive">
 
             <table class="pv-table">
                 <thead>

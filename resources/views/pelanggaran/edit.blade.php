@@ -247,6 +247,123 @@
     }
 
 }
+
+    /* ── Base overflow safety ── */
+    .pv-body {
+        width: 100%;
+    }
+    .pv-body .container {
+        width: 100%;
+        max-width: 100%;
+    }
+    .pv-page-header,
+    .pv-page-header > div,
+    .pv-field,
+    .pv-label {
+        min-width: 0;
+    }
+    .pv-page-title,
+    .pv-page-sub,
+    .pv-label,
+    .pv-upload-text,
+    .pv-upload-hint,
+    .pv-no-foto,
+    .pv-alert-error li {
+        overflow-wrap: anywhere;
+    }
+    .pv-input,
+    .pv-select,
+    .pv-textarea {
+        max-width: 100%;
+    }
+    .pv-poin-wrap .pv-input {
+        min-width: 0;
+    }
+    .pv-foto-existing {
+        max-width: 100%;
+    }
+    .pv-foto-existing img {
+        width: 160px;
+        max-width: 100%;
+        height: 120px;
+    }
+    .pv-foto-preview img {
+        max-width: 100%;
+    }
+    .pv-footer {
+        flex-wrap: wrap;
+    }
+    .pv-btn-primary,
+    .pv-btn-secondary {
+        min-height: 42px;
+    }
+    .pv-page-footer {
+        padding: 120px 10px 10px;
+        text-align: center;
+        color: #9CA3AF;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+    .pv-page-footer a {
+        color: #6D1408;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+        .pv-poin-wrap { flex-wrap: wrap; }
+        .pv-poin-wrap .pv-poin-tag { min-width: 0; }
+    }
+
+    @media (max-width: 768px) {
+        .pv-grid-2 { grid-template-columns: 1fr; }
+        .pv-card { padding: 1rem; }
+        .pv-footer { flex-direction: column-reverse; gap: 8px; }
+        .pv-btn-primary,
+        .pv-btn-secondary { width: 100%; justify-content: center; min-height: 46px; }
+        .pv-page-footer { padding: 60px 10px 10px; }
+    }
+
+    @media (max-width: 640px) {
+        .pv-upload-area { padding: 1rem; }
+        .pv-poin-wrap { flex-direction: column; align-items: stretch; gap: 8px; }
+        .pv-poin-tag { text-align: center; }
+        .pv-alert-error { padding: 12px; }
+        .pv-alert-error ul { margin-left: 14px; }
+    }
+
+    @media (max-width: 576px) {
+        .pv-input,
+        .pv-select,
+        .pv-textarea {
+            font-size: 16px;
+        }
+        .pv-page-header { gap: 10px; margin-bottom: 1rem; }
+        .pv-page-icon { width: 40px; height: 40px; flex-basis: 40px; }
+        .pv-page-icon svg { width: 20px; height: 20px; }
+        .pv-page-title { font-size: 1.1rem; }
+        .pv-page-sub { font-size: 0.72rem; }
+        .pv-textarea { min-height: 90px; }
+        .pv-card { padding: 0.9rem; }
+    }
+
+    @media (max-width: 480px) {
+        .pv-card { padding: 0.75rem; }
+        .pv-page-title { font-size: 1rem; }
+        .pv-page-sub { font-size: 0.68rem; }
+        .pv-foto-existing img { width: 132px; height: 100px; }
+        .pv-foto-preview img { max-height: 140px; }
+        .pv-page-footer { padding: 40px 8px 10px; font-size: 12px; }
+    }
+
+    @media (max-width: 400px) {
+        .pv-upload-area { padding: 0.85rem 0.6rem; }
+        .pv-upload-text { font-size: 0.75rem; }
+        .pv-upload-hint { font-size: 0.68rem; }
+        .pv-poin-wrap .pv-input { min-width: 0; }
+        .pv-foto-existing img { width: 112px; height: 86px; }
+    }
 </style>
 @endsection
 
@@ -446,17 +563,12 @@
         </div>
 
     </form>
-<footer style="
-    padding: 120px 10px 10px 10px;
-    text-align:center;
-    color:#9CA3AF;
-    font-size:13px; ">
+<footer class="pv-page-footer">
     © {{ date('Y') }} VERITAS — Sistem Monitoring Pelanggaran Siswa.
     <br>
     Developed by
     <a href="https://kicauorgspark.my.id"
-       target="_blank"
-       style="color:#6D1408;font-weight:600;text-decoration:none;">
+       target="_blank">
         KicawOrgspark
     </a>
 </footer>

@@ -508,6 +508,212 @@
             font-size: 13px;
         }
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RESPONSIVE HARDENING
+    |--------------------------------------------------------------------------
+    */
+
+    .pv-page-header,
+    .pv-page-header > div {
+        min-width: 0;
+    }
+
+    .pv-page-header h1,
+    .pv-page-header p {
+        overflow-wrap: anywhere;
+    }
+
+    #previewFoto {
+        height: auto;
+    }
+
+    .pv-section-label,
+    .pv-label {
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 1200px) {
+
+        .upload-box {
+            padding: 40px 30px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+
+        .upload-box {
+            padding: 34px 24px;
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 34px;
+            margin-bottom: 18px;
+        }
+    }
+
+    @media (max-width: 900px) {
+
+        .pv-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .upload-box {
+            padding: 28px 20px;
+            border-radius: 18px;
+        }
+    }
+
+    @media (max-width: 768px) {
+
+        .pv-footer {
+            flex-wrap: wrap;
+        }
+
+        .pv-btn-primary,
+        .pv-btn-secondary {
+            min-height: 44px;
+        }
+
+        #previewFoto {
+            max-height: 300px;
+        }
+    }
+
+    @media (max-width: 640px) {
+
+        .upload-box {
+            padding: 24px 16px;
+        }
+
+        .upload-title {
+            font-size: 18px;
+        }
+
+        .upload-desc {
+            margin-bottom: 20px;
+        }
+
+        .upload-btn {
+            padding: 12px 22px;
+        }
+
+        .pv-textarea {
+            min-height: 90px;
+        }
+
+        .pv-alert-error {
+            padding: 12px;
+        }
+
+        .pv-alert-error ul {
+            margin-left: 16px;
+        }
+    }
+
+    @media (max-width: 576px) {
+
+        .pv-input,
+        .pv-select,
+        .pv-textarea,
+        .pv-search input {
+            font-size: 16px;
+        }
+
+        .pv-search svg {
+            left: 12px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .pv-search input {
+            padding-left: 38px;
+        }
+
+        .upload-box {
+            padding: 20px 12px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        #previewFoto {
+            max-height: 220px;
+            border-width: 4px;
+            margin-top: 20px;
+        }
+
+        .file-info {
+            padding: 14px;
+            margin-top: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        .pv-footer {
+            flex-direction: column-reverse;
+            gap: 8px;
+        }
+
+        .pv-footer .pv-btn-primary,
+        .pv-footer .pv-btn-secondary {
+            width: 100%;
+            min-height: 46px;
+            justify-content: center;
+        }
+
+        .pv-card {
+            padding: 0.9rem;
+        }
+
+        .upload-icon {
+            width: 62px;
+            height: 62px;
+            font-size: 26px;
+            margin-bottom: 14px;
+        }
+
+        .pv-bottom-footer {
+            padding: 32px 8px 12px;
+        }
+    }
+
+    @media (max-width: 400px) {
+
+        .pv-card {
+            padding: 0.75rem;
+        }
+
+        .pv-page-title {
+            font-size: 1rem;
+        }
+
+        .pv-page-sub {
+            font-size: 0.68rem;
+        }
+
+        .upload-box {
+            padding: 16px 10px;
+        }
+
+        .upload-title {
+            font-size: 16px;
+        }
+
+        .upload-desc {
+            font-size: 12.5px;
+        }
+
+        .pv-selected {
+            padding: 10px;
+        }
+    }
 </style>
 @endsection
 

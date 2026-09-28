@@ -13,6 +13,8 @@
 
     .leaderboard-page {
         width: 100%;
+        max-width: 100%;
+        overflow: hidden;
     }
 
 
@@ -29,7 +31,7 @@
 
         border-radius: 20px;
 
-        padding: 28px 30px;
+        padding: clamp(18px, 2.4vw, 30px);
 
         color: #fff;
 
@@ -86,8 +88,8 @@
 
 
     .hero-icon {
-        width: 48px;
-        height: 48px;
+        width: clamp(38px, 3.4vw, 48px);
+        height: clamp(38px, 3.4vw, 48px);
 
         border-radius: 14px;
 
@@ -98,7 +100,7 @@
         align-items: center;
         justify-content: center;
 
-        font-size: 21px;
+        font-size: clamp(15px, 1.5vw, 21px);
 
         margin-bottom: 14px;
     }
@@ -107,9 +109,11 @@
     .hero-title {
         margin: 0;
 
-        font-size: 27px;
+        font-size: clamp(19px, 2.2vw, 27px);
 
         font-weight: 800;
+
+        overflow-wrap: anywhere;
     }
 
 
@@ -121,6 +125,8 @@
         opacity: .88;
 
         line-height: 1.6;
+
+        max-width: 70ch;
     }
 
 
@@ -130,6 +136,7 @@
 
     .leaderboard-tabs {
         display: flex;
+        flex-wrap: wrap;
 
         gap: 8px;
 
@@ -206,7 +213,7 @@
         display: grid;
 
         grid-template-columns:
-            repeat(3, 1fr);
+            repeat(auto-fit, minmax(min(230px, 100%), 1fr));
 
         gap: 18px;
 
@@ -221,7 +228,7 @@
 
         border-radius: 18px;
 
-        padding: 22px;
+        padding: clamp(14px, 1.8vw, 22px);
 
         text-align: center;
 
@@ -229,6 +236,8 @@
             0 5px 20px rgba(0,0,0,.04);
 
         position: relative;
+
+        min-width: 0;
     }
 
 
@@ -248,7 +257,7 @@
 
 
     .top-medal {
-        font-size: 27px;
+        font-size: clamp(22px, 2.4vw, 27px);
 
         margin-bottom: 9px;
     }
@@ -276,6 +285,8 @@
 
         color: #1F2937;
 
+        min-width: 0;
+
         white-space: nowrap;
 
         overflow: hidden;
@@ -290,17 +301,21 @@
         font-size: 11px;
 
         margin-top: 3px;
+
+        overflow-wrap: anywhere;
     }
 
 
     .top-points {
         margin-top: 13px;
 
-        font-size: 24px;
+        font-size: clamp(20px, 2.1vw, 24px);
 
         font-weight: 800;
 
         color: #15803D;
+
+        overflow-wrap: anywhere;
     }
 
 
@@ -337,6 +352,7 @@
         border-bottom: 1px solid #F0F1F3;
 
         display: flex;
+        flex-wrap: wrap;
 
         justify-content: space-between;
 
@@ -352,6 +368,8 @@
         font-size: 15px;
 
         font-weight: 800;
+
+        overflow-wrap: anywhere;
     }
 
 
@@ -361,13 +379,18 @@
         font-size: 11px;
 
         margin-top: 3px;
+
+        overflow-wrap: anywhere;
     }
 
 
     .table-wrapper {
         width: 100%;
+        max-width: 100%;
 
         overflow-x: auto;
+
+        -webkit-overflow-scrolling: touch;
     }
 
 
@@ -460,14 +483,16 @@
         align-items: center;
 
         gap: 11px;
+
+        min-width: 0;
     }
 
 
     .student-avatar {
-        width: 36px;
-        height: 36px;
+        width: clamp(30px, 2.4vw, 36px);
+        height: clamp(30px, 2.4vw, 36px);
 
-        min-width: 36px;
+        min-width: clamp(30px, 2.4vw, 36px);
 
         border-radius: 10px;
 
@@ -601,36 +626,49 @@
     }
 
 
+    @media (max-width: 768px) {
+
+        .leaderboard-table {
+            min-width: 520px;
+        }
+
+        .leaderboard-table th {
+            padding: 10px 12px;
+        }
+
+        .leaderboard-table td {
+            padding: 11px 12px;
+        }
+
+        .leaderboard-tabs {
+            width: 100%;
+        }
+
+        .leaderboard-tab {
+            white-space: nowrap;
+
+            flex: 1 1 auto;
+        }
+
+    }
+
+
     @media (max-width: 600px) {
 
         .leaderboard-hero {
-            padding: 22px 20px;
+            padding: 20px 18px;
 
             border-radius: 16px;
         }
 
 
         .hero-title {
-            font-size: 22px;
+            font-size: 21px;
         }
 
 
         .hero-description {
-            font-size: 11px;
-        }
-
-
-        .leaderboard-tabs {
-            width: 100%;
-
-            overflow-x: auto;
-        }
-
-
-        .leaderboard-tab {
-            white-space: nowrap;
-
-            flex: 1;
+            font-size: 12px;
         }
 
 
@@ -640,7 +678,93 @@
 
 
         .table-header {
-            padding: 15px;
+            padding: 14px;
+        }
+
+    }
+
+
+    @media (max-width: 480px) {
+
+        .leaderboard-hero {
+            padding: 16px 14px;
+
+            margin-bottom: 18px;
+        }
+
+        .hero-icon {
+            width: 38px;
+            height: 38px;
+
+            font-size: 15px;
+
+            margin-bottom: 10px;
+        }
+
+        .hero-title {
+            font-size: 19px;
+        }
+
+        .top-three {
+            gap: 12px;
+        }
+
+        .top-card {
+            padding: 14px 12px;
+        }
+
+        .top-points {
+            margin-top: 10px;
+        }
+
+        .leaderboard-table {
+            min-width: 440px;
+        }
+
+        .leaderboard-table th {
+            padding: 9px 9px;
+        }
+
+        .leaderboard-table td {
+            padding: 10px 9px;
+        }
+
+        .rank-box {
+            width: 27px;
+            height: 27px;
+        }
+
+        .empty-state {
+            padding: 34px 14px;
+        }
+
+    }
+
+
+    @media (max-width: 400px) {
+
+        .hero-title {
+            font-size: 18px;
+        }
+
+        .leaderboard-tab {
+            font-size: 11px;
+        }
+
+        .leaderboard-table {
+            min-width: 400px;
+        }
+
+        .leaderboard-table th {
+            padding: 8px 7px;
+        }
+
+        .leaderboard-table td {
+            padding: 9px 7px;
+        }
+
+        .top-points-label {
+            font-size: 9px;
         }
 
     }

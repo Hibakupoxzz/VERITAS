@@ -47,11 +47,20 @@
             scroll-behavior: smooth;
         }
 
+        html,
+        body {
+            max-width: 100%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #F9F6F2;
             color: #1F2937;
             min-height: 100vh;
+
+            /* Cegah scroll horizontal akibat elemen fixed-width.
+               Pakai clip (bukan hidden) supaya position:sticky topbar tetap jalan. */
+            overflow-x: clip;
         }
 
         a {
@@ -66,8 +75,32 @@
             font-family: inherit;
         }
 
-        img {
+        img,
+        svg,
+        video,
+        canvas,
+        iframe {
             max-width: 100%;
+        }
+
+        img,
+        video {
+            height: auto;
+        }
+
+        /* Teks panjang (nama, NISN, keterangan) tidak boleh causing overflow */
+        p,
+        span,
+        td,
+        th,
+        h1,
+        h2,
+        h3,
+        h4,
+        strong,
+        small,
+        label {
+            overflow-wrap: break-word;
         }
 
 
@@ -813,6 +846,8 @@
         .table-wrapper {
             width: 100%;
 
+            max-width: 100%;
+
             overflow-x: auto;
 
             -webkit-overflow-scrolling: touch;
@@ -820,6 +855,8 @@
 
         .table {
             width: 100%;
+
+            max-width: 100%;
 
             border-collapse: collapse;
 
@@ -1003,6 +1040,48 @@
                     24px 22px 35px;
             }
 
+            .topbar-date {
+                font-size: 10px;
+
+                padding:
+                    7px 10px;
+            }
+
+        }
+
+
+        /* =========================================================
+           RESPONSIVE SMALL TABLET
+        ========================================================= */
+
+        @media (max-width: 900px) {
+
+            :root {
+                --sidebar-width: 215px;
+            }
+
+            .sidebar {
+                width: 215px;
+            }
+
+            .main {
+                margin-left: 215px;
+            }
+
+            .topbar {
+                padding:
+                    0 18px;
+            }
+
+            .page {
+                padding:
+                    20px 18px 30px;
+            }
+
+            .topbar-date {
+                display: none;
+            }
+
         }
 
 
@@ -1046,6 +1125,9 @@
 
             .page-heading h1 {
                 font-size: 15px;
+
+                /* Judul panjang tidak lagi dipaksa satu baris */
+                white-space: normal;
             }
 
             .page-heading p {
@@ -1054,6 +1136,10 @@
 
             .topbar-date {
                 display: none;
+            }
+
+            .topbar-right {
+                gap: 8px;
             }
 
             .page {
@@ -1071,6 +1157,36 @@
                 opacity: 1;
 
                 pointer-events: auto;
+            }
+
+            /* Target sentuh yang nyaman di mobile */
+            .btn {
+                min-height: 40px;
+            }
+
+            /* Cegah inputSafari/iOS auto-zoom saat fokus */
+            .form-control,
+            .form-label {
+                font-size: 16px;
+            }
+
+            .form-label {
+                margin-bottom: 6px;
+            }
+
+            .table {
+                min-width: 520px;
+            }
+
+            .table th,
+            .table td {
+                padding:
+                    10px 11px;
+            }
+
+            .empty-state {
+                padding:
+                    34px 16px;
             }
 
         }
@@ -1113,6 +1229,112 @@
                     9px 12px;
 
                 font-size: 11px;
+
+                min-height: 38px;
+            }
+
+            .table {
+                min-width: 460px;
+            }
+
+            .table th,
+            .table td {
+                padding:
+                    9px 9px;
+
+                font-size: 11px;
+            }
+
+            .form-control {
+                padding:
+                    10px 11px;
+            }
+
+            .alert {
+                padding:
+                    11px 12px;
+
+                font-size: 11.5px;
+            }
+
+            .pagination-wrapper {
+                overflow-x: auto;
+            }
+
+        }
+
+
+        /* =========================================================
+           RESPONSIVE EXTRA SMALL
+        ========================================================= */
+
+        @media (max-width: 380px) {
+
+            .page {
+                padding:
+                    14px 10px 22px;
+            }
+
+            .page-heading h1 {
+                font-size: 13px;
+            }
+
+            .table {
+                min-width: 400px;
+            }
+
+            .btn {
+                padding:
+                    8px 10px;
+
+                font-size: 10.5px;
+            }
+
+        }
+
+
+        /* =========================================================
+           TOM SELECT (PILIHAN SEARCHABLE)
+        ========================================================= */
+
+        .searchable-select {
+            width: 100%;
+
+            max-width: 100%;
+        }
+
+        .ts-wrapper {
+            width: 100% !important;
+
+            max-width: 100%;
+        }
+
+        .ts-control {
+            max-width: 100%;
+
+            min-height: 38px;
+        }
+
+        .ts-dropdown {
+            max-width: 100%;
+
+            max-height: 260px;
+        }
+
+        @media (max-width: 576px) {
+
+            .ts-control input {
+                font-size: 16px !important;
+            }
+
+            .ts-dropdown {
+                position: static !important;
+
+                width: 100% !important;
+
+                max-height: 220px;
+
+                overflow-y: auto;
             }
 
         }

@@ -610,13 +610,19 @@
         justify-content: space-between;
         gap: 20px;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .page-heading > div:first-child {
+        min-width: 0;
     }
 
     .page-heading h1 {
         margin: 0 0 6px;
-        font-size: 25px;
+        font-size: clamp(1.15rem, 0.9rem + 1.3vw, 1.5625rem);
         font-weight: 800;
         color: #1f2937;
+        overflow-wrap: anywhere;
     }
 
     .page-heading h1 i {
@@ -628,12 +634,25 @@
         margin: 0;
         color: #6b7280;
         font-size: 14px;
+        overflow-wrap: anywhere;
     }
 
     .heading-actions {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+    }
+
+    .heading-actions .btn {
+        min-height: 40px;
+    }
+
+    /* Images never overflow their container */
+    .page img,
+    .table-card img,
+    .student-profile img {
+        max-width: 100%;
+        height: auto;
     }
 
 
@@ -645,6 +664,7 @@
         display: flex;
         align-items: center;
         gap: 20px;
+        flex-wrap: wrap;
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 16px;
@@ -664,13 +684,20 @@
         align-items: center;
         justify-content: center;
         font-size: 28px;
+        flex-shrink: 0;
+    }
+
+    .profile-info {
+        min-width: 0;
+        flex: 1 1 240px;
     }
 
     .profile-info h2 {
         margin: 0 0 10px;
-        font-size: 22px;
+        font-size: clamp(1.05rem, 0.9rem + 0.9vw, 1.375rem);
         font-weight: 800;
         color: #1f2937;
+        overflow-wrap: anywhere;
     }
 
     .profile-meta {
@@ -685,6 +712,12 @@
         display: flex;
         align-items: center;
         gap: 7px;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-meta span i {
+        flex-shrink: 0;
     }
 
     .profile-meta i {
@@ -698,7 +731,7 @@
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 16px;
         margin-bottom: 20px;
     }
@@ -711,6 +744,7 @@
         display: flex;
         align-items: center;
         gap: 14px;
+        min-width: 0;
         box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
     }
 
@@ -723,6 +757,7 @@
         align-items: center;
         justify-content: center;
         font-size: 19px;
+        flex-shrink: 0;
     }
 
     .stat-icon.neutral {
@@ -747,6 +782,7 @@
 
     .stat-content {
         min-width: 0;
+        flex: 1;
     }
 
     .stat-label {
@@ -754,6 +790,7 @@
         color: #6b7280;
         font-size: 12px;
         margin-bottom: 4px;
+        overflow-wrap: anywhere;
     }
 
     .stat-content strong {
@@ -769,7 +806,7 @@
 
     .history-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px;
         margin-bottom: 20px;
     }
@@ -779,6 +816,7 @@
         border: 1px solid #e5e7eb;
         border-radius: 16px;
         overflow: hidden;
+        min-width: 0;
         box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
     }
 
@@ -789,6 +827,11 @@
         align-items: center;
         justify-content: space-between;
         gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .card-header > div:first-child {
+        min-width: 0;
     }
 
     .card-header h3 {
@@ -796,6 +839,7 @@
         font-size: 16px;
         font-weight: 800;
         color: #1f2937;
+        overflow-wrap: anywhere;
     }
 
     .card-header h3 i {
@@ -815,11 +859,15 @@
     ===================================================== */
 
     .table-wrapper {
+        width: 100%;
+        max-width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     table {
         width: 100%;
+        min-width: 480px;
         border-collapse: collapse;
     }
 
@@ -840,6 +888,7 @@
         color: #374151;
         font-size: 13px;
         vertical-align: middle;
+        overflow-wrap: anywhere;
     }
 
     tbody tr:hover {
@@ -856,8 +905,20 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        min-width: 0;
         font-weight: 600;
         color: #374151;
+    }
+
+    .violation-name i,
+    .achievement-name i {
+        flex-shrink: 0;
+    }
+
+    .violation-name span,
+    .achievement-name span {
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     .violation-name i {
@@ -991,6 +1052,8 @@
         border: 1px solid #e5e7eb;
         border-radius: 16px;
         overflow: hidden;
+        width: 100%;
+        max-width: 100%;
         box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
     }
 
@@ -1003,6 +1066,7 @@
         margin: 0 0 4px;
         font-size: 16px;
         color: #1f2937;
+        overflow-wrap: anywhere;
     }
 
     .calculation-header h3 i {
@@ -1027,6 +1091,7 @@
 
     .calc-item {
         min-width: 110px;
+        max-width: 100%;
         text-align: center;
     }
 
@@ -1035,6 +1100,7 @@
         color: #6b7280;
         font-size: 11px;
         margin-bottom: 5px;
+        overflow-wrap: anywhere;
     }
 
     .calc-item strong {
@@ -1079,35 +1145,30 @@
 
 
     /* =====================================================
-       RESPONSIVE TABLET
+       RESPONSIVE
     ===================================================== */
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
 
         .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .history-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
     }
 
+    @media (max-width: 1024px) {
 
-    /* =====================================================
-       RESPONSIVE MOBILE
-    ===================================================== */
+        .history-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
 
-    @media (max-width: 700px) {
+    }
+
+    @media (max-width: 900px) {
 
         .page-heading {
             align-items: flex-start;
             flex-direction: column;
-        }
-
-        .page-heading h1 {
-            font-size: 21px;
         }
 
         .heading-actions {
@@ -1115,10 +1176,9 @@
         }
 
         .heading-actions .btn {
-            flex: 1;
+            flex: 1 1 140px;
             justify-content: center;
         }
-
 
         .student-profile {
             padding: 18px;
@@ -1132,18 +1192,12 @@
             font-size: 22px;
         }
 
-        .profile-info h2 {
-            font-size: 18px;
-        }
-
         .profile-meta {
             flex-direction: column;
             gap: 7px;
         }
 
-
         .stats-grid {
-            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
@@ -1163,7 +1217,6 @@
             font-size: 18px;
         }
 
-
         .history-grid {
             gap: 14px;
         }
@@ -1177,6 +1230,9 @@
             padding: 11px 10px;
         }
 
+        table {
+            min-width: 440px;
+        }
 
         .calculation {
             gap: 10px;
@@ -1197,15 +1253,24 @@
 
     }
 
+    @media (max-width: 768px) {
 
-    /* =====================================================
-       SMALL MOBILE
-    ===================================================== */
+        .calculation-card,
+        .table-card,
+        .student-profile {
+            border-radius: 13px;
+        }
 
-    @media (max-width: 430px) {
+        table {
+            min-width: 400px;
+        }
 
-        .stats-grid {
-            grid-template-columns: 1fr;
+    }
+
+    @media (max-width: 576px) {
+
+        .page-heading {
+            margin-bottom: 18px;
         }
 
         .heading-actions {
@@ -1218,11 +1283,126 @@
 
         .student-profile {
             align-items: flex-start;
+            flex-wrap: nowrap;
+        }
+
+        .empty-state {
+            padding: 32px 16px;
+        }
+
+        table {
+            min-width: 360px;
+        }
+
+        th,
+        td {
+            padding: 10px 8px;
         }
 
         .calculation {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            gap: 8px 6px;
+            padding: 16px 10px;
+        }
+
+        .calc-item {
+            min-width: 0;
+        }
+
+        .calc-item.result {
+            padding: 10px 8px;
+        }
+
+    }
+
+    @media (max-width: 480px) {
+
+        .stats-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .stat-card {
+            padding: 13px;
+        }
+
+        .empty-state {
+            padding: 28px 14px;
+        }
+
+        .empty-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+        }
+
+        .card-header h3 {
+            font-size: 15px;
+        }
+
+        table {
+            min-width: 330px;
+        }
+
+        th {
+            font-size: 10px;
+            padding: 9px 7px;
+        }
+
+        td {
+            font-size: 12px;
+            padding: 9px 7px;
+        }
+
+        .calculation {
+            padding: 14px 8px;
+        }
+
+        .calc-item strong {
+            font-size: 16px;
+        }
+
+    }
+
+    @media (max-width: 400px) {
+
+        .student-profile {
+            padding: 14px;
+            gap: 11px;
+        }
+
+        .profile-icon {
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            font-size: 19px;
+            border-radius: 13px;
+        }
+
+        .stat-card {
+            padding: 11px;
+        }
+
+        .badge,
+        .point-badge,
+        .count-badge {
+            font-size: 10px;
+        }
+
+        table {
+            min-width: 300px;
+        }
+
+        th {
+            font-size: 9px;
+            letter-spacing: .02em;
+            padding: 8px 6px;
+        }
+
+        td {
+            padding: 8px 6px;
+        }
+
+        .calculation {
+            padding: 12px 6px;
         }
 
     }

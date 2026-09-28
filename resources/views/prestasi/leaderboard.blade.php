@@ -594,15 +594,17 @@
 
 .page-heading h1 {
     margin: 0 0 6px;
-    font-size: 26px;
+    font-size: clamp(21px, 3.2vw, 26px);
     font-weight: 700;
     color: #1F2937;
+    overflow-wrap: anywhere;
 }
 
 .page-heading p {
     margin: 0;
     color: #6B7280;
     font-size: 14px;
+    overflow-wrap: anywhere;
 }
 
 
@@ -612,12 +614,14 @@
 
 .leaderboard-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 7px;
     padding: 5px;
     background: #F3F4F6;
     border-radius: 11px;
     margin-bottom: 20px;
     width: fit-content;
+    max-width: 100%;
 }
 
 .leaderboard-tab {
@@ -635,6 +639,7 @@
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
     transition: .2s;
 }
 
@@ -685,9 +690,10 @@
 
 .leaderboard-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 12px 15px;
     padding: 20px 22px;
     background: #FFFCFA;
     border-bottom: 1px solid #E5E7EB;
@@ -697,6 +703,12 @@
     display: flex;
     align-items: center;
     gap: 13px;
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.leaderboard-title > div:last-child {
+    min-width: 0;
 }
 
 .header-icon {
@@ -851,7 +863,7 @@
 ======================================== */
 
 .ranking-stat {
-    width: 90px;
+    min-width: 88px;
     text-align: center;
 }
 
@@ -873,7 +885,7 @@
 ======================================== */
 
 .ranking-points {
-    width: 100px;
+    min-width: 96px;
     text-align: right;
 }
 
@@ -902,7 +914,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 115px;
+    min-width: 112px;
 }
 
 .saldo-detail span {
@@ -923,7 +935,7 @@
 }
 
 .saldo-points {
-    width: 100px;
+    min-width: 96px;
     text-align: right;
 }
 
@@ -972,6 +984,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 8px;
     margin: 4px 22px 20px;
     padding: 12px;
@@ -980,6 +993,7 @@
     color: #6B7280;
     font-size: 11px;
     text-align: center;
+    overflow-wrap: anywhere;
 }
 
 .formula-box i {
@@ -1032,6 +1046,8 @@
 .empty-state span {
     color: #9CA3AF;
     font-size: 12px;
+    max-width: 42ch;
+    overflow-wrap: anywhere;
 }
 
 
@@ -1061,12 +1077,11 @@
 
     .leaderboard-tabs {
         width: 100%;
-        overflow-x: auto;
         box-sizing: border-box;
     }
 
     .leaderboard-tab {
-        flex: 1;
+        flex: 1 1 auto;
         white-space: nowrap;
         padding: 0 12px;
     }
@@ -1181,7 +1196,6 @@
     }
 
     .lb-class-pills {
-        overflow-x: auto;
         width: 100%;
     }
 
@@ -1211,8 +1225,8 @@
 
 .lb-search-wrap {
     position: relative;
-    flex: 1;
-    min-width: 250px;
+    flex: 1 1 220px;
+    min-width: min(250px, 100%);
 }
 
 .lb-search-icon {
@@ -1272,14 +1286,18 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    flex: 1 1 320px;
+    min-width: 0;
 }
 
 .lb-class-pills {
     display: flex;
+    flex-wrap: wrap;
     background: #F3F4F6;
     padding: 4px;
     border-radius: 9px;
     gap: 4px;
+    max-width: 100%;
 }
 
 .lb-pill {
@@ -1308,10 +1326,13 @@
 
 .lb-select-wrap {
     position: relative;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .lb-select-kelas {
     height: 38px;
+    max-width: 100%;
     padding: 0 12px;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
@@ -1339,6 +1360,9 @@
 
 .student-name-row strong {
     margin-bottom: 0 !important;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .student-kelas-badge {
@@ -1358,6 +1382,265 @@
     background: #F3F4F6;
     color: #6B7280;
     border: 1px solid #E5E7EB;
+}
+
+
+/* ========================================
+   RESPONSIVE REFINEMENTS
+   ======================================== */
+
+@media (max-width: 1024px) {
+
+    .lb-search-wrap {
+        flex: 1 1 100%;
+    }
+
+    .ranking-list {
+        padding: 8px 18px 14px;
+    }
+
+    .ranking-item {
+        gap: 11px;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    .leaderboard-toolbar {
+        padding: 12px;
+    }
+
+    .lb-search-input {
+        font-size: 16px;
+        height: 44px;
+    }
+
+    .lb-select-kelas {
+        font-size: 16px;
+        height: 44px;
+    }
+
+    .lb-pill {
+        flex: 1 1 auto;
+        text-align: center;
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+
+}
+
+@media (max-width: 640px) {
+
+    .page-heading h1 {
+        font-size: clamp(19px, 3vw, 22px);
+    }
+
+    .page-heading p {
+        font-size: 13px;
+    }
+
+    .leaderboard-card {
+        border-radius: 12px;
+    }
+
+    .leaderboard-header {
+        padding: 15px 14px;
+    }
+
+    .ranking-list {
+        padding: 6px 14px 12px;
+    }
+
+    .ranking-stat,
+    .ranking-points,
+    .saldo-detail,
+    .saldo-points {
+        min-width: 0;
+    }
+
+    .formula-box {
+        margin: 4px 14px 16px;
+    }
+
+    .empty-state {
+        min-height: 200px;
+        padding: 24px 16px;
+    }
+
+}
+
+@media (max-width: 576px) {
+
+    .leaderboard-tabs {
+        gap: 4px;
+    }
+
+    .leaderboard-tab {
+        flex: 1 1 100%;
+        height: 38px;
+    }
+
+    /* Ranking item -> 2 baris: identitas di atas, angka di bawah.
+       Memakai flex + pseudo-element pemutus baris agar tetap bekerja
+       meski JS memasang display:flex inline saat filter berjalan. */
+
+    .ranking-item {
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 9px;
+        row-gap: 6px;
+        padding: 12px 0;
+    }
+
+    .ranking-item::before {
+        content: "";
+        flex: 0 0 100%;
+        height: 0;
+        order: 1;
+    }
+
+    .rank-number,
+    .student-avatar,
+    .student-info,
+    .view-student {
+        order: 0;
+    }
+
+    .ranking-stat,
+    .saldo-detail,
+    .ranking-points,
+    .saldo-points {
+        order: 2;
+    }
+
+    .rank-number {
+        width: 28px;
+        height: 28px;
+    }
+
+    .student-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .student-info {
+        width: auto;
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .ranking-stat,
+    .saldo-detail {
+        min-width: 0;
+        margin-left: 0;
+        flex: 1 1 auto;
+        text-align: left;
+    }
+
+    .ranking-points,
+    .saldo-points {
+        min-width: 66px;
+        text-align: left;
+    }
+
+    .view-student {
+        margin-left: auto;
+    }
+
+    .saldo-detail {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+    }
+
+}
+
+@media (max-width: 480px) {
+
+    .leaderboard-title h2 {
+        font-size: 15px;
+    }
+
+    .leaderboard-title p {
+        font-size: 11px;
+    }
+
+    .header-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .ranking-item {
+        column-gap: 8px;
+    }
+
+    .rank-number {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+
+    .student-avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .view-student {
+        width: 30px;
+        height: 30px;
+    }
+
+    .saldo-points strong {
+        font-size: 16px;
+    }
+
+    .empty-state {
+        min-height: 170px;
+    }
+
+}
+
+@media (max-width: 400px) {
+
+    .page-heading h1 {
+        font-size: 19px;
+    }
+
+    .lb-pill {
+        font-size: 12px;
+        padding: 8px 8px;
+    }
+
+    .ranking-list {
+        padding: 6px 10px 10px;
+    }
+
+    .ranking-item {
+        column-gap: 7px;
+    }
+
+    .rank-number {
+        width: 24px;
+        height: 24px;
+    }
+
+    .student-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .view-student {
+        width: 28px;
+        height: 28px;
+    }
+
+    .formula-box {
+        margin: 4px 10px 14px;
+        text-align: left;
+    }
+
 }
 
 </style>

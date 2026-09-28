@@ -442,6 +442,15 @@
         gap: 20px;
     }
 
+    .form-grid > *,
+    .form-group > *,
+    .input-icon,
+    .search-wrapper,
+    .upload-box {
+        min-width: 0;
+        max-width: 100%;
+    }
+
     .form-group {
         margin-bottom: 20px;
     }
@@ -685,6 +694,8 @@
         margin-top: 7px;
         color: #6B7280;
         font-size: 11px;
+        flex-wrap: wrap;
+        overflow-wrap: anywhere;
     }
 
     .form-help i {
@@ -762,6 +773,8 @@
         background: #F3F4F6;
         color: #4B5563;
         font-size: 12px;
+        max-width: 100%;
+        overflow-wrap: anywhere;
     }
 
 
@@ -857,6 +870,12 @@
 
         .page-heading {
             align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .page-heading > div {
+            flex: 1 1 240px;
+            min-width: 0;
         }
 
         .page-heading h1 {
@@ -880,6 +899,10 @@
             margin-bottom: 20px;
         }
 
+        .form-grid .form-group:last-child {
+            margin-bottom: 0;
+        }
+
         .form-section {
             padding: 22px 18px;
         }
@@ -891,10 +914,76 @@
         .form-footer {
             padding: 16px 18px;
             flex-direction: column-reverse;
+            flex-wrap: wrap;
         }
 
         .form-footer .btn {
             width: 100%;
+        }
+
+        .search-item,
+        .selected-student {
+            flex-wrap: wrap;
+        }
+
+        .search-item-info,
+        .student-info {
+            flex: 1 1 140px;
+        }
+
+        .btn {
+            height: auto;
+            min-height: 42px;
+            padding: 10px 16px;
+        }
+
+    }
+
+
+    @media (max-width: 640px) {
+
+        .form-section {
+            padding: 20px 16px;
+        }
+
+        .form-card-header {
+            padding: 16px;
+        }
+
+        .alert {
+            flex-wrap: wrap;
+        }
+
+        .alert ul {
+            margin-left: 12px;
+        }
+
+    }
+
+
+    @media (max-width: 576px) {
+
+        .form-control,
+        input.form-control,
+        select.form-control,
+        textarea.form-control,
+        .textarea {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            font-size: 16px;
+        }
+
+        .form-control {
+            height: 46px;
+        }
+
+        .upload-box input[type="file"] {
+            max-width: 100%;
+        }
+
+        .upload-content {
+            padding: 20px 16px;
         }
 
     }
@@ -904,7 +993,13 @@
 
         .page-heading {
             flex-direction: column;
+            align-items: stretch;
             gap: 12px;
+        }
+
+        .page-heading > div {
+            flex: 0 0 auto;
+            width: 100%;
         }
 
         .page-heading .btn {
@@ -931,6 +1026,66 @@
 
         .upload-content {
             min-height: 130px;
+        }
+
+        .form-footer {
+            flex-direction: column-reverse;
+        }
+
+        .form-footer .btn {
+            width: 100%;
+            min-height: 46px;
+        }
+
+        .page-heading .btn {
+            min-height: 44px;
+        }
+
+    }
+
+
+    @media (max-width: 400px) {
+
+        .form-section {
+            padding: 18px 12px;
+        }
+
+        .form-card-header {
+            padding: 14px 12px;
+        }
+
+        .form-footer {
+            padding: 14px 12px;
+        }
+
+        .page-heading h1 {
+            font-size: 20px;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 15px;
+        }
+
+        .selected-student,
+        .search-item {
+            padding: 10px;
+            gap: 10px;
+        }
+
+        .remove-student {
+            width: 32px;
+            height: 32px;
+        }
+
+        .upload-content {
+            min-height: 115px;
+            padding: 16px 12px;
+        }
+
+        .upload-content span {
+            font-size: 10px;
         }
 
     }

@@ -7,6 +7,7 @@
 <style>
 .pv-wrapper{
     max-width:700px;
+    width:100%;
     margin:auto;
 }
 
@@ -15,11 +16,16 @@
     align-items:center;
     gap:15px;
     margin-bottom:25px;
+    min-width:0;
 }
+
+.pv-header > div:last-child{ min-width:0; }
 
 .pv-icon{
     width:55px;
     height:55px;
+    min-width:55px;
+    flex-shrink:0;
     border-radius:16px;
     background:#FBEAE8;
     color:#6D1408;
@@ -30,14 +36,16 @@
 }
 
 .pv-title{
-    font-size:24px;
+    font-size:clamp(1.15rem, 1rem + 1.4vw, 1.5rem);
     font-weight:700;
     color:#111827;
+    overflow-wrap:anywhere;
 }
 
 .pv-subtitle{
     color:#6B7280;
     font-size:14px;
+    overflow-wrap:anywhere;
 }
 
 .pv-card{
@@ -46,6 +54,8 @@
     padding:30px;
     box-shadow:0 10px 25px rgba(0,0,0,.08);
     border:1px solid #E5E7EB;
+    max-width:100%;
+    overflow:hidden;
 }
 
 .pv-section-title{
@@ -59,12 +69,13 @@
 
 .pv-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
     gap:20px;
 }
 
 .pv-field{
     margin-bottom:20px;
+    min-width:0;
 }
 
 .pv-label{
@@ -81,6 +92,7 @@
 
 .pv-input{
     width:100%;
+    max-width:100%;
     padding:13px 15px;
     border:1px solid #D1D5DB;
     border-radius:12px;
@@ -88,6 +100,12 @@
     outline:none;
     transition:.2s;
     background:#F9FAFB;
+}
+
+select.pv-input,
+textarea.pv-input{
+    width:100%;
+    max-width:100%;
 }
 
 .pv-input:focus{
@@ -115,6 +133,7 @@
     display:flex;
     justify-content:flex-end;
     gap:12px;
+    flex-wrap:wrap;
 }
 
 .btn-secondary{
@@ -203,6 +222,8 @@
 
     max-width:420px;
 
+    height:auto;
+
     border-radius:15px;
 
     border:2px dashed #D1D5DB;
@@ -211,10 +232,50 @@
 
 }
 
+/* ── Page footer note ── */
+.pv-page-note{
+    padding:120px 10px 0;
+    text-align:center;
+    color:#9CA3AF;
+    font-size:13px;
+    overflow-wrap:anywhere;
+}
+
+.pv-page-note a{
+    color:#6D1408;
+    font-weight:600;
+    text-decoration:none;
+}
+
+/* ── Tom Select containment ── */
+.searchable-select,
+.ts-wrapper{
+    width:100% !important;
+    max-width:100%;
+}
+
+.ts-control{
+    width:100%;
+    max-width:100%;
+}
+
+.ts-dropdown{
+    max-width:100vw;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
 @media(max-width:768px){
 
     .pv-grid{
         grid-template-columns:1fr;
+    }
+
+    .pv-card{
+        padding:22px 18px;
+        border-radius:16px;
     }
 
     .pv-footer{
@@ -225,17 +286,8 @@
     .btn-secondary{
         width:100%;
         text-align:center;
-    }
-}
-
-@media(max-width:768px){
-
-    .pv-grid-2{
-        grid-template-columns:1fr;
-    }
-
-    .pv-footer{
-        flex-direction:column-reverse;
+        justify-content:center;
+        min-height:40px;
     }
 
     .pv-btn-primary,
@@ -244,6 +296,88 @@
         justify-content:center;
     }
 
+    .pv-page-note{
+        padding:48px 8px 0;
+    }
+}
+
+@media(max-width:640px){
+
+    .pv-input{
+        font-size:16px; /* anti-zoom on iOS */
+    }
+
+    .pv-header{
+        gap:11px;
+        margin-bottom:18px;
+    }
+
+    .pv-icon{
+        width:44px;
+        height:44px;
+        min-width:44px;
+        border-radius:13px;
+        font-size:19px;
+    }
+
+    .pv-grid{
+        gap:14px;
+    }
+
+    .camera-btn{
+        padding:14px;
+        min-height:40px;
+    }
+}
+
+@media(max-width:576px){
+
+    .pv-card{
+        padding:18px 14px;
+    }
+
+    .pv-section-title{
+        font-size:12px;
+        letter-spacing:.6px;
+        margin-bottom:14px;
+    }
+
+    .pv-alert{
+        padding:12px;
+    }
+}
+
+@media(max-width:480px){
+
+    .pv-card{
+        padding:15px 12px;
+    }
+
+    .pv-alert ul{
+        margin-left:14px;
+    }
+
+    .upload-text{
+        font-size:12px;
+        text-align:center;
+    }
+
+    .pv-page-note{
+        padding:32px 6px 0;
+        font-size:12px;
+    }
+}
+
+@media(max-width:400px){
+
+    .pv-card{
+        padding:13px 10px;
+    }
+
+    .btn-primary,
+    .btn-secondary{
+        padding:11px 14px;
+    }
 }
 </style>
 @endsection
@@ -351,17 +485,12 @@
         </div>
 
     </form>
-<footer style="
-    padding: 120px 10px 0px 10px;
-    text-align:center;
-    color:#9CA3AF;
-    font-size:13px; ">
+<footer class="pv-page-note">
     © {{ date('Y') }} VERITAS — Sistem Monitoring Pelanggaran Siswa.
     <br>
     Developed by
     <a href="https://kicauorgspark.my.id"
-       target="_blank"
-       style="color:#6D1408;font-weight:600;text-decoration:none;">
+       target="_blank">
         KicawOrgspark
     </a>
 </footer>

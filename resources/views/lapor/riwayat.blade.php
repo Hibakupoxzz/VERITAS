@@ -13,11 +13,11 @@
     <div class="walas-card" id="riwayat-lapor">
 
         <div class="walas-card-header" style="justify-content:space-between; flex-wrap:wrap;">
-            <div style="display:flex; align-items:center; gap:14px;">
+            <div class="walas-card-header-main">
                 <div class="walas-card-icon" style="background:#eef2ff; color:#4f46e5;">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-                <div>
+                <div class="walas-card-header-text">
                     <h2>Riwayat Laporan Saya</h2>
                     <p>Daftar seluruh laporan yang telah Anda kirimkan beserta perkembangan status verifikasinya.</p>
                 </div>
@@ -51,7 +51,7 @@
                             <div class="student-avatar">
                                 <i class="fa-solid fa-user-graduate"></i>
                             </div>
-                            <div>
+                            <div class="student-info">
                                 <h3 class="student-name">{{ $laporan->siswa?->nama ?? 'Siswa Tidak Ditemukan' }}</h3>
                                 <span class="student-class">{{ $laporan->siswa?->kelas ?? '-' }}</span>
                             </div>
@@ -181,6 +181,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    overflow-wrap: break-word;
 }
 
 /* =========================================================
@@ -191,6 +192,7 @@
     border-radius: 20px;
     padding: 32px 36px;
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+    min-width: 0;
 }
 
 .walas-card-header {
@@ -200,6 +202,18 @@
     margin-bottom: 24px;
     padding-bottom: 20px;
     border-bottom: 1px solid #f3f4f6;
+}
+
+.walas-card-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1 1 320px;
+}
+
+.walas-card-header-text {
+    min-width: 0;
 }
 
 .walas-card-icon {
@@ -228,7 +242,9 @@
 /* Filter Tabs */
 .walas-filter-tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+    min-width: 0;
 }
 
 .tab-btn {
@@ -241,6 +257,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .tab-btn:hover {
@@ -276,6 +293,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     margin-bottom: 16px;
     padding-bottom: 16px;
     border-bottom: 1px dashed #e5e7eb;
@@ -285,6 +303,16 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+}
+
+.student-info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.report-status-badge {
+    flex-shrink: 0;
 }
 
 .student-avatar {
@@ -373,6 +401,7 @@
     padding: 12px 16px;
     border-radius: 8px;
     border-left: 3px solid #d1d5db;
+    overflow-wrap: anywhere;
 }
 
 .report-photo {
@@ -380,7 +409,9 @@
 }
 
 .report-photo img {
-    max-width: 140px;
+    max-width: min(140px, 100%);
+    width: auto;
+    height: auto;
     max-height: 140px;
     border-radius: 10px;
     border: 1px solid #e5e7eb;
@@ -437,6 +468,8 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .points-badge {
@@ -490,15 +523,153 @@
     margin: 0 auto;
 }
 
-/* Responsive */
-@media (max-width: 600px) {
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1024px) {
+    .walas-card {
+        padding: 26px 24px;
+    }
+}
+
+@media (max-width: 900px) {
     .walas-card-header {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .walas-card-header-main {
+        width: 100%;
+    }
+
     .walas-filter-tabs {
         width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .walas-container {
+        gap: 16px;
+    }
+
+    .walas-card {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+
+    .report-item {
+        padding: 16px;
+    }
+
+    .report-header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .report-student {
+        flex: 1 1 100%;
+    }
+
+    .report-status-badge {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .walas-filter-tabs {
+        flex-wrap: nowrap;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        padding: 9px 14px;
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .walas-card-header-main {
+        align-items: flex-start;
+    }
+
+    .walas-card-header h2 {
+        font-size: 17px;
+    }
+
+    .walas-card-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        font-size: 17px;
+    }
+
+    .report-feedback {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .meta-tag {
+        overflow-wrap: anywhere;
+    }
+
+    .badge-status {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 480px) {
+    .walas-card {
+        padding: 16px 13px;
+    }
+
+    .report-item {
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .student-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 15px;
+    }
+
+    .student-name {
+        font-size: 14px;
+    }
+
+    .report-description {
+        padding: 10px 12px;
+    }
+
+    .walas-empty-state {
+        padding: 30px 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .walas-card {
+        padding: 14px 10px;
+    }
+
+    .walas-card-header-main {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .badge-status {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .points-badge {
+        font-size: 10px;
     }
 }
 @endsection
