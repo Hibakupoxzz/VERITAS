@@ -10,16 +10,18 @@
 
 ## 2. Guru BK (8 akun)
 
-| Nama | Email | Password | Role |
-|------|-------|----------|------|
-| Rakhma Dhania | rakhmadhania@bk.com | bk123 | bk |
-| Sholehudin Aditya Utama | sholehudinadityautama@bk.com | bk123 | bk |
-| R. Dodi Setiadi | rdodisetiadi@bk.com | bk123 | bk |
-| Anita Lestari | anitalestari@bk.com | bk123 | bk |
-| Anisah Dwi Rahayu | anisahdwirahayu@bk.com | bk123 | bk |
-| Ariska Dwi Saputri | ariskadwisaputri@bk.com | bk123 | bk |
-| Wilda Septiriani | wildaseptiriani@bk.com | bk123 | bk |
-| *(kosong)* | @bk.com | bk123 | bk |
+Password semua: **bk123**
+
+| No | Nama | Kode | Email | Kelas Pegangan / Binaan |
+|----|------|------|-------|--------------------------|
+| 1 | Rakhma Dhania | - | rakhmadhania@bk.com | *(Koordinator BK / Semua Kelas)* |
+| 2 | R. Dodi Setiadi | 29 | rdodisetiadi@bk.com | XI-RPL-1, XI-TOI-1, X-TOI-2, X-TKJ-2 |
+| 3 | Sholehudin Aditya Utama | 27 | sholehudinadityautama@bk.com | XI-RPL-2, XI-LPB-2, X-RPL-2, X-TKJ-1 |
+| 4 | Anisah Dwi Rahayu | 33 | anisahdwirahayu@bk.com | XI-TKJ-1, X-DKV-1, X-DKV-3 |
+| 5 | Anita Lestari | 34 | anitalestari@bk.com | XI-DKV-1, XI-TKJ-2, X-LPB-1, X-TOI-1 |
+| 6 | Ariska Dwi Saputri | 35 | ariskadwisaputri@bk.com | *(Belum terjadwal sesi Sabtu)* |
+| 7 | Wilda Septiarini | 38 | wildaseptiarini@bk.com | XI-DKV-2, XI-LPB-1, X-LPB-2 |
+| 8 | Ardi Sukma | 39 | ardisukma@bk.com | XI-DKV-3, X-DKV-2, X-RPL-1 |
 
 ---
 
@@ -113,4 +115,4 @@ Password semua: **walas123**
 | **Total** | **50** | |
 
 > [!NOTE]
-> Ada 1 akun BK dengan nama kosong (`''`) yang menghasilkan email `@bk.com` — kemungkinan placeholder yang perlu dihapus atau diisi.
+> Akun BK ke-8 telah diisi oleh **Ardi Sukma, S.H** (menggantikan placeholder kosong sebelumnya), dan ejaan nama **Wilda Septiarini** telah diselaraskan dengan data resmi. Kelas pegangan masing-masing guru BK disimpan dalam format JSON di database.

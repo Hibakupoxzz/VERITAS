@@ -14,35 +14,15 @@ class DashboardController extends Controller
             return redirect()->route('lapor.index');
         }
 
-        // PDS: Ambil daftar kelas binaan untuk filtering
-
-        $pdsKelas = [];
-        if (auth()->user()->isPds()) {
-            $pdsKelas = auth()->user()->getPdsKelasList();
-        }
-
         // Statistik Umum
 
         $siswaQuery = Siswa::query();
-        if (! empty($pdsKelas)) {
-            $siswaQuery->whereIn('kelas', $pdsKelas);
-        }
         $totalSiswa = $siswaQuery->count();
 
         $pelanggaranQuery = Pelanggaran::where('status', 'diverifikasi');
-        if (! empty($pdsKelas)) {
-            $pelanggaranQuery->whereHas('siswa', function ($q) use ($pdsKelas) {
-                $q->whereIn('kelas', $pdsKelas);
-            });
-        }
         $totalPelanggaran = $pelanggaranQuery->count();
 
         $prestasiQuery = Prestasi::query();
-        if (! empty($pdsKelas)) {
-            $prestasiQuery->whereHas('siswa', function ($q) use ($pdsKelas) {
-                $q->whereIn('kelas', $pdsKelas);
-            });
-        }
         $totalPrestasi = $prestasiQuery->count();
 
         // Top Prestasi
@@ -54,10 +34,6 @@ class DashboardController extends Controller
             ->orderByDesc('prestasis_count')
             ->orderByDesc('prestasis_sum_poin')
             ->limit(5);
-
-        if (! empty($pdsKelas)) {
-            $topPrestasiQuery->whereIn('kelas', $pdsKelas);
-        }
 
         $topPrestasi = $topPrestasiQuery->get();
 
@@ -71,10 +47,6 @@ class DashboardController extends Controller
             ->orderByDesc('pelanggarans_sum_poin')
             ->limit(5);
 
-        if (! empty($pdsKelas)) {
-            $topPelanggaranQuery->whereIn('kelas', $pdsKelas);
-        }
-
         $topPelanggaran = $topPelanggaranQuery->get();
 
         // Saldo Poin (100 - total pelanggaran + total prestasi)
@@ -84,10 +56,6 @@ class DashboardController extends Controller
                 $q->where('status', 'diverifikasi');
             }], 'poin')
             ->withSum('prestasis', 'poin');
-
-        if (! empty($pdsKelas)) {
-            $saldoQuery->whereIn('kelas', $pdsKelas);
-        }
 
         $saldoSiswa = $saldoQuery->get()
             ->map(function ($siswa) {

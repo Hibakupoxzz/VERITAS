@@ -93,4 +93,38 @@ class User extends Authenticatable
 
         return is_array($decoded) ? $decoded : [];
     }
+
+    /**
+     * Decode JSON daftar kelas binaan BK.
+     *
+     * @return array<string>
+     */
+    public function getBkKelasList(): array
+    {
+        if (! $this->isBk() || empty($this->kelas)) {
+            return [];
+        }
+
+        $decoded = json_decode($this->kelas, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * Helper umum untuk mengambil daftar kelas binaan (PDS / BK).
+     *
+     * @return array<string>
+     */
+    public function getBinaanKelasList(): array
+    {
+        if ($this->isPds()) {
+            return $this->getPdsKelasList();
+        }
+
+        if ($this->isBk()) {
+            return $this->getBkKelasList();
+        }
+
+        return [];
+    }
 }

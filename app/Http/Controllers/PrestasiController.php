@@ -26,15 +26,7 @@ class PrestasiController extends Controller
             });
         }
 
-        // Jika PDS, hanya tampilkan prestasi siswa di kelas binaannya
-        if (auth()->user()->isPds()) {
-            $pdsKelas = auth()->user()->getPdsKelasList();
-            if (! empty($pdsKelas)) {
-                $query->whereHas('siswa', function ($q) use ($pdsKelas) {
-                    $q->whereIn('kelas', $pdsKelas);
-                });
-            }
-        }
+        // PDS dan BK kini dapat melihat semua kelas (Global)
 
         $prestasis = $query->get();
 
@@ -48,13 +40,7 @@ class PrestasiController extends Controller
     {
         $query = Siswa::orderBy('nama');
 
-        // Jika PDS, hanya tampilkan siswa di kelas binaannya
-        if (auth()->user()->isPds()) {
-            $pdsKelas = auth()->user()->getPdsKelasList();
-            if (! empty($pdsKelas)) {
-                $query->whereIn('kelas', $pdsKelas);
-            }
-        }
+        // PDS dan BK kini dapat melihat semua siswa (Global)
 
         $siswas = $query->get();
 

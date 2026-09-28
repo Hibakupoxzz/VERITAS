@@ -35,15 +35,7 @@ class PelanggaranController extends Controller
             });
         }
 
-        // Jika PDS, hanya tampilkan pelanggaran siswa di kelas binaannya
-        if ($user->isPds()) {
-            $pdsKelas = $user->getPdsKelasList();
-            if (! empty($pdsKelas)) {
-                $query->whereHas('siswa', function ($q) use ($pdsKelas) {
-                    $q->whereIn('kelas', $pdsKelas);
-                });
-            }
-        }
+        // PDS dan BK kini dapat melihat semua kelas (Global)
 
         $pelanggarans = $query->get();
 
@@ -102,13 +94,7 @@ class PelanggaranController extends Controller
 
         $query = Siswa::orderBy('nama');
 
-        // Jika PDS, hanya tampilkan siswa di kelas binaannya
-        if ($user->isPds()) {
-            $pdsKelas = $user->getPdsKelasList();
-            if (! empty($pdsKelas)) {
-                $query->whereIn('kelas', $pdsKelas);
-            }
-        }
+        // PDS dan BK kini dapat melihat semua siswa (Global)
 
         $siswas = $query->get();
 

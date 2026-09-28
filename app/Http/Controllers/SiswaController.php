@@ -23,13 +23,7 @@ class SiswaController extends Controller
                 ->orWhere('kelas', 'like', "%{$search}%");
         });
 
-        // Jika PDS, hanya tampilkan siswa di kelas binaannya
-        if (auth()->user()->isPds()) {
-            $pdsKelas = auth()->user()->getPdsKelasList();
-            if (! empty($pdsKelas)) {
-                $query->whereIn('kelas', $pdsKelas);
-            }
-        }
+        // PDS dan BK kini dapat melihat semua kelas (Global)
 
         $siswas = $query->latest()->get();
 
