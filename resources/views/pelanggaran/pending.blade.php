@@ -66,7 +66,7 @@
 
                 </div>
 
-                <div class="pending-card-body">
+                <div class="pending-card-bondy">
 
                     <div class="pending-meta">
 
