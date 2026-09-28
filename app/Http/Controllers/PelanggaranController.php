@@ -475,17 +475,31 @@ class PelanggaranController extends Controller
                 $kategori = $request->kategori;
             }
 
-            // Hitung saldo poin siswa
-            $pelanggaranTerakhir = Pelanggaran::where('siswa_id', $pelanggaran->siswa_id)
-                ->where('status', 'diverifikasi')
-                ->latest('id')
-                ->first();
+            /*
+            | Hitung saldo poin siswa.
+            |
+            | Laporan bisa dibuat tanpa siswa (laporan umum kelas),
+            | jadi saldo poin hanya dihitung jika siswanya ada.
+            */
 
-            $poinSebelum = $pelanggaranTerakhir
-                ? (int) $pelanggaranTerakhir->poin_sesudah
-                : 100;
+            if ($pelanggaran->siswa_id) {
 
-            $poinSesudah = max(0, $poinSebelum - $poin);
+                $pelanggaranTerakhir = Pelanggaran::where('siswa_id', $pelanggaran->siswa_id)
+                    ->where('status', 'diverifikasi')
+                    ->latest('id')
+                    ->first();
+
+                $poinSebelum = $pelanggaranTerakhir
+                    ? (int) $pelanggaranTerakhir->poin_sesudah
+                    : 100;
+
+                $poinSesudah = max(0, $poinSebelum - $poin);
+
+            } else {
+
+                $poinSebelum = null;
+                $poinSesudah = null;
+            }
 
             $pelanggaran->update([
                 'aturan_pelanggaran_id' => $aturan?->id,
@@ -502,7 +516,12 @@ class PelanggaranController extends Controller
 
             return redirect()
                 ->route('pelanggaran.index')
-                ->with('success', "Laporan diverifikasi. Saldo poin siswa sekarang {$poinSesudah}.");
+                ->with(
+                    'success',
+                    $poinSesudah === null
+                        ? 'Laporan umum diverifikasi. Saldo poin tidak diperbarui karena laporan tidak ditempelkan ke siswa tertentu.'
+                        : "Laporan diverifikasi. Saldo poin siswa sekarang {$poinSesudah}."
+                );
         });
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AturanPelanggaran;
 use App\Models\Pelanggaran;
 use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class LaporPelanggaranController extends Controller
@@ -14,7 +15,7 @@ class LaporPelanggaranController extends Controller
      */
     public function index()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         /*
@@ -23,15 +24,34 @@ class LaporPelanggaranController extends Controller
         |--------------------------------------------------------------------------
         | Jika user adalah Wali Kelas dan memiliki kelas,
         | hanya siswa dari kelas tersebut yang ditampilkan.
+        | Guru BK / Guru Khusus / PDS / Admin melihat seluruh siswa.
         */
 
         $query = Siswa::orderBy('nama');
 
         if ($user && $user->isWalas() && $user->kelas) {
             $query->where('kelas', $user->kelas);
+
+            $kelasList = collect([$user->kelas]);
+        } else {
+            $kelasList = Siswa::select('kelas')
+                ->whereNotNull('kelas')
+                ->distinct()
+                ->orderBy('kelas')
+                ->pluck('kelas');
         }
 
         $siswas = $query->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Siswa yang dipilih sebelumnya
+        |--------------------------------------------------------------------------
+        | Digunakan ketika siswa melapor dari halaman daftar siswa
+        | (route: lapor.index?siswa_id=...)
+        */
+
+        $selectedSiswaId = request('siswa_id');
 
         /*
         |--------------------------------------------------------------------------
@@ -61,14 +81,14 @@ class LaporPelanggaranController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Riwayat laporan milik Wali Kelas
+        | Riwayat laporan milik pelapor
         |--------------------------------------------------------------------------
         */
 
         $laporans = Pelanggaran::with([
-                'siswa',
-                'verifikator'
-            ])
+            'siswa',
+            'verifikator',
+        ])
             ->where('pelapor_id', $user->id)
             ->latest()
             ->get();
@@ -97,25 +117,26 @@ class LaporPelanggaranController extends Controller
 
         return view('lapor.index', compact(
             'siswas',
+            'kelasList',
+            'selectedSiswaId',
             'aturanPelanggarans',
             'laporans',
             'stats'
         ));
     }
 
-
     /**
      * Halaman riwayat laporan
      */
     public function riwayat()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         $laporans = Pelanggaran::with([
-                'siswa',
-                'verifikator'
-            ])
+            'siswa',
+            'verifikator',
+        ])
             ->where('pelapor_id', $user->id)
             ->latest()
             ->get();
@@ -141,7 +162,6 @@ class LaporPelanggaranController extends Controller
             'stats'
         ));
     }
-
 
     /**
      * Menyimpan laporan pelanggaran
@@ -183,7 +203,6 @@ class LaporPelanggaranController extends Controller
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | Tentukan jenis pelanggaran
@@ -193,7 +212,7 @@ class LaporPelanggaranController extends Controller
         $jenisPelanggaran = null;
         $kategori = null;
         $poin = 0;
-
+        $aturanPelanggaranId = null;
 
         /*
         |--------------------------------------------------------------------------
@@ -206,22 +225,35 @@ class LaporPelanggaranController extends Controller
             $request->validate([
                 'aturan_pelanggaran_id' => [
                     'required',
+                    'integer',
                     'exists:aturan_pelanggarans,id',
                 ],
             ]);
 
             /*
+            |--------------------------------------------------------------------------
             | Pastikan aturan yang dipilih masih aktif
+            |--------------------------------------------------------------------------
+            | Dicek manual (bukan findOrFail) supaya pengguna
+            | mendapat pesan validasi yang ramah, bukan error 404.
             */
 
             $aturan = AturanPelanggaran::where('aktif', true)
-                ->findOrFail($request->aturan_pelanggaran_id);
+                ->find($request->aturan_pelanggaran_id);
+
+            if (! $aturan) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'aturan_pelanggaran_id' => 'Aturan pelanggaran yang dipilih tidak tersedia atau sudah tidak aktif.',
+                    ]);
+            }
 
             $jenisPelanggaran = $aturan->nama;
             $kategori = $aturan->kategori;
             $poin = $aturan->poin;
+            $aturanPelanggaranId = $aturan->id;
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -260,7 +292,6 @@ class LaporPelanggaranController extends Controller
                 $request->poin_manual;
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Upload foto
@@ -275,16 +306,14 @@ class LaporPelanggaranController extends Controller
                 ->store('bukti', 'public');
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | User yang sedang login
         |--------------------------------------------------------------------------
         */
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -297,6 +326,8 @@ class LaporPelanggaranController extends Controller
             'siswa_id' => $request->siswa_id ?: null,
 
             'pelapor_id' => $user->id,
+
+            'aturan_pelanggaran_id' => $aturanPelanggaranId,
 
             'tanggal' => $request->tanggal,
 
@@ -312,7 +343,6 @@ class LaporPelanggaranController extends Controller
 
             'kategori' => $kategori,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------

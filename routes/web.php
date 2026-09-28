@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 // ==========================
 Route::get('/', function () {
     if (auth()->check()) {
-        if (auth()->user()->isWalas()) {
+        if (auth()->user()->isWalas() || auth()->user()->isGuru()) {
             return redirect()->route('lapor.index');
         }
 

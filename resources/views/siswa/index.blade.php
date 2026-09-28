@@ -264,9 +264,11 @@
                 <p class="pv-page-sub">Kelola data siswa terdaftar</p>
             </div>
         </div>
+        @if(auth()->user()->isAdmin())
         <a href="{{ route('siswa.create') }}" class="pv-btn-add">
-        <i class="fa-solid fa-plus"> </i>⠀ Tambah Siswa
+            <i class="fa-solid fa-plus"> </i>⠀ Tambah Siswa
         </a>
+        @endif
 
         
     </div>
@@ -386,29 +388,39 @@
                 </td>
                 <td>
                     <div class="pv-action-wrap">
-                        <a href="{{ route('siswa.edit', $siswa->id) }}" class="pv-btn-edit">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                            Edit
-                        </a>
-                        <form action="{{ route('siswa.destroy', $siswa->id) }}" method="POST" style="display:inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="pv-btn-delete"
-                            onclick="return confirm('Yakin ingin menghapus data siswa ini?')">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"/>
-                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                <path d="M10 11v6"/><path d="M14 11v6"/>
-                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                            </svg>
-                            Hapus
-                        </button>
-                    </form>
-                </div>
-            </td>
+                        @if(auth()->user()->isGuru())
+                            <a href="{{ route('lapor.index', ['siswa_id' => $siswa->id]) }}"
+                               class="pv-btn-edit"
+                               style="background:#6D1408; color:#fff; border-color:#6D1408; gap:6px;"
+                               title="Laporkan Pelanggaran Siswa Ini">
+                                <i class="fa-solid fa-bullhorn" style="font-size:12px;"></i>
+                                Laporkan
+                            </a>
+                        @else
+                            <a href="{{ route('siswa.edit', $siswa->id) }}" class="pv-btn-edit">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                Edit
+                            </a>
+                            <form action="{{ route('siswa.destroy', $siswa->id) }}" method="POST" style="display:inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="pv-btn-delete"
+                                onclick="return confirm('Yakin ingin menghapus data siswa ini?')">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                        <path d="M10 11v6"/><path d="M14 11v6"/>
+                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                                    </svg>
+                                    Hapus
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </td>
         </tr>
         @empty
         <tr>

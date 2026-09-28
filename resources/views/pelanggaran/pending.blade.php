@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Pending Laporan')
-@section('page_title', 'Pending Laporan dari Walas')
+@section('page_title', 'Pending Laporan Masuk')
 
 @section('content')
 
@@ -27,7 +27,7 @@
 
 
     {{-- ===========================
-         PENDING LAPORAN WALAS
+         PENDING LAPORAN MASUK
     ============================ --}}
 
     @if($pendingLaporans->count() > 0)
@@ -38,7 +38,7 @@
 
             <div class="pending-title">
                 <i class="fa-solid fa-hourglass-half"></i>
-                <h2>Pending Laporan dari Walas</h2>
+                <h2>Pending Laporan Masuk</h2>
                 <span class="pending-count">{{ $pendingLaporans->count() }}</span>
             </div>
 
@@ -55,8 +55,8 @@
                 <div class="pending-card-top">
 
                     <div class="pending-student">
-                        <strong>{{ $pending->siswa->nama }}</strong>
-                        <small>{{ $pending->siswa->kelas }}</small>
+                        <strong>{{ $pending->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)' }}</strong>
+                        <small>{{ $pending->siswa?->kelas ?? '-' }}</small>
                     </div>
 
                     <span class="pending-badge">
@@ -78,7 +78,7 @@
                         @if($pending->pelapor)
                         <span>
                             <i class="fa-solid fa-user"></i>
-                            {{ $pending->pelapor->name }}
+                            {{ $pending->pelapor->name }} ({{ $pending->pelapor->role_label }})
                         </span>
                         @endif
 
@@ -102,16 +102,21 @@
 
                 <div class="pending-card-actions">
 
+                    @php
+                        // siswa_id nullable, jadi nama siswa bisa kosong.
+                        $namaSiswaPending = $pending->siswa?->nama ?? 'Siswa tidak dipilih';
+                    @endphp
+
                     <button type="button"
                             class="btn-approve"
-                            onclick="openApproveModal({{ $pending->id }}, '{{ addslashes($pending->siswa->nama) }}', '{{ addslashes($pending->jenis_pelanggaran) }}')">
+                            onclick="openApproveModal({{ $pending->id }}, '{{ addslashes($namaSiswaPending) }}', '{{ addslashes($pending->jenis_pelanggaran) }}')">
                         <i class="fa-solid fa-check"></i>
                         Verifikasi
                     </button>
 
                     <button type="button"
                             class="btn-reject"
-                            onclick="openRejectModal({{ $pending->id }}, '{{ addslashes($pending->siswa->nama) }}')">
+                            onclick="openRejectModal({{ $pending->id }}, '{{ addslashes($namaSiswaPending) }}')">
                         <i class="fa-solid fa-xmark"></i>
                         Tolak
                     </button>
@@ -130,7 +135,7 @@
         <div style="background: white; padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #e5e7eb;">
             <i class="fa-solid fa-inbox" style="font-size: 40px; color: #9ca3af; margin-bottom: 15px;"></i>
             <h3 style="font-size: 18px; color: #111827; margin: 0 0 5px;">Tidak Ada Laporan Pending</h3>
-            <p style="color: #6b7280; font-size: 14px; margin: 0;">Semua laporan dari wali kelas telah diproses.</p>
+            <p style="color: #6b7280; font-size: 14px; margin: 0;">Semua laporan masuk telah diproses.</p>
         </div>
     @endif
 
@@ -139,7 +144,7 @@
     <div class="modal-overlay" id="approveModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Verifikasi Laporan Walas</h3>
+                <h3>Verifikasi Laporan Pelanggaran</h3>
                 <button type="button" onclick="closeModal('approveModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="approveForm" method="POST" action="">
@@ -173,7 +178,7 @@
 
                     <div class="form-group" style="margin-top:10px;">
                         <label class="form-label">Catatan Verifikasi (Opsional)</label>
-                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Pesan kepada siswa atau wali kelas terkait keputusan ini..."></textarea>
+                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Pesan kepada siswa atau pelapor terkait keputusan ini..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -188,7 +193,7 @@
     <div class="modal-overlay" id="rejectModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Tolak Laporan Walas</h3>
+                <h3>Tolak Laporan Pelanggaran</h3>
                 <button type="button" onclick="closeModal('rejectModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="rejectForm" method="POST" action="">

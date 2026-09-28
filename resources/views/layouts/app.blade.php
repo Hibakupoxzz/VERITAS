@@ -1200,7 +1200,7 @@
             @if(auth()->check() && auth()->user()->isWalas())
 
                 {{-- =================================================
-                     MENU KHUSUS WALI KELAS (HANYA PELAPORAN)
+                     MENU KHUSUS WALI KELAS (HANYA PELAPORAN & KELAS)
                 ================================================== --}}
                 <div class="menu-title">
                     Menu Wali Kelas
@@ -1220,7 +1220,7 @@
 
                 {{-- KELAS SAYA --}}
                 <div class="menu-title">
-                    Kelas Saya
+                    Kelas Saya ({{ auth()->user()->kelas ?? 'Walas' }})
                 </div>
 
                 <a href="{{ route('pelanggaran.index') }}"
@@ -1235,10 +1235,253 @@
                     <span>Prestasi Kelas</span>
                 </a>
 
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
+
+            @elseif(auth()->check() && auth()->user()->isGuru())
+
+                {{-- =================================================
+                     MENU GURU KHUSUS / GURU PIKET
+                     - Bisa: Report Pelanggaran SEMUA KELAS & SISWA
+                     - Bisa: Lihat Data Siswa & Semua Kelas
+                ================================================== --}}
+                <div class="menu-title">
+                    Menu Guru Khusus
+                </div>
+
+                <a href="{{ route('lapor.index') }}"
+                   class="{{ request()->routeIs('lapor.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Lapor Pelanggaran</span>
+                </a>
+
+                <a href="{{ route('lapor.riwayat') }}"
+                   class="{{ request()->routeIs('lapor.riwayat') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Laporan Saya</span>
+                </a>
+
+                {{-- DIREKTORI DATA KELAS & SISWA --}}
+                <div class="menu-title">
+                    Data Kelas & Siswa
+                </div>
+
+                <a href="{{ route('siswa.index') }}"
+                   class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Semua Data Siswa</span>
+                </a>
+
+                {{-- MONITORING SEKOLAH --}}
+                <div class="menu-title">
+                    Monitoring
+                </div>
+
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Pelanggaran Siswa</span>
+                </a>
+
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Prestasi Siswa</span>
+                </a>
+
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
+
+            @elseif(auth()->check() && auth()->user()->isBk())
+
+                {{-- =================================================
+                     MENU GURU BK (Bimbingan Konseling)
+                     - Bisa: Report Pelanggaran & Tambah Prestasi
+                     - Tidak Bisa: Verifikasi / Acc Pelanggaran
+                ================================================== --}}
+                <div class="menu-title">
+                    Utama
+                </div>
+
+                <a href="{{ route('dashboard') }}"
+                   class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                {{-- PELAPORAN PELANGGARAN --}}
+                <div class="menu-title">
+                    Pelanggaran Siswa
+                </div>
+
+                <a href="{{ route('lapor.index') }}"
+                   class="{{ request()->routeIs('lapor.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Lapor Pelanggaran</span>
+                </a>
+
+                <a href="{{ route('lapor.riwayat') }}"
+                   class="{{ request()->routeIs('lapor.riwayat') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Riwayat Laporan Saya</span>
+                </a>
+
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Data Pelanggaran</span>
+                </a>
+
+                {{-- PRESTASI --}}
+                <div class="menu-title">
+                    Prestasi Siswa
+                </div>
+
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Data Prestasi</span>
+                </a>
+
+                <a href="{{ route('prestasi.create') }}"
+                   class="{{ request()->routeIs('prestasi.create') ? 'active' : '' }}">
+                    <i class="fa-solid fa-medal"></i>
+                    <span>Tambah Prestasi</span>
+                </a>
+
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
+
+                {{-- DATA SISWA --}}
+                <div class="menu-title">
+                    Data Siswa
+                </div>
+
+                <a href="{{ route('siswa.index') }}"
+                   class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Data Siswa</span>
+                </a>
+
+                {{-- KELAS BINAAN BK --}}
+                @if(count(auth()->user()->getBinaanKelasList()) > 0)
+                    <div class="menu-title">
+                        Kelas Binaan BK
+                    </div>
+
+                    <div style="padding: 8px 13px; display: flex; flex-wrap: wrap; gap: 6px;">
+                        @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
+                            <span style="display: inline-block; padding: 4px 10px; background: rgba(109,20,8,0.15); color: #D1D5DB; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(109,20,8,0.3);">
+                                {{ $kelasBinaan }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
+            @elseif(auth()->check() && auth()->user()->isPds())
+
+                {{-- =================================================
+                     MENU GURU PDS (Penegak Disiplin Sekolah)
+                     - Bisa: Verifikasi / Acc Pelanggaran & Tambah Pelanggaran
+                     - Tidak Bisa: Tambah Prestasi
+                ================================================== --}}
+                <div class="menu-title">
+                    Utama
+                </div>
+
+                <a href="{{ route('dashboard') }}"
+                   class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                {{-- DISIPLIN & PELANGGARAN --}}
+                <div class="menu-title">
+                    Disiplin & Pelanggaran
+                </div>
+
+                <a href="{{ route('pelanggaran.pending') }}"
+                   class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Pending Verifikasi</span>
+                    @php
+                        $pendingCountPds = \App\Models\Pelanggaran::where('status', 'pending')->count();
+                    @endphp
+                    @if($pendingCountPds > 0)
+                        <span style="margin-left:auto; background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px;">
+                            {{ $pendingCountPds }}
+                        </span>
+                    @endif
+                </a>
+
+                <a href="{{ route('pelanggaran.index') }}"
+                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Data Pelanggaran</span>
+                </a>
+
+                <a href="{{ route('pelanggaran.create') }}"
+                   class="{{ request()->routeIs('pelanggaran.create') ? 'active' : '' }}">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span>Tambah Pelanggaran</span>
+                </a>
+
+                {{-- PRESTASI SISWA (READ-ONLY) --}}
+                <div class="menu-title">
+                    Prestasi & Aktivitas
+                </div>
+
+                <a href="{{ route('prestasi.index') }}"
+                   class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Data Prestasi</span>
+                </a>
+
+                <a href="{{ route('leaderboard') }}"
+                   class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
+                    <i class="fa-solid fa-ranking-star"></i>
+                    <span>Leaderboard</span>
+                </a>
+
+                {{-- DATA MASTER --}}
+                <div class="menu-title">
+                    Data Master
+                </div>
+
+                <a href="{{ route('siswa.index') }}"
+                   class="{{ request()->routeIs('siswa.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Data Siswa</span>
+                </a>
+
+                {{-- KELAS BINAAN PDS --}}
+                @if(count(auth()->user()->getBinaanKelasList()) > 0)
+                    <div class="menu-title">
+                        Kelas Binaan PDS
+                    </div>
+
+                    <div style="padding: 8px 13px; display: flex; flex-wrap: wrap; gap: 6px;">
+                        @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
+                            <span style="display: inline-block; padding: 4px 10px; background: rgba(109,20,8,0.15); color: #D1D5DB; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(109,20,8,0.3);">
+                                {{ $kelasBinaan }}
+                            </span>
+                        @endforeach
+                    </div>
+                @endif
+
             @else
 
                 {{-- =================================================
-                     MENU SUPER ADMIN, BK & PDS
+                     MENU SUPER ADMIN (AKSES PENUH)
                 ================================================== --}}
                 <div class="menu-title">
                     Utama
@@ -1265,12 +1508,26 @@
                    class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
                     <i class="fa-solid fa-hourglass-half"></i>
                     <span>Pending Laporan</span>
+                    @php
+                        $pendingCountAdmin = \App\Models\Pelanggaran::where('status', 'pending')->count();
+                    @endphp
+                    @if($pendingCountAdmin > 0)
+                        <span style="margin-left:auto; background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px;">
+                            {{ $pendingCountAdmin }}
+                        </span>
+                    @endif
                 </a>
 
                 <a href="{{ route('pelanggaran.create') }}"
                    class="{{ request()->routeIs('pelanggaran.create') ? 'active' : '' }}">
                     <i class="fa-solid fa-plus-circle"></i>
                     <span>Tambah Pelanggaran</span>
+                </a>
+
+                <a href="{{ route('lapor.index') }}"
+                   class="{{ request()->routeIs('lapor.index') ? 'active' : '' }}">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Form Lapor Pelanggaran</span>
                 </a>
 
                 {{-- DATA MASTER --}}
@@ -1312,35 +1569,6 @@
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Leaderboard</span>
                 </a>
-
-                {{-- KELAS BINAAN PDS / BK --}}
-                @if((auth()->user()->isPds() || auth()->user()->isBk()) && count(auth()->user()->getBinaanKelasList()) > 0)
-                    <div class="menu-title">
-                        Kelas Binaan Saya
-                    </div>
-
-                    <div style="
-                        padding: 8px 13px;
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 6px;
-                    ">
-                        @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
-                            <span style="
-                                display: inline-block;
-                                padding: 4px 10px;
-                                background: rgba(109,20,8,0.15);
-                                color: #D1D5DB;
-                                font-size: 11px;
-                                font-weight: 600;
-                                border-radius: 6px;
-                                border: 1px solid rgba(109,20,8,0.3);
-                            ">
-                                {{ $kelasBinaan }}
-                            </span>
-                        @endforeach
-                    </div>
-                @endif
 
             @endif
 
@@ -1460,6 +1688,8 @@
                     <p>
                         @if(auth()->check() && auth()->user()->isWalas())
                             Portal Pelaporan Wali Kelas
+                        @elseif(auth()->check() && auth()->user()->isGuru())
+                            Portal Pelaporan Guru Khusus (Semua Kelas)
                         @elseif(auth()->check() && auth()->user()->isPds())
                             Monitoring Kelas Binaan PDS
                         @elseif(auth()->check() && auth()->user()->isBk())

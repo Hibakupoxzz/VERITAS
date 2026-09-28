@@ -165,21 +165,21 @@
     <div class="pv-item pv-grid">
         <div class="pv-key">Nama Siswa</div>
         <div class="pv-value">
-            {{ $pelanggaran->siswa->nama }}
+            {{ $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)' }}
         </div>
     </div>
 
     <div class="pv-item pv-grid">
         <div class="pv-key">NISN</div>
         <div class="pv-value">
-            {{ $pelanggaran->siswa->nisn }}
+            {{ $pelanggaran->siswa?->nisn ?? '-' }}
         </div>
     </div>
 
     <div class="pv-item pv-grid">
         <div class="pv-key">Kelas</div>
         <div class="pv-value">
-            {{ $pelanggaran->siswa->kelas }}
+            {{ $pelanggaran->siswa?->kelas ?? '-' }}
         </div>
     </div>
 
