@@ -18,12 +18,20 @@ class PelanggaranMingguanExport implements FromCollection, ShouldAutoSize, WithH
 {
     public function collection()
     {
-        return Pelanggaran::with('siswa')
+        /*
+         * Hanya laporan yang sudah diverifikasi.
+         * Tanpa filter ini, laporan berstatus pending & ditolak
+         * ikut masuk ke file export resmi padahal tidak pernah
+         * tampil di halaman Data Pelanggaran.
+         */
+        return Pelanggaran::with(['siswa', 'aturanPelanggaran'])
+            ->verified()
             ->whereBetween('tanggal', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek(),
             ])
-            ->latest('tanggal')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id')
             ->get()
             ->map(function ($item, $index) {
                 return [

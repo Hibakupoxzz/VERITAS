@@ -6,7 +6,7 @@ namespace Database\Seeders\Traits;
  * Trait HasKelasList
  *
  * Single source of truth daftar kelas.
- * Digunakan oleh WalasUserSeeder & SiswaSeeder.
+ * Digunakan oleh WalasUserSeeder.
  */
 trait HasKelasList
 {

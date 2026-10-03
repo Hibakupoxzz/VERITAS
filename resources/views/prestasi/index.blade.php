@@ -426,7 +426,7 @@
 
 @section('styles')
 
-<style>
+@include('partials.ui')
 
 /* =====================================================
    DATA PRESTASI
@@ -441,67 +441,9 @@
 
 /* =====================================================
    HEADER
-===================================================== */
-
-.page-header{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:space-between;
-    align-items:center;
-    gap:16px;
-    margin-bottom:20px;
-}
-
-.page-heading{
-    flex:1 1 260px;
-    min-width:0;
-}
-
-.page-heading h1{
-    font-size:clamp(24px,4.4vw,34px);
-    color:var(--color-primary-gray);
-    margin-bottom:5px;
-    line-height:1.2;
-    overflow-wrap:anywhere;
-}
-
-.page-heading p{
-    color:#6b7280;
-    font-size:14px;
-    overflow-wrap:anywhere;
-}
-
-
-/* =====================================================
+===================================================== *//* =====================================================
    BUTTON PRIMARY
-===================================================== */
-
-.btn-primary{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-
-    background:#6D1408;
-    color:white;
-
-    text-decoration:none;
-
-    padding:12px 18px;
-
-    border-radius:12px;
-
-    font-weight:600;
-    font-size:14px;
-
-    white-space:nowrap;
-
-    flex-shrink:0;
-
-    transition:.2s;
-}
-
-.btn-primary:hover{
+===================================================== */.btn-primary:hover{
     transform:translateY(-2px);
     background:#5a1006;
 }
@@ -509,51 +451,9 @@
 
 /* =====================================================
    ALERT
-===================================================== */
-
-.alert-success{
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    background:#dcfce7;
-    color:#166534;
-
-    padding:14px 16px;
-
-    border-radius:12px;
-
-    margin-bottom:18px;
-
-    font-size:14px;
-}
-
-
-/* =====================================================
+===================================================== *//* =====================================================
    TABLE
-===================================================== */
-
-.table-card{
-    width:100%;
-
-    background:white;
-
-    border-radius:20px;
-
-    overflow:hidden;
-
-    border:1px solid #e5e7eb;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.05);
-}
-
-.table-responsive{
-    width:100%;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-}
-
-.table-responsive table{
+===================================================== */.table-responsive table{
     width:100%;
     min-width:min(1050px,100%);
 
@@ -602,32 +502,7 @@
 
 /* =====================================================
    STUDENT
-===================================================== */
-
-.student-info{
-    display:flex;
-    flex-direction:column;
-
-    min-width:130px;
-}
-
-.student-info strong{
-    color:#111827;
-
-    font-size:13px;
-
-    line-height:1.4;
-}
-
-.student-info small{
-    color:#6b7280;
-
-    margin-top:3px;
-
-    font-size:11px;
-}
-
-.date-cell{
+===================================================== */.date-cell{
     white-space:nowrap;
 }
 
@@ -716,34 +591,7 @@
 
 /* =====================================================
    POIN
-===================================================== */
-
-.badge-point{
-    display:inline-flex;
-
-    align-items:center;
-    justify-content:center;
-
-    min-width:45px;
-    height:32px;
-
-    padding:0 10px;
-
-    border-radius:999px;
-
-    background:#166534;
-
-    color:white;
-
-    font-weight:700;
-
-    font-size:13px;
-
-    white-space:nowrap;
-}
-
-
-/* =====================================================
+===================================================== *//* =====================================================
    BUKTI
 ===================================================== */
 
@@ -843,17 +691,7 @@
 
 /* =====================================================
    EMPTY
-===================================================== */
-
-.empty{
-    text-align:center;
-
-    color:#6b7280;
-
-    padding:45px !important;
-}
-
-.empty i{
+===================================================== */.empty i{
     display:block;
 
     font-size:28px;
@@ -864,14 +702,7 @@
 
 /* =====================================================
    MOBILE
-===================================================== */
-
-.mobile-list{
-    display:none;
-}
-
-
-/* =====================================================
+===================================================== *//* =====================================================
    TABLET
 ===================================================== */
 
@@ -1018,7 +849,7 @@
 
         padding:0 9px;
 
-        background:#166534;
+        background: var(--c-badge-success-text);
 
         color:white;
 
@@ -1176,7 +1007,7 @@
 
     .mobile-actions .btn-detail,
     .mobile-actions .btn-edit,
-    .mobile-actions .btn-delete{
+    .mobile-actions .btn-delete {
         width:100%;
 
         min-height:38px;
@@ -1207,7 +1038,7 @@
 
     .mobile-actions .btn-detail,
     .mobile-actions .btn-edit,
-    .mobile-actions .btn-delete{
+    .mobile-actions .btn-delete {
         min-height:38px;
 
         font-size:11px;
@@ -1227,7 +1058,7 @@
     }
 
     .table-responsive th,
-    .table-responsive td{
+    .table-responsive td {
         padding:13px 11px;
     }
 
@@ -1264,7 +1095,7 @@
     }
 
     .table-responsive th,
-    .table-responsive td{
+    .table-responsive td {
         padding:11px 9px;
 
         font-size:12px;
@@ -1303,7 +1134,7 @@
     }
 
     .table-responsive th,
-    .table-responsive td{
+    .table-responsive td {
         padding:10px 8px;
 
         font-size:11px;
@@ -1336,7 +1167,7 @@
     }
 
     .table-responsive th,
-    .table-responsive td{
+    .table-responsive td {
         padding:9px 6px;
 
         font-size:11px;
@@ -1352,12 +1183,9 @@
 
     .mobile-actions .btn-detail,
     .mobile-actions .btn-edit,
-    .mobile-actions .btn-delete{
+    .mobile-actions .btn-delete {
         font-size:11px;
     }
 
 }
-
-</style>
-
 @endsection

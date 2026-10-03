@@ -9,5 +9,6 @@ use Illuminate\Support\Facades\Route;
 // })->middleware('auth:sanctum');
 
 Route::get('/siswa', [SiswaApiController::class, 'index']);
+Route::get('/siswa/{id}', [SiswaApiController::class, 'show']);
 Route::post('/siswa', [SiswaApiController::class, 'store']);
 Route::post('/siswa/import', [SiswaApiController::class, 'bulkStore']);

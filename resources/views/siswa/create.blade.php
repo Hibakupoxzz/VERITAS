@@ -4,7 +4,8 @@
 @section('page_title', 'Tambah Siswa')
 
 @section('styles')
-<style>
+@include('partials.ui')
+
 .pv-wrapper{
     max-width:700px;
     width:100%;
@@ -28,7 +29,7 @@
     flex-shrink:0;
     border-radius:16px;
     background:#FBEAE8;
-    color:#6D1408;
+    color: var(--primary);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -47,17 +48,6 @@
     font-size:14px;
     overflow-wrap:anywhere;
 }
-
-.pv-card{
-    background:white;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-    border:1px solid #E5E7EB;
-    max-width:100%;
-    overflow:hidden;
-}
-
 .pv-section-title{
     font-size:13px;
     font-weight:700;
@@ -71,49 +61,11 @@
     display:grid;
     grid-template-columns:repeat(2, minmax(0, 1fr));
     gap:20px;
-}
-
-.pv-field{
-    margin-bottom:20px;
-    min-width:0;
-}
-
-.pv-label{
-    display:block;
-    margin-bottom:8px;
-    font-size:14px;
-    font-weight:600;
-    color:#374151;
-}
-
-.pv-label span{
-    color:#DC2626;
-}
-
-.pv-input{
-    width:100%;
-    max-width:100%;
-    padding:13px 15px;
-    border:1px solid #D1D5DB;
-    border-radius:12px;
-    font-size:14px;
-    outline:none;
-    transition:.2s;
-    background:#F9FAFB;
-}
-
-select.pv-input,
+}select.pv-input,
 textarea.pv-input{
     width:100%;
     max-width:100%;
 }
-
-.pv-input:focus{
-    border-color:#6D1408;
-    box-shadow:0 0 0 4px rgba(109,20,8,.15);
-    background:white;
-}
-
 .pv-alert{
     background:#FEF2F2;
     border:1px solid #FECACA;
@@ -127,43 +79,11 @@ textarea.pv-input{
     margin-left:18px;
     margin-top:8px;
 }
-
-.pv-footer{
-    margin-top:25px;
-    display:flex;
-    justify-content:flex-end;
-    gap:12px;
-    flex-wrap:wrap;
-}
-
-.btn-secondary{
-    text-decoration:none;
-    background:white;
-    border:1px solid #D1D5DB;
-    color:#374151;
-    padding:12px 20px;
-    border-radius:12px;
-    font-weight:600;
-    transition:.2s;
-}
-
 .btn-secondary:hover{
-    background:#F3F4F6;
+    background: var(--c-badge-neutral-bg);
 }
-
-.btn-primary{
-    border:none;
-    background:#6D1408;
-    color:white;
-    padding:12px 22px;
-    border-radius:12px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.2s;
-}
-
 .btn-primary:hover{
-    background:#581108;
+    background: var(--primary-dark);
 }
 
 .upload-wrapper{
@@ -180,7 +100,7 @@ textarea.pv-input{
 
     width:100%;
 
-    background:#6D1408;
+    background: var(--primary);
 
     color:white;
 
@@ -242,7 +162,7 @@ textarea.pv-input{
 }
 
 .pv-page-note a{
-    color:#6D1408;
+    color: var(--primary);
     font-weight:600;
     text-decoration:none;
 }
@@ -283,7 +203,7 @@ textarea.pv-input{
     }
 
     .btn-primary,
-    .btn-secondary{
+    .btn-secondary {
         width:100%;
         text-align:center;
         justify-content:center;
@@ -291,7 +211,7 @@ textarea.pv-input{
     }
 
     .pv-btn-primary,
-    .pv-btn-secondary{
+    .pv-btn-secondary {
         width:100%;
         justify-content:center;
     }
@@ -375,11 +295,10 @@ textarea.pv-input{
     }
 
     .btn-primary,
-    .btn-secondary{
+    .btn-secondary {
         padding:11px 14px;
     }
 }
-</style>
 @endsection
 
 @section('content')

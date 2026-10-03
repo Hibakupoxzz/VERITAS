@@ -13,12 +13,93 @@ class SiswaApiController extends Controller
 {
     /**
      * GET /api/siswa
+     *
+     * Query params (opsional):
+     *   ?search=andi  -> cari pada nisn / nama / kelas
+     *   ?kelas=XII-A  -> filter kelas
+     *   ?per_page=10  -> jumlah data per halaman
+     *   ?page=2      -> halaman
+     *   ?all=1       -> ambil semua data (tanpa pagination)
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(
-            Siswa::orderBy('nama')->get()
-        );
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:100',
+            'kelas' => 'nullable|string|max:100',
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'page' => 'nullable|integer|min:1',
+            'all' => 'nullable|boolean',
+        ]);
+
+        $siswas = Siswa::query()
+            ->when($validated['search'] ?? null, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nisn', 'like', "%{$search}%")
+                        ->orWhere('kelas', 'like', "%{$search}%");
+                });
+            })
+            ->when($validated['kelas'] ?? null, function ($query, $kelas) {
+                $query->where('kelas', $kelas);
+            })
+            ->orderBy('nama')
+            ->get();
+
+        // Kembalikan semua data sekaligus bila ?all=1
+        if (! empty($validated['all'])) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil mengambil data siswa.',
+                'total' => $siswas->count(),
+                'data' => $siswas,
+            ]);
+        }
+
+        $perPage = (int) ($validated['per_page'] ?? 10);
+        $page = (int) ($validated['page'] ?? 1);
+
+        $paginator = $siswas->forPage($page, $perPage)->values();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengambil data siswa.',
+            'data' => $paginator,
+            'meta' => [
+                'total' => $siswas->count(),
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => max(1, (int) ceil($siswas->count() / $perPage)),
+            ],
+        ]);
+    }
+
+    /**
+     * GET /api/siswa/{id}
+     * Detail siswa beserta riwayat pelanggaran & prestasi.
+     */
+    public function show(string $id)
+    {
+        $siswa = Siswa::with([
+            'pelanggarans' => fn ($q) => $q->latest('tanggal')->limit(10),
+            'prestasis' => fn ($q) => $q->latest('tanggal')->limit(10),
+        ])->find($id);
+
+        if (! $siswa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data siswa tidak ditemukan.',
+            ], 404);
+        }
+
+        $totalPoin = $siswa->pelanggarans()->sum('poin');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil mengambil detail siswa.',
+            'data' => array_merge($siswa->toArray(), [
+                'total_poin_pelanggaran' => $totalPoin,
+            ]),
+        ]);
     }
 
     /**

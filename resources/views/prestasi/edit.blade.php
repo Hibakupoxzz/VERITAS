@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Edit Prestasi - VERITAS')
-@section('page-title', 'Edit Prestasi')
+@section('page_title', 'Edit Prestasi')
 
 @section('content')
 
@@ -81,7 +81,7 @@
             </div>
 
 
-            <div class="selected-student selected-always">
+            <div class="selected-student">
 
                 <div class="student-icon">
                     <i class="fa-solid fa-user"></i>
@@ -423,7 +423,8 @@
 </div>
 
 
-<style>
+@section('styles')
+@include('partials.ui')
 
 /* ========================================
    PAGE HEADING
@@ -435,35 +436,9 @@
     align-items: center;
     gap: 20px;
     margin-bottom: 24px;
-}
-
-.page-heading h1 {
-    margin: 0 0 6px;
-    font-size: 26px;
-    font-weight: 700;
-    color: #1F2937;
-}
-
-.page-heading p {
-    margin: 0;
-    color: #6B7280;
-    font-size: 14px;
-}
-
-
-/* ========================================
+}/* ========================================
    FORM CARD
-======================================== */
-
-.form-card {
-    background: #fff;
-    border: 1px solid #E5E7EB;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0,0,0,.04);
-}
-
-.form-card-header {
+======================================== */.form-card-header {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -471,20 +446,6 @@
     border-bottom: 1px solid #E5E7EB;
     background: #FFFCFA;
 }
-
-.header-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    background: #F9E9E6;
-    color: #6D1408;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-
 .form-card-header h2 {
     margin: 0 0 4px;
     color: #1F2937;
@@ -519,7 +480,7 @@
 }
 
 .section-title i {
-    color: #6D1408;
+    color: var(--primary);
     width: 20px;
     text-align: center;
 }
@@ -537,17 +498,7 @@
 
 .form-grid > *,
 .form-group > *,
-.input-icon,
-.upload-box {
-    min-width: 0;
-    max-width: 100%;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-grid .form-group {
+.input-icon,.form-grid .form-group {
     margin-bottom: 0;
 }
 
@@ -562,35 +513,10 @@
 .form-group label span {
     color: #B42318;
 }
-
-.form-control {
-    width: 100%;
-    height: 44px;
-    padding: 0 13px;
-    border: 1px solid #D1D5DB;
-    border-radius: 9px;
-    background: #fff;
-    color: #1F2937;
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    transition: .2s;
-    box-sizing: border-box;
-}
-
 .form-control:focus {
-    border-color: #6D1408;
-    box-shadow: 0 0 0 3px rgba(109, 20, 8, .08);
-}
-
-.textarea {
-    height: auto;
-    padding: 12px 13px;
-    resize: vertical;
-    min-height: 100px;
-}
-
-select.form-control {
+    border-color: var(--primary);
+    box-shadow: var(--focus-ring);
+}select.form-control {
     cursor: pointer;
 }
 
@@ -638,25 +564,6 @@ select.form-control {
     justify-content: center;
     flex-shrink: 0;
 }
-
-.student-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.student-info strong {
-    display: block;
-    color: #1F2937;
-    font-size: 14px;
-    margin-bottom: 3px;
-}
-
-.student-info span {
-    display: block;
-    color: #6B7280;
-    font-size: 12px;
-}
-
 .student-locked {
     display: flex;
     align-items: center;
@@ -728,7 +635,7 @@ select.form-control {
 }
 
 .current-evidence-header strong i {
-    color: #6D1408;
+    color: var(--primary);
     margin-right: 5px;
 }
 
@@ -760,18 +667,8 @@ select.form-control {
 .upload-group {
     margin-bottom: 0;
 }
-
-.upload-box {
-    position: relative;
-    border: 1.5px dashed #D1D5DB;
-    border-radius: 11px;
-    background: #FAFAFA;
-    transition: .2s;
-    overflow: hidden;
-}
-
 .upload-box:hover {
-    border-color: #6D1408;
+    border-color: var(--primary);
     background: #FFFCFA;
 }
 
@@ -795,20 +692,6 @@ select.form-control {
     text-align: center;
     gap: 7px;
 }
-
-.upload-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 11px;
-    background: #F9E9E6;
-    color: #6D1408;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    margin-bottom: 4px;
-}
-
 .upload-content strong {
     font-size: 13px;
     color: #374151;
@@ -834,79 +717,19 @@ select.form-control {
 
 /* ========================================
    FOOTER
-======================================== */
-
-.form-footer {
-    padding: 20px 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    background: #FAFAFA;
-}
-
-
-/* ========================================
+======================================== *//* ========================================
    BUTTON
-======================================== */
-
-.btn {
-    height: 42px;
-    padding: 0 16px;
-    border-radius: 9px;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: .2s;
-    box-sizing: border-box;
+======================================== */.btn-primary:hover {
+    background: var(--primary-dark);
 }
-
-.btn-primary {
-    background: #6D1408;
-    color: #fff;
-}
-
-.btn-primary:hover {
-    background: #551006;
-}
-
-.btn-secondary {
-    background: #F3F4F6;
-    color: #374151;
-}
-
 .btn-secondary:hover {
-    background: #E5E7EB;
+    background: var(--c-badge-neutral-bg);
 }
 
 
 /* ========================================
    ALERT
-======================================== */
-
-.alert {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 13px 15px;
-    margin-bottom: 20px;
-    border-radius: 9px;
-    font-size: 13px;
-}
-
-.alert-danger {
-    background: #FEF2F2;
-    border: 1px solid #FECACA;
-    color: #991B1B;
-}
-
-.alert ul {
+======================================== */.alert ul {
     margin: 5px 0 0 17px;
     padding: 0;
 }
@@ -1140,8 +963,7 @@ select.form-control {
     }
 
 }
-
-</style>
+@endsection
 
 
 <script>

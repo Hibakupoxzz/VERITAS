@@ -360,10 +360,19 @@ class PrestasiController extends Controller
         // TOP PRESTASI
         // ==========================================
 
+        /*
+         * Filter "sudah punya ENGINE récord" ditulis sebagai has(),
+         * bukan having('..._count', '>', 0).
+         *
+         * having() tanpa groupBy() menghasilkan HAVING pada query
+         * non-aggregate. MySQL menerimanya diam-diam, tapi SQLite /
+         * Postgres menolaknya dengan:
+         *   SQLSTATE[HY000]: HAVING clause on a non-aggregate query
+         */
         $topPrestasiQuery = Siswa::query()
             ->withCount('prestasis')
             ->withSum('prestasis', 'poin')
-            ->having('prestasis_count', '>', 0);
+            ->has('prestasis');
 
         $applyFilter($topPrestasiQuery);
 
@@ -380,7 +389,7 @@ class PrestasiController extends Controller
         $topPelanggaranQuery = Siswa::query()
             ->withCount('pelanggarans')
             ->withSum('pelanggarans', 'poin')
-            ->having('pelanggarans_count', '>', 0);
+            ->has('pelanggarans');
 
         $applyFilter($topPelanggaranQuery);
 

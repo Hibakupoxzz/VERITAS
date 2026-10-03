@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Detail Siswa - VERITAS')
-@section('page-title', 'Detail Siswa')
+@section('page_title', 'Detail Siswa')
 
 @section('content')
 
@@ -159,7 +159,7 @@
 
 
     {{-- SALDO --}}
-    <div class="stat-card saldo-card">
+    <div class="stat-card">
 
         <div class="stat-icon saldo">
             <i class="fa-solid fa-chart-line"></i>
@@ -598,9 +598,9 @@
 
 @section('styles')
 
-<style>
+@include('partials.ui')
 
-    /* =====================================================
+/* =====================================================
        PAGE HEADING
     ===================================================== */
 
@@ -617,27 +617,12 @@
         min-width: 0;
     }
 
-    .page-heading h1 {
-        margin: 0 0 6px;
-        font-size: clamp(1.15rem, 0.9rem + 1.3vw, 1.5625rem);
-        font-weight: 800;
-        color: #1f2937;
-        overflow-wrap: anywhere;
-    }
-
-    .page-heading h1 i {
-        color: #6d1408;
+.page-heading h1 i {
+        color: var(--primary);
         margin-right: 8px;
     }
 
-    .page-heading p {
-        margin: 0;
-        color: #6b7280;
-        font-size: 14px;
-        overflow-wrap: anywhere;
-    }
-
-    .heading-actions {
+.heading-actions {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
@@ -658,36 +643,7 @@
 
     /* =====================================================
        STUDENT PROFILE
-    ===================================================== */
-
-    .student-profile {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, .04);
-    }
-
-    .profile-icon {
-        width: 70px;
-        height: 70px;
-        min-width: 70px;
-        border-radius: 16px;
-        background: #6d1408;
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        flex-shrink: 0;
-    }
-
-    .profile-info {
+    ===================================================== */    .profile-info {
         min-width: 0;
         flex: 1 1 240px;
     }
@@ -721,7 +677,7 @@
     }
 
     .profile-meta i {
-        color: #6d1408;
+        color: var(--primary);
     }
 
 
@@ -777,7 +733,7 @@
 
     .stat-icon.saldo {
         background: #fdf2f8;
-        color: #6d1408;
+        color: var(--primary);
     }
 
     .stat-content {
@@ -785,15 +741,7 @@
         flex: 1;
     }
 
-    .stat-label {
-        display: block;
-        color: #6b7280;
-        font-size: 12px;
-        margin-bottom: 4px;
-        overflow-wrap: anywhere;
-    }
-
-    .stat-content strong {
+.stat-content strong {
         font-size: 22px;
         font-weight: 800;
         color: #1f2937;
@@ -811,39 +759,12 @@
         margin-bottom: 20px;
     }
 
-    .table-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        overflow: hidden;
-        min-width: 0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
-    }
-
-    .card-header {
-        padding: 18px 20px;
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
-
-    .card-header > div:first-child {
+.card-header > div:first-child {
         min-width: 0;
     }
 
-    .card-header h3 {
-        margin: 0 0 4px;
-        font-size: 16px;
-        font-weight: 800;
-        color: #1f2937;
-        overflow-wrap: anywhere;
-    }
-
-    .card-header h3 i {
-        color: #6d1408;
+.card-header h3 i {
+        color: var(--primary);
         margin-right: 6px;
     }
 
@@ -863,40 +784,7 @@
         max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-        width: 100%;
-        min-width: 480px;
-        border-collapse: collapse;
-    }
-
-    th {
-        background: #fafafa;
-        color: #6b7280;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .04em;
-        padding: 12px 14px;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    td {
-        padding: 13px 14px;
-        border-top: 1px solid #f0f0f0;
-        color: #374151;
-        font-size: 13px;
-        vertical-align: middle;
-        overflow-wrap: anywhere;
-    }
-
-    tbody tr:hover {
-        background: #fafafa;
-    }
-
-
-    /* =====================================================
+    }    /* =====================================================
        NAME
     ===================================================== */
 
@@ -926,7 +814,7 @@
     }
 
     .achievement-name i {
-        color: #d97706;
+        color: var(--primary);
     }
 
 
@@ -1002,25 +890,7 @@
 
     /* =====================================================
        EMPTY STATE
-    ===================================================== */
-
-    .empty-state {
-        padding: 40px 20px;
-        text-align: center;
-    }
-
-    .empty-icon {
-        width: 50px;
-        height: 50px;
-        margin: 0 auto 12px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-    .empty-icon.success {
+    ===================================================== */    .empty-icon.success {
         background: #ecfdf5;
         color: #047857;
     }
@@ -1070,7 +940,7 @@
     }
 
     .calculation-header h3 i {
-        color: #6d1408;
+        color: var(--primary);
         margin-right: 6px;
     }
 
@@ -1406,7 +1276,4 @@
         }
 
     }
-
-</style>
-
 @endsection

@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-
 :root{
     --color-primary-text:#F9F6F2;
     --color-secondary-red:#6D1408;
@@ -237,7 +236,6 @@ body{
         font-size:14px;
     }
 }
-
 </style>
 </head>
 <body>

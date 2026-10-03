@@ -3,19 +3,11 @@
 @section('page_title', 'Data Siswa')
 
 @section('styles')
-<style>
-    *, *::before, *::after { box-sizing: border-box; }
+@include('partials.ui')
 
-    /* ── Page header ── */
-    .pv-page-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-    .pv-page-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+*, *::before, *::after { box-sizing: border-box; }
+
+    /* ── Page header ── */    .pv-page-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
     .pv-page-left > div:last-child { min-width: 0; }
 
     .pv-icon{
@@ -25,16 +17,14 @@
         flex-shrink:0;
         border-radius:16px;
         background:#FBEAE8;
-        color:#6D1408;
+        color: var(--primary);
         display:flex;
         align-items:center;
         justify-content:center;
         font-size:24px;
     }
-    .pv-page-title { font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.25rem); font-weight: 600; color: #1a1a2e; margin: 0; overflow-wrap: anywhere; }
-    .pv-page-sub   { font-size: 0.8rem; color: #6b7280; margin: 2px 0 0; }
 
-    .pv-btn-add {
+.pv-btn-add {
         background:var(--color-secondary-red);
         color:white;
         text-decoration:none;
@@ -74,9 +64,12 @@
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .pv-stat-icon svg { width: 18px; height: 18px; }
-    .pv-stat-icon.blue  { background:#FBEAE8; } .pv-stat-icon.blue  svg { stroke:#6D1408; }
-    .pv-stat-icon.green { background: #f0fdf4; } .pv-stat-icon.green svg { stroke: #16a34a; }
-    .pv-stat-icon.red   { background: #fff1f1; } .pv-stat-icon.red   svg { stroke: #e53e3e; }
+    .pv-stat-icon.blue  { background:#FBEAE8; }
+    .pv-stat-icon.blue  svg { stroke:var(--primary); }
+    .pv-stat-icon.green { background: #f0fdf4; }
+    .pv-stat-icon.green svg { stroke: #16a34a; }
+    .pv-stat-icon.red   { background: #fff1f1; }
+    .pv-stat-icon.red   svg { stroke: #e53e3e; }
     .pv-stat-val { font-size: 1.35rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
     .pv-stat-lbl { font-size: 0.72rem; color: #6b7280; margin-top: 3px; }
     .pv-stat-card > div:last-child { min-width: 0; }
@@ -102,7 +95,7 @@
         font-family: inherit;
     }
     .pv-search-wrap input:focus{
-        border-color:#6D1408;
+        border-color: var(--primary);
         box-shadow:0 0 0 3px rgba(109,20,8,.15);
     }
     .pv-filter-select {
@@ -141,7 +134,7 @@
     .pv-siswa-cell > div:last-child { min-width: 0; }
     .pv-avatar {
         width: 36px; height: 36px; border-radius: 50%;
-        background:#6D1408;
+        background: var(--primary);
         color:white;
         font-size: 0.72rem; font-weight: 700;
         display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -152,7 +145,7 @@
     /* ── Kelas badge ── */
     .pv-kelas-badge {
         background:#FBEAE8;
-        color:#6D1408;
+        color: var(--primary);
         border:1px solid #E8C2BD;
         font-size: 0.75rem; font-weight: 600;
         padding: 4px 10px; border-radius: 20px;
@@ -178,7 +171,7 @@
     }
 
     .pv-btn-edit,
-    .pv-btn-delete{
+    .pv-btn-delete {
         display:inline-flex;
         align-items:center;
         justify-content:center;
@@ -201,7 +194,7 @@
         color:#92400E;
         border:1px solid #FCD34D;
     }
-    .pv-btn-edit:hover {background:#FDE68A; color:#6D1408; }
+    .pv-btn-edit:hover {background:#FDE68A; color: var(--primary); }
     .pv-btn-edit svg { width: 13px; height: 13px; stroke: currentColor; }
 
     .pv-btn-delete{
@@ -230,16 +223,7 @@
 
     /* =========================
     TABLE RESPONSIVE
-    ========================= */
-
-    .table-responsive{
-        width:100%;
-        max-width:100%;
-        overflow-x:auto;
-        -webkit-overflow-scrolling:touch;
-    }
-
-    .pv-table{
+    ========================= */    .pv-table{
         min-width:700px;
     }
 
@@ -249,13 +233,13 @@
 
     @media (max-width: 1024px) {
         .pv-table { min-width: 640px; }
-    }
+        }
 
     @media (max-width: 900px) {
         .pv-table { min-width: 600px; }
         .pv-table th,
         .pv-table td { padding: 11px 12px; }
-    }
+        }
 
     @media (max-width: 768px) {
         .pv-stats { grid-template-columns: 1fr 1fr; }
@@ -267,7 +251,7 @@
         .pv-toolbar { padding: 12px 1rem; }
         .pv-action-wrap { flex-wrap: wrap; }
         .pv-siswa-cell { gap: 8px; }
-    }
+        }
 
     @media (max-width: 640px) {
         .pv-page-header { gap: 10px; }
@@ -297,14 +281,14 @@
         }
         .pv-action-wrap { width: 100%; }
         .pv-table { min-width: 460px; }
-    }
+        }
 
     @media (max-width: 576px) {
         .pv-stats { grid-template-columns: 1fr; }
         .pv-table { min-width: 420px; }
         .pv-empty { padding: 2.25rem 1rem; }
         .pv-empty svg { width: 40px; height: 40px; }
-    }
+        }
 
     @media (max-width: 480px) {
         .container-page { max-width: 100%; }
@@ -315,7 +299,7 @@
         .pv-table th { padding: 8px 8px; }
         .pv-table td { padding: 9px 8px; }
         .pv-avatar { width: 32px; height: 32px; font-size: 0.66rem; }
-    }
+        }
 
     @media (max-width: 400px) {
         .pv-table { min-width: 340px; }
@@ -325,8 +309,7 @@
         .pv-btn-delete { padding: 8px 10px; font-size: 12px; }
         .pv-kelas-badge,
         .pv-poin-badge { padding: 3px 8px; }
-    }
-</style>
+        }
 @endsection
 
 @section('content')
@@ -472,7 +455,7 @@
                         @if(auth()->user()->isGuru())
                             <a href="{{ route('lapor.index', ['siswa_id' => $siswa->id]) }}"
                                class="pv-btn-edit"
-                               style="background:#6D1408; color:#fff; border-color:#6D1408; gap:6px;"
+                               style="background: var(--primary); color:#fff; border-color: var(--primary); gap:6px;"
                                title="Laporkan Pelanggaran Siswa Ini">
                                 <i class="fa-solid fa-bullhorn" style="font-size:12px;"></i>
                                 Laporkan

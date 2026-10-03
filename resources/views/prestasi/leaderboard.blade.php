@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Leaderboard - VERITAS')
-@section('page-title', 'Leaderboard')
+@section('page_title', 'Leaderboard')
 
 @section('content')
 
@@ -579,7 +579,8 @@
 </div>
 
 
-<style>
+@section('styles')
+@include('partials.ui')
 
 /* ========================================
    PAGE HEADING
@@ -590,25 +591,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 22px;
-}
-
-.page-heading h1 {
-    margin: 0 0 6px;
-    font-size: clamp(21px, 3.2vw, 26px);
-    font-weight: 700;
-    color: #1F2937;
-    overflow-wrap: anywhere;
-}
-
-.page-heading p {
-    margin: 0;
-    color: #6B7280;
-    font-size: 14px;
-    overflow-wrap: anywhere;
-}
-
-
-/* ========================================
+}/* ========================================
    TABS
 ======================================== */
 
@@ -644,12 +627,12 @@
 }
 
 .leaderboard-tab:hover {
-    color: #6D1408;
+    color: var(--primary);
 }
 
 .leaderboard-tab.active {
     background: #fff;
-    color: #6D1408;
+    color: var(--primary);
     box-shadow: 0 2px 7px rgba(0,0,0,.06);
 }
 
@@ -710,20 +693,6 @@
 .leaderboard-title > div:last-child {
     min-width: 0;
 }
-
-.header-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 11px;
-    background: #F9E9E6;
-    color: #6D1408;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
-}
-
 .leaderboard-title h2 {
     margin: 0 0 4px;
     font-size: 17px;
@@ -743,7 +712,7 @@
     padding: 7px 10px;
     border-radius: 7px;
     background: #F9E9E6;
-    color: #6D1408;
+    color: var(--primary);
     font-size: 11px;
     font-weight: 600;
 }
@@ -800,7 +769,7 @@
 
 .rank-first {
     background: #F9E9E6;
-    color: #6D1408;
+    color: var(--primary);
 }
 
 .rank-second {
@@ -816,49 +785,10 @@
 
 /* ========================================
    STUDENT
-======================================== */
-
-.student-avatar {
-    width: 39px;
-    height: 39px;
-    border-radius: 10px;
-    background: #F9E9E6;
-    color: #6D1408;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.violation-avatar {
+======================================== */.violation-avatar {
     background: #FEF2F2;
     color: #B42318;
-}
-
-.student-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.student-info strong {
-    display: block;
-    margin-bottom: 3px;
-    color: #1F2937;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.student-info span {
-    display: block;
-    color: #9CA3AF;
-    font-size: 11px;
-}
-
-
-/* ========================================
+}/* ========================================
    STAT
 ======================================== */
 
@@ -941,7 +871,7 @@
 
 .saldo-points strong {
     display: block;
-    color: #6D1408;
+    color: var(--primary);
     font-size: 18px;
     font-weight: 700;
 }
@@ -972,7 +902,7 @@
 
 .view-student:hover {
     background: #F9E9E6;
-    color: #6D1408;
+    color: var(--primary);
 }
 
 
@@ -997,7 +927,7 @@
 }
 
 .formula-box i {
-    color: #6D1408;
+    color: var(--primary);
 }
 
 .formula-box strong {
@@ -1007,32 +937,7 @@
 
 /* ========================================
    EMPTY
-======================================== */
-
-.empty-state {
-    min-height: 260px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 30px 20px;
-}
-
-.empty-icon {
-    width: 55px;
-    height: 55px;
-    border-radius: 13px;
-    background: #F9E9E6;
-    color: #6D1408;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 21px;
-    margin-bottom: 13px;
-}
-
-.violation-empty {
+======================================== */.violation-empty {
     background: #FEF2F2;
     color: #B42318;
 }
@@ -1255,7 +1160,7 @@
 
 .lb-search-input:focus {
     background: #ffffff;
-    border-color: #6D1408;
+    border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(109, 20, 8, 0.12);
 }
 
@@ -1277,7 +1182,7 @@
 }
 
 .lb-clear-btn:hover {
-    color: #6D1408;
+    color: var(--primary);
     background: #F3F4F6;
 }
 
@@ -1315,11 +1220,11 @@
 }
 
 .lb-pill:hover {
-    color: #6D1408;
+    color: var(--primary);
 }
 
 .lb-pill.active {
-    background: #6D1408;
+    background: var(--primary);
     color: #ffffff;
     box-shadow: 0 2px 5px rgba(109, 20, 8, 0.2);
 }
@@ -1347,7 +1252,7 @@
 }
 
 .lb-select-kelas:focus {
-    border-color: #6D1408;
+    border-color: var(--primary);
 }
 
 .student-name-row {
@@ -1373,7 +1278,7 @@
     font-size: 11px;
     font-weight: 600;
     background: #FBEAE8;
-    color: #6D1408;
+    color: var(--primary);
     border: 1px solid #E8C2BD;
     white-space: nowrap;
 }
@@ -1642,8 +1547,7 @@
     }
 
 }
-
-</style>
+@endsection
 
 
 <script>

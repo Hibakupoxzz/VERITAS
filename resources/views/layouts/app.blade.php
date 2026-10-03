@@ -129,6 +129,100 @@
 
             --shadow:
                 0 8px 24px rgba(0, 0, 0, 0.07);
+
+            --dur: 0.2s;
+
+            --focus-ring: 0 0 0 3px rgba(109, 20, 8, 0.35);
+
+            /* =====================================================
+               DESIGN TOKENS
+               Satu sumber kebenaran untuk nilai yang sebelumnya
+               ditulis ulang-ulang dengan angka berbeda di tiap view
+               (terdeteksi 204 selector terduplikasi & ~300 properti
+               yang nilainya berbeda antar halaman).
+
+               Primitive dipakai langsung (mis. padding kartu),
+               semantic kalau nilainya ikut makna (mis. warna-poin).
+               Aturan main: kalau sebuah nilai pernah ditulis beda
+               di beberapa halaman, pindahkan ke sini — jangan
+               menulis angka mentah di view.
+               ===================================================== */
+
+            /* --- Typography --- */
+            --fs-2xs: 10px;
+            --fs-xs: 11px;
+            --fs-sm: 12px;
+            --fs-base: 13px;
+            --fs-md: 14px;
+            --fs-lg: 16px;
+            --fs-xl: 18px;
+
+            --lh-tight: 1.2;
+            --lh-normal: 1.4;
+            --lh-relaxed: 1.6;
+
+            --fw-normal: 400;
+            --fw-medium: 500;
+            --fw-semibold: 600;
+            --fw-bold: 700;
+
+            /* --- Radius ---
+               Nilai literal, bukan alias ke token lain, supaya blok
+               ini mandiri dan tidak bergantung token yang belum ada. */
+            --r-xs: 6px;
+            --r-sm: 8px;
+            --r-md: 10px;
+            --r-lg: 12px;
+            --r-xl: 16px;
+            --r-2xl: 20px;
+            --r-full: 9999px;
+
+            /* --- Spacing --- */
+            --sp-1: 4px;
+            --sp-2: 6px;
+            --sp-3: 8px;
+            --sp-4: 10px;
+            --sp-5: 12px;
+            --sp-6: 14px;
+            --sp-7: 16px;
+            --sp-8: 20px;
+            --sp-9: 24px;
+
+            /* --- Semantic colours --- */
+            --c-text: var(--dark);
+            --c-text-muted: var(--muted);
+            --c-text-soft: #9CA3AF;
+            --c-surface: var(--white);
+            --c-surface-alt: #F9FAFB;
+            --c-border: var(--border);
+            --c-border-soft: #F1F1F1;
+
+            /* Badge status */
+            --c-badge-danger-bg: #FEF2F2;
+            --c-badge-danger-text: #991B1B;
+            --c-badge-info-bg: #EFF6FF;
+            --c-badge-info-text: #1D4ED8;
+            --c-badge-success-bg: #DCFCE7;
+            --c-badge-success-text: #166534;
+            --c-badge-warning-bg: #FEF3C7;
+            --c-badge-warning-text: #92400E;
+            --c-badge-neutral-bg: #F3F4F6;
+            --c-badge-neutral-text: #4B5563;
+
+            /* Poin: relatifitas SUDAH TENTU di sini.
+               Sebelumnya .badge-point hijau di halaman prestasi
+               tapi merah di halaman pelanggaran — elemen sama,
+               makna berlawanan. */
+            --c-point-bg: var(--primary);
+            --c-point-text: #FFFFFF;
+
+            /* Table header: dark surface + white text, konsisten
+               dengan sidebar. Sebelumnya `th` berwarna putih di
+               satu halaman dan abu-abu di halaman lain sehingga
+               kontras header terbalik. */
+            --c-thead-bg: var(--dark);
+            --c-thead-text: #FFFFFF;
+            --c-row-hover: #F9FAFB;
         }
 
 

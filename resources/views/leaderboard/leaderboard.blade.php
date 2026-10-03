@@ -5,9 +5,10 @@
 
 @section('styles')
 
-<style>
 
-    /* =====================================================
+@include('partials.ui')
+
+/* =====================================================
        LEADERBOARD PAGE
     ====================================================== */
 
@@ -25,7 +26,7 @@
     .leaderboard-hero {
         background: linear-gradient(
             135deg,
-            #6D1408 0%,
+            var(--primary) 0%,
             #8f1d0d 100%
         );
 
@@ -185,7 +186,7 @@
 
 
     .leaderboard-tab.active {
-        background: #6D1408;
+        background: var(--primary);
 
         color: #fff;
     }
@@ -487,34 +488,7 @@
         min-width: 0;
     }
 
-
-    .student-avatar {
-        width: clamp(30px, 2.4vw, 36px);
-        height: clamp(30px, 2.4vw, 36px);
-
-        min-width: clamp(30px, 2.4vw, 36px);
-
-        border-radius: 10px;
-
-        background: rgba(109,20,8,.08);
-
-        color: #6D1408;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
-
-        font-size: 14px;
-    }
-
-
-    .student-info {
-        min-width: 0;
-    }
-
-
-    .student-name-table {
+.student-name-table {
         font-weight: 700;
 
         color: #1F2937;
@@ -535,15 +509,7 @@
         margin-top: 2px;
     }
 
-
-    .point-positive {
-        color: #15803D;
-
-        font-weight: 800;
-    }
-
-
-    .point-negative {
+.point-negative {
         color: #B91C1C;
 
         font-weight: 800;
@@ -562,7 +528,7 @@
     ====================================================== */
 
     .saldo-value {
-        color: #6D1408;
+        color: var(--primary);
 
         font-size: 15px;
 
@@ -582,18 +548,7 @@
 
     /* =====================================================
        EMPTY
-    ====================================================== */
-
-    .empty-state {
-        padding: 50px 20px;
-
-        text-align: center;
-
-        color: #9CA3AF;
-    }
-
-
-    .empty-state i {
+    ====================================================== */    .empty-state i {
         display: block;
 
         font-size: 30px;
@@ -768,9 +723,6 @@
         }
 
     }
-
-</style>
-
 @endsection
 
 

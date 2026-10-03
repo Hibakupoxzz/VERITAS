@@ -7,7 +7,9 @@ use App\Exports\PelanggaranMingguanExport;
 use App\Models\AturanPelanggaran;
 use App\Models\Pelanggaran;
 use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -18,15 +20,25 @@ class PelanggaranController extends Controller
      */
     public function index()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         $query = Pelanggaran::with([
             'siswa',
+            'pelapor',
             'aturanPelanggaran',
         ])
             ->verified()
-            ->latest();
+            /*
+             * Urut berdasarkan tanggal kejadian, bukan created_at.
+             * Laporan yang baru diverifikasi tapi tanggal
+             * kejadiannya sudah lama (mis. rapor) tetap tampil di
+             * posisi yang sesuai tanggalnya.
+             * id dipakai sebagai penentu agar tanggal yang sama
+             * tetap punya urutan stabil (tidak lompat-lompat antar halaman).
+             */
+            ->orderByDesc('tanggal')
+            ->orderByDesc('id');
 
         // Jika walas, hanya tampilkan pelanggaran siswa di kelasnya
         if ($user->isWalas() && $user->kelas) {
@@ -63,10 +75,24 @@ class PelanggaranController extends Controller
      */
     public function pending()
     {
-        $pendingLaporans = Pelanggaran::with(['siswa', 'pelapor'])
+        $pendingLaporans = Pelanggaran::with([
+            'siswa',
+            'pelapor',
+            'aturanPelanggaran',
+        ])
             ->pending()
             ->latest()
             ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Konteks siswa untuk membantu proses verifikasi
+        |--------------------------------------------------------------------------
+        */
+
+        [$ringkasanSiswa, $riwayatPerSiswa] = $this->konteksSiswa(
+            $pendingLaporans->pluck('siswa_id')
+        );
 
         $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
             ->orderByRaw("
@@ -81,7 +107,81 @@ class PelanggaranController extends Controller
             ->orderBy('kode')
             ->get();
 
-        return view('pelanggaran.pending', compact('pendingLaporans', 'aturanPelanggarans'));
+        return view('pelanggaran.pending', compact(
+            'pendingLaporans',
+            'aturanPelanggarans',
+            'ringkasanSiswa',
+            'riwayatPerSiswa',
+        ));
+    }
+
+    /**
+     * Konteks siswa untuk membantu proses verifikasi.
+     *
+     * Verifikator perlu melihat saldo poin dan riwayat teguran
+     * sebelum menyetujui laporan. Semua data diambil lewat query
+     * terpisah (bukan per-laporan) supaya tidak N+1.
+     *
+     * Mengembalikan tuple [ringkasan per siswa_id, riwayat per siswa_id].
+     *
+     * @param  Collection<int, mixed>  $siswaIds
+     * @return array{0: Collection, 1: Collection}
+     */
+    private function konteksSiswa($siswaIds): array
+    {
+        $siswaIds = $siswaIds
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($siswaIds->isEmpty()) {
+            return [collect(), collect()];
+        }
+
+        /*
+         * Total pelanggaran terverifikasi, total prestasi,
+         * lalu saldo poin memakai rumus yang sama dengan
+         * DashboardController: 100 - pelanggaran + prestasi.
+         */
+        $ringkasan = Siswa::whereIn('id', $siswaIds)
+            ->withCount([
+                'pelanggarans as jumlah_pelanggaran' => fn ($q) => $q
+                    ->where('status', 'diverifikasi'),
+            ])
+            ->withSum([
+                'pelanggarans as total_poin_pelanggaran' => fn ($q) => $q
+                    ->where('status', 'diverifikasi'),
+            ], 'poin')
+            ->withSum('prestasis as total_poin_prestasi', 'poin')
+            ->get()
+            ->each(function ($siswa) {
+                $siswa->saldo_poin =
+                    100
+                    - (int) ($siswa->total_poin_pelanggaran ?? 0)
+                    + (int) ($siswa->total_poin_prestasi ?? 0);
+            })
+            ->keyBy('id');
+
+        /*
+         * Riwayat teguran terakhir per siswa.
+         * Dibatasi 90 hari supaya query tetap ringan
+         * walau siswa sudah punya riwayat panjang.
+         */
+        $riwayat = Pelanggaran::where('status', 'diverifikasi')
+            ->whereIn('siswa_id', $siswaIds)
+            ->where('tanggal', '>=', now()->subDays(90)->startOfDay())
+            ->orderByDesc('id')
+            ->get([
+                'siswa_id',
+                'tanggal',
+                'jenis_pelanggaran',
+                'kategori',
+                'poin',
+            ])
+            ->groupBy('siswa_id')
+            ->map(fn ($rows) => $rows->take(5)->values());
+
+        return [$ringkasan, $riwayat];
     }
 
     /**
@@ -89,7 +189,7 @@ class PelanggaranController extends Controller
      */
     public function create()
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         $query = Siswa::orderBy('nama');
@@ -137,7 +237,7 @@ class PelanggaranController extends Controller
             'foto_bukti' => 'nullable|image|max:5120',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         return DB::transaction(function () use ($request, $user) {
@@ -290,10 +390,32 @@ class PelanggaranController extends Controller
     {
         $pelanggaran = Pelanggaran::with([
             'siswa',
+            'pelapor',
+            'verifikator',
             'aturanPelanggaran',
         ])->findOrFail($id);
 
-        return view('pelanggaran.show', compact('pelanggaran'));
+        /*
+        | Saldo poin & riwayat teguran membantu verifikator
+        | dan guru BK menilai laporan sebelum memutuskan.
+        */
+        [$ringkasanSiswa, $riwayatPerSiswa] = $this->konteksSiswa(
+            collect([$pelanggaran->siswa_id])
+        );
+
+        $ringkasan = $pelanggaran->siswa_id
+            ? $ringkasanSiswa->get($pelanggaran->siswa_id)
+            : null;
+
+        $riwayat = $pelanggaran->siswa_id
+            ? ($riwayatPerSiswa->get($pelanggaran->siswa_id) ?? collect())
+            : collect();
+
+        return view('pelanggaran.show', compact(
+            'pelanggaran',
+            'ringkasan',
+            'riwayat',
+        ));
     }
 
     /**
@@ -432,13 +554,18 @@ class PelanggaranController extends Controller
             ->findOrFail($id);
 
         $request->validate([
-            'aturan_pelanggaran_id' => 'nullable',
+            /*
+             * Aturan WAJIB dipilih: tanpa itu poin tidak ada sumbernya
+             * dan laporan bisa terverifikasi dengan poin 0 tanpa warning.
+             */
+            'aturan_pelanggaran_id' => 'required',
             'jenis_pelanggaran_custom' => 'nullable|string|max:255',
             'poin_custom' => 'nullable|numeric|min:0',
+            'kategori' => 'nullable|in:Ringan,Sedang,Berat,Luar Biasa',
             'catatan_verifikasi' => 'nullable|string',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         return DB::transaction(function () use ($request, $pelanggaran, $user) {
@@ -537,7 +664,7 @@ class PelanggaranController extends Controller
             'catatan_verifikasi' => 'required|string|max:500',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = auth()->user();
 
         $pelanggaran->update([

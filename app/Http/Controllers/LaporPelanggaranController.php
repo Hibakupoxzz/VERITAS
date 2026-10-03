@@ -186,9 +186,11 @@ class LaporPelanggaranController extends Controller
                 'date',
             ],
 
-            'pelanggaran_mode' => [
+            // Pelaporan WAJIB mengacu pada master aturan.
+            'aturan_pelanggaran_id' => [
                 'required',
-                'in:aturan,manual',
+                'integer',
+                'exists:aturan_pelanggarans,id',
             ],
 
             'keterangan' => [
@@ -205,92 +207,28 @@ class LaporPelanggaranController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Tentukan jenis pelanggaran
+        | Pastikan aturan yang dipilih masih aktif
         |--------------------------------------------------------------------------
+        | Dicek manual (bukan findOrFail) supaya pengguna
+        | mendapat pesan validasi yang ramah, bukan error 404.
+        | Poin & kategori TIDAK diambil dari input pengguna,
+        | selalu mengikuti master aturan.
         */
 
-        $jenisPelanggaran = null;
-        $kategori = null;
-        $poin = 0;
-        $aturanPelanggaranId = null;
+        $aturan = AturanPelanggaran::where('aktif', true)
+            ->find($request->aturan_pelanggaran_id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | MODE ATURAN
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->pelanggaran_mode === 'aturan') {
-
-            $request->validate([
-                'aturan_pelanggaran_id' => [
-                    'required',
-                    'integer',
-                    'exists:aturan_pelanggarans,id',
-                ],
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Pastikan aturan yang dipilih masih aktif
-            |--------------------------------------------------------------------------
-            | Dicek manual (bukan findOrFail) supaya pengguna
-            | mendapat pesan validasi yang ramah, bukan error 404.
-            */
-
-            $aturan = AturanPelanggaran::where('aktif', true)
-                ->find($request->aturan_pelanggaran_id);
-
-            if (! $aturan) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'aturan_pelanggaran_id' => 'Aturan pelanggaran yang dipilih tidak tersedia atau sudah tidak aktif.',
-                    ]);
-            }
-
-            $jenisPelanggaran = $aturan->nama;
-            $kategori = $aturan->kategori;
-            $poin = $aturan->poin;
-            $aturanPelanggaranId = $aturan->id;
+        if (! $aturan) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'aturan_pelanggaran_id' => 'Aturan pelanggaran yang dipilih tidak tersedia atau sudah tidak aktif.',
+                ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | MODE MANUAL
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->pelanggaran_mode === 'manual') {
-
-            $request->validate([
-                'jenis_pelanggaran_manual' => [
-                    'required',
-                    'string',
-                    'max:255',
-                ],
-
-                'kategori_manual' => [
-                    'required',
-                    'in:Ringan,Sedang,Berat,Luar Biasa',
-                ],
-
-                'poin_manual' => [
-                    'required',
-                    'integer',
-                    'min:0',
-                ],
-            ]);
-
-            $jenisPelanggaran =
-                $request->jenis_pelanggaran_manual;
-
-            $kategori =
-                $request->kategori_manual;
-
-            $poin =
-                $request->poin_manual;
-        }
+        $jenisPelanggaran = $aturan->nama;
+        $kategori = $aturan->kategori;
+        $poin = $aturan->poin;
 
         /*
         |--------------------------------------------------------------------------
@@ -327,7 +265,7 @@ class LaporPelanggaranController extends Controller
 
             'pelapor_id' => $user->id,
 
-            'aturan_pelanggaran_id' => $aturanPelanggaranId,
+            'aturan_pelanggaran_id' => $aturan->id,
 
             'tanggal' => $request->tanggal,
 

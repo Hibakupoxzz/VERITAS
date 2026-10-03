@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Detail Prestasi - VERITAS')
-@section('page-title', 'Detail Prestasi')
+@section('page_title', 'Detail Prestasi')
 
 @section('content')
 
@@ -459,7 +459,8 @@
      CSS
 ========================================== --}}
 
-<style>
+@section('styles')
+@include('partials.ui')
 
     /* ========================================
        PAGE HEADING
@@ -473,20 +474,7 @@
         margin-bottom: 24px;
     }
 
-    .page-heading h1 {
-        margin: 0 0 6px;
-        font-size: 26px;
-        font-weight: 700;
-        color: #1F2937;
-    }
-
-    .page-heading p {
-        margin: 0;
-        color: #6B7280;
-        font-size: 14px;
-    }
-
-    .heading-actions {
+.heading-actions {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
@@ -538,20 +526,7 @@
         border-bottom: 1px solid #E5E7EB;
     }
 
-    .header-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 11px;
-        background: #F9E9E6;
-        color: #6D1408;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 18px;
-    }
-
-    .detail-card-header h2 {
+.detail-card-header h2 {
         margin: 0 0 4px;
         font-size: 17px;
         color: #1F2937;
@@ -593,7 +568,7 @@
         height: 50px;
         border-radius: 12px;
         background: #F9E9E6;
-        color: #6D1408;
+        color: var(--primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -675,7 +650,7 @@
         height: 35px;
         border-radius: 8px;
         background: #F3F4F6;
-        color: #6D1408;
+        color: var(--primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -694,14 +669,7 @@
         display: block;
         color: #374151;
         font-size: 12px;
-    }
-
-    .point-positive {
-        color: #287A3D !important;
-    }
-
-
-    /* ========================================
+    }    /* ========================================
        KETERANGAN
     ======================================== */
 
@@ -724,7 +692,7 @@
     }
 
     .description-title i {
-        color: #6D1408;
+        color: var(--primary);
     }
 
     .description-box p {
@@ -752,20 +720,7 @@
         margin-bottom: 18px;
     }
 
-    .student-avatar {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
-        background: #F9E9E6;
-        color: #6D1408;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 21px;
-        flex-shrink: 0;
-    }
-
-    .student-profile-info {
+.student-profile-info {
         min-width: 0;
     }
 
@@ -885,7 +840,7 @@
     }
 
     .point-step.point-final strong {
-        color: #6D1408;
+        color: var(--primary);
     }
 
     .point-arrow {
@@ -992,41 +947,11 @@
 
     /* ========================================
        BUTTON
-    ======================================== */
-
-    .btn {
-        height: 42px;
-        padding: 0 15px;
-        border-radius: 9px;
-        border: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-family: inherit;
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: .2s;
-        box-sizing: border-box;
+    ======================================== */    .btn-primary:hover {
+        background: var(--primary-dark);
     }
 
-    .btn-primary {
-        background: #6D1408;
-        color: #fff;
-    }
-
-    .btn-primary:hover {
-        background: #551006;
-    }
-
-    .btn-secondary {
-        background: #F3F4F6;
-        color: #374151;
-    }
-
-    .btn-secondary:hover {
+.btn-secondary:hover {
         background: #E5E7EB;
     }
 
@@ -1276,7 +1201,6 @@
         }
 
     }
-
-</style>
+@endsection
 
 @endsection

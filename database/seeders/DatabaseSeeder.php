@@ -24,9 +24,12 @@ class DatabaseSeeder extends Seeder
 
             // Data referensi & master
             AturanPelanggaranSeeder::class,
-
-            // Data operasional
-            SiswaSeeder::class,
         ]);
+
+        /*
+        | Data siswa tidak lagi di-seed.
+        | Gunakan import Excel (SiswaController::import / SiswaImport)
+        | atau tambah manual lewat menu Data Siswa.
+        */
     }
 }

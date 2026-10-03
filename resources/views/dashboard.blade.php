@@ -4,8 +4,9 @@
 @section('page_title', 'Dashboard')
 
 @section('styles')
-<style>
-    /* =========================================================
+@include('partials.ui')
+
+/* =========================================================
        DASHBOARD
     ========================================================= */
 
@@ -18,7 +19,7 @@
     ========================= */
 
     .dashboard-welcome {
-        background: linear-gradient(135deg, #6D1408 0%, #8f1d0d 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
         color: #fff;
         border-radius: 20px;
         padding: 28px 30px;
@@ -123,7 +124,7 @@
 
     .stat-icon.red {
         background: rgba(109,20,8,.10);
-        color: #6D1408;
+        color: var(--primary);
     }
 
     .stat-icon.green {
@@ -138,21 +139,14 @@
 
     .stat-icon.orange {
         background: rgba(234,88,12,.10);
-        color: #EA580C;
+        color: var(--primary);
     }
 
     .stat-info {
         min-width: 0;
     }
 
-    .stat-label {
-        color: #6B7280;
-        font-size: 12px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .stat-value {
+.stat-value {
         color: #1F2937;
         font-size: clamp(17px, 2.2vw, 24px);
         font-weight: 800;
@@ -191,7 +185,7 @@
         height: 42px;
         border-radius: 12px;
         background: rgba(109,20,8,.10);
-        color: #6D1408;
+        color: var(--primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -213,7 +207,7 @@
 
     .leaderboard-link {
         text-decoration: none;
-        color: #6D1408;
+        color: var(--primary);
         background: rgba(109,20,8,.08);
         border-radius: 10px;
         padding: 9px 13px;
@@ -229,7 +223,7 @@
     }
 
     .leaderboard-link:hover {
-        background: #6D1408;
+        background: var(--primary);
         color: #fff;
     }
 
@@ -275,7 +269,7 @@
     }
 
     .leaderboard-card-title i {
-        color: #6D1408;
+        color: var(--primary);
     }
 
     .leaderboard-card-title.violation i {
@@ -459,7 +453,7 @@
         margin-top: 8px;
         font-size: 19px;
         font-weight: 800;
-        color: #6D1408;
+        color: var(--primary);
     }
 
     .saldo-poin small {
@@ -719,7 +713,6 @@
             font-size: 11px;
         }
     }
-</style>
 @endsection
 
 

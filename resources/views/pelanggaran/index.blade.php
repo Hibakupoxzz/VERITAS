@@ -5,13 +5,19 @@
 
 @section('content')
 
+@php
+    $isWalas   = auth()->user()->isWalas();
+    $canAdd    = auth()->user()->canDirectAddPelanggaran();
+    $kategoris = $pelanggarans->pluck('kategori')->filter()->unique()->values();
+@endphp
+
 <div class="pelanggaran-page">
 
     {{-- HEADER --}}
-    <div class="page-header">
+    <div class="pg-header">
 
-        <div class="page-heading">
-            @if(auth()->user()->isWalas())
+        <div class="pg-heading">
+            @if($isWalas)
                 <h1>Pelanggaran Kelas {{ auth()->user()->kelas }}</h1>
                 <p>Daftar pelanggaran siswa di kelas Anda</p>
             @else
@@ -20,13 +26,13 @@
             @endif
         </div>
 
-        @if(auth()->user()->canDirectAddPelanggaran())
-        <a href="{{ route('pelanggaran.create') }}" class="btn-primary">
+        @if($canAdd)
+        <a href="{{ route('pelanggaran.create') }}" class="pg-btn pg-btn-primary">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Pelanggaran</span>
         </a>
         @elseif(auth()->user()->canReportPelanggaran())
-        <a href="{{ route('lapor.index') }}" class="btn-primary">
+        <a href="{{ route('lapor.index') }}" class="pg-btn pg-btn-primary">
             <i class="fa-solid fa-bullhorn"></i>
             <span>Lapor Pelanggaran</span>
         </a>
@@ -37,199 +43,235 @@
 
     {{-- SUCCESS --}}
     @if(session('success'))
-
-        <div class="alert-success">
+        <div class="pg-alert">
             <i class="fa-solid fa-circle-check"></i>
             <span>{{ session('success') }}</span>
         </div>
-
     @endif
 
 
-    {{-- EXPORT --}}
-    @if(!auth()->user()->isWalas())
-    <div class="export-buttons">
+    {{-- RINGKASAN --}}
+    <div class="pg-stats">
 
-        <a href="{{ route('pelanggaran.export.harian') }}"
-           class="btn-export">
+        <div class="pg-stat">
+            <div class="pg-stat-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div>
+                <small>Total Pelanggaran</small>
+                <strong>{{ $pelanggarans->count() }}</strong>
+            </div>
+        </div>
 
-            <i class="fa-solid fa-file-export"></i>
-            <span>Export Hari Ini</span>
+        <div class="pg-stat">
+            <div class="pg-stat-icon pg-stat-warn"><i class="fa-solid fa-star-half-stroke"></i></div>
+            <div>
+                <small>Total Poin Dikurangi</small>
+                <strong>-{{ $pelanggarans->sum('poin') }}</strong>
+            </div>
+        </div>
 
-        </a>
-
-        <a href="{{ route('pelanggaran.export.mingguan') }}"
-           class="btn-export">
-
-            <i class="fa-solid fa-file-export"></i>
-            <span>Export Mingguan</span>
-
-        </a>
+        <div class="pg-stat">
+            <div class="pg-stat-icon pg-stat-info"><i class="fa-solid fa-user-group"></i></div>
+            <div>
+                <small>Siswa Terlibat</small>
+                <strong>{{ $pelanggarans->pluck('siswa_id')->filter()->unique()->count() }}</strong>
+            </div>
+        </div>
 
     </div>
-    @endif
+
+
+    {{-- TOOLBAR: CARI, FILTER, EXPORT --}}
+    <div class="pg-toolbar">
+
+        <div class="pg-filters">
+
+            <div class="pg-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                    type="search"
+                    id="pgSearch"
+                    placeholder="Cari siswa, pelanggaran, atau pelapor..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <select id="pgKategori" class="pg-select" aria-label="Filter kategori">
+                <option value="">Semua Kategori</option>
+                @foreach($kategoris as $kat)
+                    <option value="{{ \Illuminate\Support\Str::lower($kat) }}">{{ $kat }}</option>
+                @endforeach
+            </select>
+
+        </div>
+
+        @if(!$isWalas)
+        <div class="pg-exports">
+            <a href="{{ route('pelanggaran.export.harian') }}" class="pg-btn pg-btn-outline">
+                <i class="fa-solid fa-file-export"></i>
+                <span>Export Hari Ini</span>
+            </a>
+            <a href="{{ route('pelanggaran.export.mingguan') }}" class="pg-btn pg-btn-outline">
+                <i class="fa-solid fa-file-export"></i>
+                <span>Export Mingguan</span>
+            </a>
+        </div>
+        @endif
+
+    </div>
+
+    <div class="pg-result-info">
+        Menampilkan <strong id="pgCount">{{ $pelanggarans->count() }}</strong> data
+    </div>
 
 
     {{-- =========================
          DESKTOP TABLE
     ========================== --}}
+    <div class="pg-card pg-desktop">
 
-    <div class="table-card desktop-table">
+        <div class="pg-scroll">
 
-        <div class="table-responsive">
-
-            <table>
+            <table class="pg-table">
 
                 <thead>
-
                     <tr>
-                        <th>No</th>
+                        <th class="col-no">No</th>
                         <th>Tanggal</th>
                         <th>Siswa</th>
                         <th>Pelanggaran</th>
+                        <th>Pelapor</th>
                         <th>Poin</th>
                         <th>Foto</th>
-                        @if(!auth()->user()->isWalas())
-                        <th>Aksi</th>
+                        @if(!$isWalas)
+                        <th class="col-aksi">Aksi</th>
                         @endif
                     </tr>
-
                 </thead>
 
                 <tbody>
 
                     @forelse($pelanggarans as $pelanggaran)
 
-                        <tr>
+                        @php
+                            $namaSiswa = $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)';
+                            $katSlug   = \Illuminate\Support\Str::slug($pelanggaran->kategori ?? '');
+                            $haystack  = \Illuminate\Support\Str::lower(
+                                $namaSiswa . ' ' .
+                                ($pelanggaran->siswa?->kelas ?? '') . ' ' .
+                                $pelanggaran->jenis_pelanggaran . ' ' .
+                                ($pelanggaran->pelapor?->name ?? '')
+                            );
+                        @endphp
 
-                            {{-- NO --}}
-                            <td>
-                                {{ $loop->iteration }}
-                            </td>
+                        <tr class="js-item"
+                            data-search="{{ $haystack }}"
+                            data-kategori="{{ \Illuminate\Support\Str::lower($pelanggaran->kategori ?? '') }}">
 
+                            <td class="col-no">{{ $loop->iteration }}</td>
 
-                            {{-- TANGGAL --}}
-                            <td class="date-cell">
-
+                            <td class="pg-nowrap">
                                 {{ \Carbon\Carbon::parse($pelanggaran->tanggal)->format('d/m/Y') }}
-
                             </td>
 
-
-                            {{-- SISWA --}}
                             <td>
-
-                                <div class="student-info">
-
-                                    <strong>
-                                        {{ $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)' }}
-                                    </strong>
-
-                                    <small>
-                                        {{ $pelanggaran->siswa?->kelas ?? '-' }}
-                                    </small>
-
+                                <div class="pg-student">
+                                    <div class="pg-avatar">
+                                        @if($pelanggaran->siswa)
+                                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($pelanggaran->siswa->nama, 0, 1)) }}
+                                        @else
+                                            <i class="fa-solid fa-flag"></i>
+                                        @endif
+                                    </div>
+                                    <div class="pg-student-text">
+                                        <strong>{{ $namaSiswa }}</strong>
+                                        <small>{{ $pelanggaran->siswa?->kelas ?? '-' }}</small>
+                                    </div>
                                 </div>
-
                             </td>
 
+                            <td class="col-violation">
+                                <div class="pg-violation">
+                                    <div class="pg-jenis">{{ $pelanggaran->jenis_pelanggaran }}</div>
 
-                            {{-- PELANGGARAN --}}
-                            <td>
-
-                                <div class="violation-wrapper">
-
-                                    <span class="badge-danger">
-                                        {{ $pelanggaran->jenis_pelanggaran }}
-                                    </span>
-
-                                    @if($pelanggaran->keterangan)
-
-                                        <div class="description">
-                                            {{ $pelanggaran->keterangan }}
-                                        </div>
-
+                                    @if($pelanggaran->kategori)
+                                        <span class="pg-kat pg-kat-{{ $katSlug }}">
+                                            {{ $pelanggaran->kategori }}
+                                        </span>
                                     @endif
 
+                                    @if($pelanggaran->keterangan)
+                                        <div class="pg-desc pg-clamp" title="{{ $pelanggaran->keterangan }}">
+                                            {{ $pelanggaran->keterangan }}
+                                        </div>
+                                    @endif
                                 </div>
-
                             </td>
 
-
-                            {{-- POIN --}}
                             <td>
-
-                                <span class="badge-point">
-                                    -{{ $pelanggaran->poin }}
-                                </span>
-
-                            </td>
-
-
-                            {{-- FOTO --}}
-                            <td>
-
-                                @if($pelanggaran->foto_bukti)
-
-                                    <img
-                                        src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-                                        alt="Foto Bukti"
-                                        class="table-image"
-                                    >
-
+                                @if($pelanggaran->pelapor)
+                                    <div class="pg-reporter">
+                                        <strong>{{ $pelanggaran->pelapor->name }}</strong>
+                                        <small>{{ $pelanggaran->pelapor->role_label }}</small>
+                                    </div>
                                 @else
-
-                                    <span class="no-image">
-                                        Tidak Ada
-                                    </span>
-
+                                    <span class="pg-muted">-</span>
                                 @endif
-
                             </td>
 
-
-                            {{-- AKSI --}}
-                            @if(!auth()->user()->isWalas())
                             <td>
+                                <span class="pg-poin">-{{ $pelanggaran->poin }}</span>
 
-                                <div class="action-buttons">
+                                @if($pelanggaran->poin_sebelum !== null)
+                                    <div class="pg-saldo">
+                                        {{ $pelanggaran->poin_sebelum }}
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                        {{ $pelanggaran->poin_sesudah }}
+                                    </div>
+                                @endif
+                            </td>
 
-                                    <a
-                                        href="{{ route('pelanggaran.show', $pelanggaran->id) }}"
-                                        class="btn-detail"
-                                    >
-                                        Detail
+                            <td>
+                                @if($pelanggaran->foto_bukti)
+                                    <button type="button"
+                                            class="pg-thumb js-zoom"
+                                            data-src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
+                                            title="Klik untuk memperbesar">
+                                        <img src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
+                                             alt="Foto Bukti" loading="lazy">
+                                    </button>
+                                @else
+                                    <span class="pg-muted">Tidak ada</span>
+                                @endif
+                            </td>
+
+                            @if(!$isWalas)
+                            <td class="col-aksi">
+                                <div class="pg-actions">
+
+                                    <a href="{{ route('pelanggaran.show', $pelanggaran->id) }}"
+                                       class="pg-ico pg-ico-detail" title="Detail" aria-label="Detail">
+                                        <i class="fa-solid fa-eye"></i>
                                     </a>
 
-                                    @if(auth()->user()->canDirectAddPelanggaran())
-                                    <a
-                                        href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
-                                        class="btn-edit"
-                                    >
-                                        Edit
+                                    @if($canAdd)
+                                    <a href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
+                                       class="pg-ico pg-ico-edit" title="Edit" aria-label="Edit">
+                                        <i class="fa-solid fa-pen"></i>
                                     </a>
 
-                                    <form
-                                        action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Hapus data ini?')"
-                                    >
-
+                                    <form action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Hapus data ini?')">
                                         @csrf
                                         @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="btn-delete"
-                                        >
-                                            Hapus
+                                        <button type="submit" class="pg-ico pg-ico-delete"
+                                                title="Hapus" aria-label="Hapus">
+                                            <i class="fa-solid fa-trash"></i>
                                         </button>
-
                                     </form>
                                     @endif
 
                                 </div>
-
                             </td>
                             @endif
 
@@ -238,20 +280,21 @@
                     @empty
 
                         <tr>
-
-                            <td colspan="7" class="empty">
-
+                            <td colspan="{{ $isWalas ? 7 : 8 }}" class="pg-empty">
                                 <i class="fa-solid fa-inbox"></i>
-
-                                <span>
-                                    Belum ada data pelanggaran
-                                </span>
-
+                                <span>Belum ada data pelanggaran</span>
                             </td>
-
                         </tr>
 
                     @endforelse
+
+                    {{-- Muncul saat pencarian/filter tidak menemukan hasil --}}
+                    <tr id="pgNoResultRow" hidden>
+                        <td colspan="{{ $isWalas ? 7 : 8 }}" class="pg-empty">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Tidak ada data yang cocok dengan pencarian</span>
+                        </td>
+                    </tr>
 
                 </tbody>
 
@@ -265,122 +308,107 @@
     {{-- =========================
          MOBILE CARD
     ========================== --}}
-
-    <div class="mobile-list">
+    <div class="pg-mobile">
 
         @forelse($pelanggarans as $pelanggaran)
 
-            <div class="violation-card">
+            @php
+                $namaSiswa = $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)';
+                $katSlug   = \Illuminate\Support\Str::slug($pelanggaran->kategori ?? '');
+                $haystack  = \Illuminate\Support\Str::lower(
+                    $namaSiswa . ' ' .
+                    ($pelanggaran->siswa?->kelas ?? '') . ' ' .
+                    $pelanggaran->jenis_pelanggaran . ' ' .
+                    ($pelanggaran->pelapor?->name ?? '')
+                );
+            @endphp
 
-                {{-- CARD HEADER --}}
-                <div class="mobile-card-header">
+            <div class="pg-mcard js-item"
+                 data-search="{{ $haystack }}"
+                 data-kategori="{{ \Illuminate\Support\Str::lower($pelanggaran->kategori ?? '') }}">
 
-                    <div class="mobile-date">
-
+                <div class="pg-mcard-top">
+                    <div class="pg-mdate">
                         <i class="fa-regular fa-calendar"></i>
-
                         {{ \Carbon\Carbon::parse($pelanggaran->tanggal)->format('d/m/Y') }}
-
                     </div>
-
-                    <span class="mobile-point">
-                        -{{ $pelanggaran->poin }}
-                    </span>
-
+                    <span class="pg-poin">-{{ $pelanggaran->poin }}</span>
                 </div>
 
-
-                {{-- SISWA --}}
-                <div class="mobile-student">
-
-                    <strong>
-                        {{ $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)' }}
-                    </strong>
-
-                    <small>
-                        {{ $pelanggaran->siswa?->kelas ?? '-' }}
-                    </small>
-
+                <div class="pg-student">
+                    <div class="pg-avatar">
+                        @if($pelanggaran->siswa)
+                            {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($pelanggaran->siswa->nama, 0, 1)) }}
+                        @else
+                            <i class="fa-solid fa-flag"></i>
+                        @endif
+                    </div>
+                    <div class="pg-student-text">
+                        <strong>{{ $namaSiswa }}</strong>
+                        <small>{{ $pelanggaran->siswa?->kelas ?? '-' }}</small>
+                    </div>
                 </div>
 
+                <div class="pg-violation pg-mviolation">
+                    <div class="pg-jenis">{{ $pelanggaran->jenis_pelanggaran }}</div>
 
-                {{-- PELANGGARAN --}}
-                <div class="mobile-violation">
-
-                    <span class="badge-danger">
-
-                        {{ $pelanggaran->jenis_pelanggaran }}
-
-                    </span>
-
+                    @if($pelanggaran->kategori)
+                        <span class="pg-kat pg-kat-{{ $katSlug }}">{{ $pelanggaran->kategori }}</span>
+                    @endif
                 </div>
 
-
-                {{-- KETERANGAN --}}
                 @if($pelanggaran->keterangan)
-
-                    <div class="mobile-description">
-
-                        {{ $pelanggaran->keterangan }}
-
-                    </div>
-
+                    <div class="pg-desc pg-clamp">{{ $pelanggaran->keterangan }}</div>
                 @endif
 
+                <div class="pg-mmeta">
+                    @if($pelanggaran->poin_sebelum !== null)
+                        <span>
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            Saldo {{ $pelanggaran->poin_sebelum }}
+                            <i class="fa-solid fa-arrow-right"></i>
+                            {{ $pelanggaran->poin_sesudah }}
+                        </span>
+                    @endif
 
-                {{-- FOTO --}}
+                    @if($pelanggaran->pelapor)
+                        <span>
+                            <i class="fa-solid fa-user"></i>
+                            {{ $pelanggaran->pelapor->name }}
+                            ({{ $pelanggaran->pelapor->role_label }})
+                        </span>
+                    @endif
+                </div>
+
                 @if($pelanggaran->foto_bukti)
-
-                    <div class="mobile-photo">
-
-                        <img
-                            src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-                            alt="Foto Bukti"
-                        >
-
-                    </div>
-
+                    <button type="button"
+                            class="pg-thumb js-zoom"
+                            data-src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}">
+                        <img src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
+                             alt="Foto Bukti" loading="lazy">
+                    </button>
                 @endif
 
+                @if(!$isWalas)
+                <div class="pg-mactions">
 
-                {{-- AKSI --}}
-                @if(!auth()->user()->isWalas())
-                <div class="mobile-actions">
-
-                    <a
-                        href="{{ route('pelanggaran.show', $pelanggaran->id) }}"
-                        class="btn-detail"
-                    >
-                        <i class="fa-solid fa-eye"></i>
-                        Detail
+                    <a href="{{ route('pelanggaran.show', $pelanggaran->id) }}" class="pg-mbtn pg-ico-detail">
+                        <i class="fa-solid fa-eye"></i> Detail
                     </a>
 
-                    @if(auth()->user()->canDirectAddPelanggaran())
-                    <a
-                        href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
-                        class="btn-edit"
-                    >
-                        <i class="fa-solid fa-pen"></i>
-                        Edit
+                    @if($canAdd)
+                    <a href="{{ route('pelanggaran.edit', $pelanggaran->id) }}" class="pg-mbtn pg-ico-edit">
+                        <i class="fa-solid fa-pen"></i> Edit
                     </a>
 
-                    <form
-                        action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
-                        method="POST"
-                        onsubmit="return confirm('Hapus data ini?')"
-                    >
-
+                    <form action="{{ route('pelanggaran.destroy', $pelanggaran->id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Hapus data ini?')">
                         @csrf
                         @method('DELETE')
-
-                        <button
-                            type="submit"
-                            class="btn-delete"
-                        >
-                            <i class="fa-solid fa-trash"></i>
-                            Hapus
+                        <button type="submit" class="pg-mbtn pg-ico-delete">
+                            <i class="fa-solid fa-trash"></i> Hapus
                         </button>
-
                     </form>
                     @endif
 
@@ -391,180 +419,214 @@
 
         @empty
 
-            <div class="mobile-empty">
-
+            <div class="pg-mempty">
                 <i class="fa-solid fa-inbox"></i>
-
-                <p>
-                    Belum ada data pelanggaran
-                </p>
-
+                <p>Belum ada data pelanggaran</p>
             </div>
 
         @endforelse
 
-    </div>
-
-    <!-- APPROVE MODAL -->
-    <div class="modal-overlay" id="approveModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Verifikasi Laporan Walas</h3>
-                <button type="button" onclick="closeModal('approveModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="approveForm" method="POST" action="">
-                @csrf
-                <div class="modal-body">
-                    <p style="font-size:13px; margin-bottom:5px;">Siswa: <strong id="approveSiswaName"></strong></p>
-                    <p style="font-size:13px; margin-bottom:15px; color:#6D1408;">Laporan: <strong id="approvePelanggaranText"></strong></p>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Aturan Pelanggaran Terkait <span style="color:red">*</span></label>
-                        <select name="aturan_pelanggaran_id" class="form-control" onchange="toggleCustomApprove(this.value)" required>
-                            <option value="">-- Pilih Sesuai Pedoman Tata Tertib --</option>
-                            @foreach($aturanPelanggarans as $aturan)
-                                <option value="{{ $aturan->id }}">{{ $aturan->kode }} - {{ $aturan->nama }} (-{{ $aturan->poin }} poin)</option>
-                            @endforeach
-                            <option value="custom">-- Pelanggaran Lainnya (Custom) --</option>
-                        </select>
-                    </div>
-
-                    <div id="customApproveDiv" style="display:none; margin-top:10px;">
-                        <div class="form-group">
-                            <label class="form-label">Nama Pelanggaran</label>
-                            <input type="text" name="jenis_pelanggaran_custom" class="form-control" placeholder="Contoh: Bermain judi online di kelas">
-                        </div>
-                        <div class="form-group" style="margin-top:10px;">
-                            <label class="form-label">Poin Sanksi</label>
-                            <input type="number" name="poin_custom" class="form-control" min="0" placeholder="Misal: 20">
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top:10px;">
-                        <label class="form-label">Catatan Verifikasi (Opsional)</label>
-                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Pesan kepada siswa atau wali kelas terkait keputusan ini..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('approveModal')">Batal</button>
-                    <button type="submit" class="btn-primary">Verifikasi & Terapkan</button>
-                </div>
-            </form>
+        <div class="pg-mempty" id="pgNoResultMobile" hidden>
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>Tidak ada data yang cocok dengan pencarian</p>
         </div>
+
     </div>
 
-    <!-- REJECT MODAL -->
-    <div class="modal-overlay" id="rejectModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Tolak Laporan Walas</h3>
-                <button type="button" onclick="closeModal('rejectModal')" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="rejectForm" method="POST" action="">
-                @csrf
-                <div class="modal-body">
-                    <p style="font-size:13px; margin-bottom:15px;">Anda akan menolak laporan untuk siswa: <strong id="rejectSiswaName"></strong>.</p>
-                    <div class="form-group">
-                        <label class="form-label">Alasan Penolakan <span style="color:red">*</span></label>
-                        <textarea name="catatan_verifikasi" class="form-control" rows="3" placeholder="Jelaskan alasan penolakan (misal: Bukti tidak cukup kuat, laporan ganda, dll)" required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeModal('rejectModal')">Batal</button>
-                    <button type="submit" class="btn-danger">Tolak Laporan</button>
-                </div>
-            </form>
+
+    {{-- PAGINATION (hanya tampil jika $pelanggarans berupa paginator) --}}
+    @if(method_exists($pelanggarans, 'hasPages') && $pelanggarans->hasPages())
+        <div class="pg-pagination">
+            {{ $pelanggarans->links() }}
         </div>
+    @endif
+
+
+    {{-- LIGHTBOX FOTO --}}
+    <div class="pg-lightbox" id="pgLightbox" hidden>
+        <button type="button" class="pg-lightbox-close" id="pgLightboxClose" aria-label="Tutup">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img src="" alt="Foto Bukti" id="pgLightboxImg">
     </div>
 
-</div>
+</div>{{-- /.pelanggaran-page --}}
+
+
+<script>
+(function () {
+    var search   = document.getElementById('pgSearch');
+    var kategori = document.getElementById('pgKategori');
+    var count    = document.getElementById('pgCount');
+    var items    = document.querySelectorAll('.pelanggaran-page .js-item');
+    var noRow    = document.getElementById('pgNoResultRow');
+    var noMobile = document.getElementById('pgNoResultMobile');
+
+    function applyFilter() {
+        var q = (search.value || '').trim().toLowerCase();
+        var k = kategori.value;
+        var shown = 0;
+
+        items.forEach(function (el) {
+            var okQ = !q || el.dataset.search.indexOf(q) !== -1;
+            var okK = !k || el.dataset.kategori === k;
+            var show = okQ && okK;
+            el.hidden = !show;
+            if (show && el.tagName === 'TR') shown++;
+        });
+
+        // hitung berdasarkan baris tabel (1 baris = 1 data)
+        var totalRows = document.querySelectorAll('.pelanggaran-page tr.js-item').length;
+        count.textContent = totalRows ? shown : 0;
+
+        var empty = totalRows > 0 && shown === 0;
+        if (noRow) noRow.hidden = !empty;
+        if (noMobile) noMobile.hidden = !empty;
+    }
+
+    if (search && kategori) {
+        search.addEventListener('input', applyFilter);
+        kategori.addEventListener('change', applyFilter);
+    }
+
+    // Lightbox foto
+    var box   = document.getElementById('pgLightbox');
+    var img   = document.getElementById('pgLightboxImg');
+    var close = document.getElementById('pgLightboxClose');
+
+    document.querySelectorAll('.pelanggaran-page .js-zoom').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            img.src = btn.dataset.src;
+            box.hidden = false;
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function closeBox() {
+        box.hidden = true;
+        img.src = '';
+        document.body.style.overflow = '';
+    }
+
+    close.addEventListener('click', closeBox);
+    box.addEventListener('click', function (e) { if (e.target === box) closeBox(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !box.hidden) closeBox(); });
+})();
+</script>
 
 @endsection
 
 
 @section('styles')
 
+@include('partials.ui')
+
 /* =====================================================
-   DATA PELANGGARAN
+   DATA PELANGGARAN  (semua di-scope ke .pelanggaran-page
+   dengan prefix "pg-" supaya tidak bentrok dengan ui.blade)
 ===================================================== */
 
 .pelanggaran-page{
     width:100%;
     max-width:100%;
-    overflow:hidden;
+}
+
+.pelanggaran-page a{
+    text-decoration:none;
+}
+
+.pelanggaran-page [hidden]{
+    display:none !important;
+}
+
+.pelanggaran-page .pg-muted{
+    color:#9ca3af;
+    font-size:12px;
+    white-space:nowrap;
+}
+
+.pelanggaran-page .pg-nowrap{
+    white-space:nowrap;
 }
 
 
-/* =====================================================
-   HEADER
-===================================================== */
+/* ---------- HEADER ---------- */
 
-.page-header{
+.pelanggaran-page .pg-header{
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    justify-content:space-between;
+    gap:16px;
     flex-wrap:wrap;
-    gap:20px;
     margin-bottom:20px;
 }
 
-.page-heading{
-    min-width:0;
+.pelanggaran-page .pg-heading h1{
+    margin:0;
+    font-size:28px;
+    font-weight:800;
+    color:#111827;
+    letter-spacing:-.3px;
 }
 
-.page-heading h1{
-    font-size:clamp(20px, 4.5vw, 34px);
-    color:var(--color-primary-gray);
-    margin-bottom:5px;
-    line-height:1.2;
-    overflow-wrap:anywhere;
-}
-
-.page-heading p{
-    color:#6b7280;
+.pelanggaran-page .pg-heading p{
+    margin:4px 0 0;
     font-size:14px;
-    overflow-wrap:anywhere;
+    color:#6b7280;
 }
 
 
-/* =====================================================
-   BUTTON PRIMARY
-===================================================== */
+/* ---------- BUTTONS ---------- */
 
-.btn-primary{
+.pelanggaran-page .pg-btn{
     display:inline-flex;
     align-items:center;
     justify-content:center;
     gap:8px;
 
-    background:var(--color-secondary-red);
-    color:white;
-
-    text-decoration:none;
-
-    padding:12px 18px;
+    min-height:42px;
+    padding:0 16px;
 
     border-radius:12px;
+    border:1px solid transparent;
 
+    font-size:13px;
     font-weight:600;
-    font-size:14px;
-
+    font-family:inherit;
+    line-height:1;
     white-space:nowrap;
 
+    cursor:pointer;
     transition:.2s;
 }
 
-.btn-primary:hover{
+.pelanggaran-page .pg-btn-primary{
+    background:var(--primary);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(110,15,6,.22);
+}
+
+.pelanggaran-page .pg-btn-primary:hover{
     transform:translateY(-2px);
-    opacity:.95;
+    filter:brightness(1.08);
+}
+
+.pelanggaran-page .pg-btn-outline{
+    background:#fff;
+    color:var(--primary);
+    border-color:#e5d5d2;
+}
+
+.pelanggaran-page .pg-btn-outline:hover{
+    background:var(--primary);
+    color:#fff;
+    border-color:var(--primary);
 }
 
 
-/* =====================================================
-   ALERT
-===================================================== */
+/* ---------- ALERT ---------- */
 
-.alert-success{
+.pelanggaran-page .pg-alert{
     display:flex;
     align-items:flex-start;
     gap:10px;
@@ -572,996 +634,724 @@
     background:#dcfce7;
     color:#166534;
 
-    padding:14px 16px;
+    padding:13px 16px;
+    margin-bottom:18px;
+
+    border:1px solid #bbf7d0;
+    border-radius:12px;
+
+    font-size:14px;
+    overflow-wrap:anywhere;
+}
+
+
+/* ---------- STATS ---------- */
+
+.pelanggaran-page .pg-stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.pelanggaran-page .pg-stat{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    background:#fff;
+    border:1px solid #eee7e5;
+    border-radius:16px;
+
+    padding:16px 18px;
+
+    box-shadow:0 4px 14px rgba(0,0,0,.04);
+}
+
+.pelanggaran-page .pg-stat-icon{
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:44px;
+    height:44px;
 
     border-radius:12px;
 
-    margin-bottom:18px;
+    background:#fee2e2;
+    color:#b91c1c;
 
-    font-size:14px;
+    font-size:17px;
+}
 
-    overflow-wrap:anywhere;
+.pelanggaran-page .pg-stat-warn{ background:#fef3c7; color:#b45309; }
+.pelanggaran-page .pg-stat-info{ background:#dbeafe; color:#1d4ed8; }
+
+.pelanggaran-page .pg-stat small{
+    display:block;
+    color:#6b7280;
+    font-size:12px;
+}
+
+.pelanggaran-page .pg-stat strong{
+    display:block;
+    margin-top:2px;
+    color:#111827;
+    font-size:22px;
+    font-weight:800;
+    line-height:1.1;
 }
 
 
-/* =====================================================
-   EXPORT
-===================================================== */
+/* ---------- TOOLBAR ---------- */
 
-.export-buttons{
+.pelanggaran-page .pg-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+.pelanggaran-page .pg-filters{
     display:flex;
     align-items:center;
     gap:10px;
+    flex:1 1 380px;
+    min-width:0;
+}
 
-    margin-bottom:20px;
+.pelanggaran-page .pg-search{
+    position:relative;
+    flex:1 1 auto;
+    min-width:0;
+    max-width:420px;
+}
 
+.pelanggaran-page .pg-search i{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#9ca3af;
+    font-size:13px;
+    pointer-events:none;
+}
+
+.pelanggaran-page .pg-search input,
+.pelanggaran-page .pg-select{
+    height:42px;
+
+    background:#fff;
+    color:#111827;
+
+    border:1px solid #e5e7eb;
+    border-radius:12px;
+
+    font-size:13px;
+    font-family:inherit;
+
+    outline:none;
+    transition:.2s;
+}
+
+.pelanggaran-page .pg-search input{
+    width:100%;
+    padding:0 14px 0 38px;
+}
+
+.pelanggaran-page .pg-select{
+    padding:0 34px 0 14px;
+    cursor:pointer;
+}
+
+.pelanggaran-page .pg-search input:focus,
+.pelanggaran-page .pg-select:focus{
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(110,15,6,.12);
+}
+
+.pelanggaran-page .pg-exports{
+    display:flex;
+    gap:8px;
     flex-wrap:wrap;
 }
 
-.btn-export{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-
-    background:#6D1408;
-    color:white;
-
-    text-decoration:none;
-
-    padding:10px 15px;
-
-    border-radius:10px;
-
-    font-weight:600;
-    font-size:13px;
-
-    min-height:40px;
-
-    flex:1 1 150px;
-
-    max-width:100%;
-
-    transition:.2s;
+.pelanggaran-page .pg-result-info{
+    margin:0 2px 10px;
+    color:#6b7280;
+    font-size:12px;
 }
 
-.btn-export:hover{
-    background:#5a1006;
-    transform:translateY(-1px);
+.pelanggaran-page .pg-result-info strong{
+    color:#111827;
 }
 
 
-/* =====================================================
-   TABLE
-===================================================== */
+/* ---------- TABLE (DESKTOP) ---------- */
 
-.table-card{
-    width:100%;
-
-    background:white;
-
-    border-radius:20px;
-
+.pelanggaran-page .pg-card{
+    background:#fff;
+    border:1px solid #eee7e5;
+    border-radius:18px;
+    box-shadow:0 6px 20px rgba(0,0,0,.05);
     overflow:hidden;
-
-    border:1px solid #e5e7eb;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.05);
 }
 
-.table-responsive{
+.pelanggaran-page .pg-scroll{
     width:100%;
-    max-width:100%;
     overflow-x:auto;
-    overflow-y:hidden;
-    -webkit-overflow-scrolling:touch;
 }
 
-table{
+.pelanggaran-page .pg-table{
     width:100%;
-    min-width:900px;
-
+    min-width:1000px;
     border-collapse:collapse;
 }
 
-thead{
-    background:var(--color-primary-gray);
-}
+.pelanggaran-page .pg-table th{
+    background:#faf7f6;
+    color:#6b7280;
 
-th{
-    color:white;
-
-    padding:16px 14px;
-
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.5px;
+    text-transform:uppercase;
     text-align:left;
 
-    font-weight:600;
-    font-size:13px;
+    padding:13px 14px;
 
+    border-bottom:1px solid #eee7e5;
     white-space:nowrap;
 }
 
-td{
-    padding:16px 14px;
-
-    border-bottom:1px solid #eeeeee;
-
-    vertical-align:middle;
+.pelanggaran-page .pg-table td{
+    padding:14px;
+    border-bottom:1px solid #f3eeec;
 
     font-size:13px;
+    color:#374151;
+    vertical-align:middle;
 }
 
-tbody tr{
-    transition:.2s;
+.pelanggaran-page .pg-table tbody tr:last-child td{
+    border-bottom:none;
 }
 
-tbody tr:hover{
-    background:#f9fafb;
+.pelanggaran-page .pg-table tbody tr.js-item:hover{
+    background:#fffaf9;
 }
 
+.pelanggaran-page .col-no{ width:46px; color:#9ca3af; }
+.pelanggaran-page .col-aksi{ width:130px; }
+.pelanggaran-page .col-violation{ min-width:260px; max-width:380px; }
 
-/* =====================================================
-   STUDENT
-===================================================== */
 
-.student-info{
+/* ---------- STUDENT ---------- */
+
+.pelanggaran-page .pg-student{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+
+.pelanggaran-page .pg-avatar{
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:36px;
+    height:36px;
+
+    border-radius:50%;
+
+    background:#f3e4e1;
+    color:var(--primary);
+
+    font-size:14px;
+    font-weight:700;
+}
+
+.pelanggaran-page .pg-student-text{
     display:flex;
     flex-direction:column;
-
-    min-width:130px;
+    min-width:0;
 }
 
-.student-info strong{
+.pelanggaran-page .pg-student-text strong{
     color:#111827;
-
     font-size:13px;
-
-    line-height:1.4;
-
+    font-weight:700;
+    line-height:1.35;
     overflow-wrap:anywhere;
 }
 
-.student-info small{
+.pelanggaran-page .pg-student-text small{
+    margin-top:2px;
     color:#6b7280;
-
-    margin-top:3px;
-
     font-size:11px;
 }
 
-.date-cell{
-    white-space:nowrap;
+
+/* ---------- PELANGGARAN ---------- */
+
+.pelanggaran-page .pg-violation{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
 }
 
-
-/* =====================================================
-   PELANGGARAN
-===================================================== */
-
-.violation-wrapper{
-    max-width:min(420px, 100%);
+.pelanggaran-page .pg-jenis{
+    color:#991b1b;
+    font-size:12.5px;
+    font-weight:600;
+    line-height:1.45;
+    overflow-wrap:anywhere;
 }
 
-.badge-danger{
+.pelanggaran-page .pg-kat{
     display:inline-block;
 
-    background:#fee2e2;
-
-    color:#991b1b;
-
-    padding:6px 10px;
+    padding:3px 10px;
 
     border-radius:999px;
 
+    background:#e0e7ff;
+    color:#3730a3;
+
     font-size:11px;
-
-    font-weight:600;
-
-    line-height:1.4;
-
-    max-width:100%;
-
-    word-break:break-word;
+    font-weight:700;
+    white-space:nowrap;
 }
 
-.description{
-    margin-top:7px;
+.pelanggaran-page .pg-kat-ringan{ background:#dcfce7; color:#166534; }
+.pelanggaran-page .pg-kat-sedang{ background:#fef3c7; color:#92400e; }
+.pelanggaran-page .pg-kat-berat{ background:#fee2e2; color:#991b1b; }
 
+.pelanggaran-page .pg-desc{
     color:#6b7280;
+    font-size:11.5px;
+    line-height:1.5;
+    overflow-wrap:anywhere;
+}
 
-    font-size:11px;
-
-    line-height:1.4;
-
-    word-break:break-word;
+.pelanggaran-page .pg-clamp{
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
 }
 
 
-/* =====================================================
-   POIN
-===================================================== */
+/* ---------- PELAPOR ---------- */
 
-.badge-point{
+.pelanggaran-page .pg-reporter{
+    display:flex;
+    flex-direction:column;
+    min-width:90px;
+}
+
+.pelanggaran-page .pg-reporter strong{
+    color:#111827;
+    font-size:12.5px;
+    font-weight:600;
+}
+
+.pelanggaran-page .pg-reporter small{
+    margin-top:1px;
+    color:#9ca3af;
+    font-size:11px;
+}
+
+
+/* ---------- POIN ---------- */
+
+.pelanggaran-page .pg-poin{
     display:inline-flex;
-
     align-items:center;
     justify-content:center;
 
     min-width:42px;
-    height:32px;
-
-    padding:0 10px;
+    height:28px;
+    padding:0 11px;
 
     border-radius:999px;
 
-    background:var(--color-secondary-red);
+    background:var(--primary);
+    color:#fff;
 
-    color:white;
-
+    font-size:12px;
     font-weight:700;
+}
 
-    font-size:13px;
+.pelanggaran-page .pg-saldo{
+    margin-top:5px;
 
+    color:#6b7280;
+    font-size:11px;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
     white-space:nowrap;
 }
 
+.pelanggaran-page .pg-saldo i{
+    font-size:9px;
+    margin:0 2px;
+    color:#9ca3af;
+}
 
-/* =====================================================
-   FOTO
-===================================================== */
 
-.table-image{
-    width:58px;
-    max-width:100%;
-    height:58px;
+/* ---------- FOTO ---------- */
 
-    border-radius:10px;
+.pelanggaran-page .pg-thumb{
+    display:block;
 
-    object-fit:cover;
+    width:52px;
+    height:52px;
+    padding:0;
 
     border:1px solid #e5e7eb;
+    border-radius:12px;
 
+    background:#f3f4f6;
+
+    overflow:hidden;
+    cursor:zoom-in;
+
+    transition:.2s;
+}
+
+.pelanggaran-page .pg-thumb:hover{
+    transform:scale(1.06);
+    border-color:var(--primary);
+}
+
+.pelanggaran-page .pg-thumb img{
     display:block;
-}
-
-.no-image{
-    color:#9ca3af;
-
-    font-size:11px;
-
-    white-space:nowrap;
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 
 
-/* =====================================================
-   ACTION
-===================================================== */
+/* ---------- AKSI (ICON BUTTON) ---------- */
 
-.action-buttons{
+.pelanggaran-page .pg-actions{
     display:flex;
     align-items:center;
-
     gap:6px;
-
-    flex-wrap:wrap;
-
-    min-width:170px;
 }
 
-.action-buttons form{
+.pelanggaran-page .pg-actions form{
     margin:0;
 }
 
-.btn-detail,
-.btn-edit,
-.btn-delete{
+.pelanggaran-page .pg-ico{
     display:inline-flex;
-
     align-items:center;
     justify-content:center;
 
-    gap:5px;
+    width:34px;
+    height:34px;
+    padding:0;
 
     border:none;
+    border-radius:10px;
 
-    padding:7px 10px;
-
-    border-radius:8px;
-
-    text-decoration:none;
-
+    font-size:13px;
     cursor:pointer;
-
-    font-size:11px;
-
-    font-weight:600;
-
-    white-space:nowrap;
 
     transition:.15s;
 }
 
-.btn-detail{
-    background:#dbeafe;
-    color:#1d4ed8;
+.pelanggaran-page .pg-ico:hover{
+    transform:translateY(-2px);
 }
 
-.btn-edit{
-    background:#fef3c7;
-    color:#92400e;
-}
-
-.btn-delete{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.btn-detail:hover,
-.btn-edit:hover,
-.btn-delete:hover{
-    transform:translateY(-1px);
-}
+.pelanggaran-page .pg-ico-detail{ background:#dbeafe; color:#1d4ed8; }
+.pelanggaran-page .pg-ico-edit  { background:#fef3c7; color:#92400e; }
+.pelanggaran-page .pg-ico-delete{ background:#fee2e2; color:#b91c1c; }
 
 
-/* =====================================================
-   EMPTY
-===================================================== */
+/* ---------- EMPTY ---------- */
 
-.empty{
+.pelanggaran-page .pg-empty,
+.pelanggaran-page .pg-mempty{
     text-align:center;
-
-    color:#6b7280;
-
-    padding:45px !important;
+    color:#9ca3af;
+    padding:48px 16px;
 }
 
-.empty i{
+.pelanggaran-page .pg-empty i,
+.pelanggaran-page .pg-mempty i{
     display:block;
-
-    font-size:28px;
-
     margin-bottom:10px;
+    font-size:30px;
+}
+
+.pelanggaran-page .pg-mempty{
+    background:#fff;
+    border:1px solid #eee7e5;
+    border-radius:16px;
+}
+
+.pelanggaran-page .pg-mempty p{
+    margin:0;
+    font-size:13px;
 }
 
 
-/* =====================================================
-   MOBILE
-===================================================== */
+/* ---------- PAGINATION ---------- */
 
-.mobile-list{
+.pelanggaran-page .pg-pagination{
+    margin-top:18px;
+    display:flex;
+    justify-content:center;
+}
+
+
+/* ---------- MOBILE (BASE) ---------- */
+
+.pelanggaran-page .pg-mobile{
     display:none;
 }
 
-.mobile-empty{
-    width:100%;
 
-    background:white;
+/* ---------- LIGHTBOX ---------- */
 
-    border:1px solid #e5e7eb;
+.pelanggaran-page .pg-lightbox{
+    position:fixed;
+    inset:0;
+    z-index:9999;
 
-    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    padding:40px 20px;
-
-    text-align:center;
-
-    color:#6b7280;
+    background:rgba(17,24,39,.82);
+    padding:24px;
 }
 
-.mobile-empty i{
-    display:block;
+.pelanggaran-page .pg-lightbox img{
+    max-width:min(92vw, 900px);
+    max-height:86vh;
 
-    font-size:26px;
+    border-radius:14px;
+    background:#fff;
 
-    margin-bottom:10px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
-.mobile-empty p{
-    margin:0;
+.pelanggaran-page .pg-lightbox-close{
+    position:absolute;
+    top:18px;
+    right:18px;
 
-    font-size:12px;
+    width:42px;
+    height:42px;
 
-    overflow-wrap:anywhere;
-}
+    border:none;
+    border-radius:50%;
 
+    background:rgba(255,255,255,.95);
+    color:#111827;
 
-/* =====================================================
-   TABLET
-===================================================== */
-
-@media(max-width:1000px){
-
-    .page-header{
-        align-items:flex-start;
-    }
-
-    .page-heading h1{
-        font-size:28px;
-    }
-
+    font-size:16px;
+    cursor:pointer;
 }
 
 
 /* =====================================================
-   MOBILE
+   RESPONSIVE
 ===================================================== */
+
+@media(max-width:1100px){
+
+    .pelanggaran-page .pg-toolbar{
+        align-items:stretch;
+    }
+
+    .pelanggaran-page .pg-filters{
+        flex:1 1 100%;
+    }
+
+    .pelanggaran-page .pg-search{
+        max-width:none;
+    }
+
+}
 
 @media(max-width:768px){
 
-    .desktop-table{
+    .pelanggaran-page .pg-desktop{
         display:none;
     }
 
-    .mobile-list{
+    .pelanggaran-page .pg-mobile{
         display:flex;
-
         flex-direction:column;
-
         gap:12px;
-
-        width:100%;
     }
 
-    .pelanggaran-page{
-        width:100%;
-        max-width:100%;
-    }
-
-
-    /* HEADER */
-
-    .page-header{
-        display:flex;
-
+    .pelanggaran-page .pg-header{
         flex-direction:column;
-
         align-items:stretch;
-
         gap:12px;
-
-        margin-bottom:15px;
+        margin-bottom:16px;
     }
 
-    .page-heading h1{
-        font-size:24px;
-
-        line-height:1.25;
+    .pelanggaran-page .pg-heading h1{
+        font-size:22px;
     }
 
-    .page-heading p{
+    .pelanggaran-page .pg-heading p{
         font-size:12px;
-
-        margin-top:4px;
     }
 
-
-    /* TAMBAH */
-
-    .btn-primary{
+    .pelanggaran-page .pg-header .pg-btn{
         width:100%;
-
         min-height:44px;
-
-        padding:11px 15px;
-
-        font-size:13px;
     }
 
+    .pelanggaran-page .pg-stats{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
 
-    /* EXPORT */
+    .pelanggaran-page .pg-stat{
+        padding:12px 14px;
+    }
 
-    .export-buttons{
-        display:flex;
+    .pelanggaran-page .pg-stat strong{
+        font-size:19px;
+    }
 
+    .pelanggaran-page .pg-filters{
         flex-direction:column;
-
-        width:100%;
-
-        gap:8px;
-
-        margin-bottom:15px;
+        align-items:stretch;
     }
 
-    .btn-export{
+    .pelanggaran-page .pg-select{
         width:100%;
-
-        min-height:42px;
-
-        padding:10px 12px;
-
-        font-size:13px;
     }
 
-
-    /* CARD */
-
-    .violation-card{
+    .pelanggaran-page .pg-exports{
+        display:grid;
+        grid-template-columns:1fr 1fr;
         width:100%;
+    }
 
-        background:white;
+    .pelanggaran-page .pg-exports .pg-btn{
+        padding:0 10px;
+        font-size:12px;
+    }
 
-        border:1px solid #e5e7eb;
+    /* kartu */
+    .pelanggaran-page .pg-mcard{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
 
-        border-radius:15px;
+        background:#fff;
+        border:1px solid #eee7e5;
+        border-radius:16px;
 
-        padding:13px;
+        padding:14px;
 
         box-shadow:0 5px 18px rgba(0,0,0,.05);
-
         overflow:hidden;
     }
 
-
-    /* CARD HEADER */
-
-    .mobile-card-header{
+    .pelanggaran-page .pg-mcard-top{
         display:flex;
-
         align-items:center;
-
         justify-content:space-between;
-
         gap:10px;
 
         padding-bottom:10px;
-
-        margin-bottom:10px;
-
-        border-bottom:1px solid #f0f0f0;
+        border-bottom:1px solid #f3eeec;
     }
 
-    .mobile-date{
+    .pelanggaran-page .pg-mdate{
         display:flex;
-
         align-items:center;
-
         gap:6px;
 
         color:#9ca3af;
-
-        font-size:11px;
-
-        white-space:nowrap;
+        font-size:11.5px;
     }
 
-    .mobile-point{
-        display:inline-flex;
-
-        align-items:center;
-
-        justify-content:center;
-
-        min-width:40px;
-
-        height:32px;
-
-        padding:0 9px;
-
-        background:#6D1408;
-
-        color:white;
-
-        border-radius:999px;
-
-        font-weight:700;
-
-        font-size:13px;
-
-        flex-shrink:0;
-    }
-
-
-    /* STUDENT */
-
-    .mobile-student{
-        display:flex;
-
-        flex-direction:column;
-
-        margin-bottom:10px;
-
-        min-width:0;
-    }
-
-    .mobile-student strong{
-        color:#111827;
-
-        font-size:13px;
-
-        line-height:1.4;
-
-        word-break:break-word;
-    }
-
-    .mobile-student small{
-        color:#6b7280;
-
-        font-size:11px;
-
-        margin-top:2px;
-    }
-
-
-    /* VIOLATION */
-
-    .mobile-violation{
-        width:100%;
-
-        margin-bottom:7px;
-    }
-
-    .mobile-violation .badge-danger{
-        display:block;
-
-        width:100%;
-
-        max-width:100%;
-
-        border-radius:10px;
-
-        padding:7px 9px;
-
-        font-size:10px;
-
-        line-height:1.4;
-
-        overflow-wrap:anywhere;
-    }
-
-
-    /* DESCRIPTION */
-
-    .mobile-description{
-        color:#6b7280;
-
-        font-size:11px;
-
-        line-height:1.5;
-
-        margin-bottom:10px;
-
-        overflow-wrap:anywhere;
-    }
-
-
-    /* PHOTO */
-
-    .mobile-photo{
-        margin-top:8px;
-
-        margin-bottom:12px;
-    }
-
-    .mobile-photo img{
-        display:block;
-
-        width:64px;
-
-        height:64px;
-
-        object-fit:cover;
-
-        border-radius:10px;
-
-        border:1px solid #e5e7eb;
-    }
-
-
-    /* ACTIONS */
-
-    .mobile-actions{
-        display:grid;
-
-        grid-template-columns:1fr 1fr 1fr;
-
+    .pelanggaran-page .pg-mviolation{
         gap:6px;
-
-        width:100%;
-
-        padding-top:10px;
-
-        border-top:1px solid #f0f0f0;
     }
 
-    .mobile-actions form{
-        width:100%;
+    .pelanggaran-page .pg-mmeta{
+        display:flex;
+        flex-direction:column;
+        gap:5px;
 
+        color:#6b7280;
+        font-size:11.5px;
+        font-variant-numeric:tabular-nums;
+    }
+
+    .pelanggaran-page .pg-mmeta i{
+        width:14px;
+        color:#9ca3af;
+        font-size:11px;
+    }
+
+    .pelanggaran-page .pg-mactions{
+        display:grid;
+        grid-template-columns:repeat(3, 1fr);
+        gap:8px;
+
+        padding-top:12px;
+        border-top:1px solid #f3eeec;
+    }
+
+    .pelanggaran-page .pg-mactions form{
         margin:0;
     }
 
-    .mobile-actions .btn-detail,
-    .mobile-actions .btn-edit,
-    .mobile-actions .btn-delete{
+    .pelanggaran-page .pg-mbtn{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:6px;
+
         width:100%;
+        min-height:40px;
+        padding:0 6px;
 
-        min-height:38px;
+        border:none;
+        border-radius:10px;
 
-        padding:7px 4px;
+        font-size:12px;
+        font-weight:600;
+        font-family:inherit;
 
-        font-size:10px;
-
-        border-radius:8px;
-    }
-
-
-    /* HARDENING */
-
-    .violation-card{
-        overflow:hidden;
-    }
-
-    .mobile-card-header{
-        flex-wrap:wrap;
-    }
-
-    .mobile-date{
-        min-width:0;
-
-        white-space:normal;
-    }
-
-    .mobile-empty{
-        padding:28px 14px;
-    }
-
-    .empty{
-        padding:28px 14px !important;
+        cursor:pointer;
     }
 
 }
-
-
-/* =====================================================
-   EXTRA SMALL PHONE
-===================================================== */
 
 @media(max-width:380px){
 
-    .page-heading h1{
-        font-size:21px;
-    }
-
-    .mobile-actions{
+    .pelanggaran-page .pg-mactions{
         grid-template-columns:1fr;
     }
 
-    .mobile-actions .btn-detail,
-    .mobile-actions .btn-edit,
-    .mobile-actions .btn-delete{
-        min-height:38px;
-
-        font-size:11px;
+    .pelanggaran-page .pg-exports{
+        grid-template-columns:1fr;
     }
 
 }
-
-/* =====================================================
-   MODAL STYLES
-===================================================== */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(2px);
-}
-.modal-overlay.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-.modal-content {
-    background: white;
-    width: 90%;
-    max-width: 450px;
-    max-height: 92vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 14px;
-    transform: translateY(-20px) scale(0.95);
-    transition: all 0.2s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-.modal-overlay.show .modal-content {
-    transform: translateY(0) scale(1);
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
-}
-.modal-header h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: #111827;
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-.close-btn {
-    background: none; border: none; font-size: 18px; cursor: pointer; color: #9ca3af;
-    transition: color 0.15s;
-}
-.close-btn:hover {
-    color: #ef4444;
-}
-.modal-body {
-    padding: 20px;
-}
-.modal-footer {
-    padding: 16px 20px;
-    border-top: 1px solid #e5e7eb;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px;
-    background: #f9fafb;
-    position: sticky;
-    bottom: 0;
-}
-
-
-/* =====================================================
-   RESPONSIVE OVERRIDES (MOBILE-FIRST HARDENING)
-   ===================================================== */
-
-@media(max-width:1200px){
-
-    table{
-        min-width:820px;
-    }
-
-    th,
-    td{
-        padding:13px 12px;
-    }
-
-}
-
-@media(max-width:1024px){
-
-    table{
-        min-width:760px;
-    }
-
-    th,
-    td{
-        padding:11px 10px;
-
-        font-size:12px;
-    }
-
-    .student-info{
-        min-width:110px;
-    }
-
-    .action-buttons{
-        min-width:150px;
-    }
-
-    .table-image{
-        width:46px;
-        height:46px;
-    }
-
-    .btn-primary{
-        font-size:13px;
-
-        padding:11px 15px;
-    }
-
-}
-
-@media(max-width:640px){
-
-    .export-buttons{
-        gap:8px;
-    }
-
-    .btn-export{
-        font-size:12px;
-    }
-
-}
-
-@media(max-width:576px){
-
-    .modal-overlay{
-        align-items:flex-end;
-    }
-
-    .modal-content{
-        width:100%;
-        max-width:100%;
-        max-height:92vh;
-
-        border-radius:16px 16px 0 0;
-    }
-
-    .modal-header,
-    .modal-body,
-    .modal-footer{
-        padding:14px 16px;
-    }
-
-    .modal-footer{
-        flex-direction:column;
-    }
-
-    .modal-footer .btn-secondary,
-    .modal-footer .btn-primary,
-    .modal-footer .btn-danger{
-        width:100%;
-
-        min-height:40px;
-    }
-
-    .form-control,
-    .modal-body select,
-    .modal-body input,
-    .modal-body textarea{
-        width:100%;
-        max-width:100%;
-
-        font-size:16px;
-    }
-
-}
-
-@media(max-width:480px){
-
-    .violation-card{
-        padding:11px;
-
-        border-radius:13px;
-    }
-
-    .mobile-violation .badge-danger{
-        font-size:11px;
-    }
-
-    .mobile-photo img{
-        width:56px;
-        height:56px;
-    }
-
-}
-
-@endsection
-
-@section('scripts')
-<script>
-    function openApproveModal(id, siswa, pelanggaran) {
-        document.getElementById('approveForm').action = '/pelanggaran/' + id + '/approve';
-        document.getElementById('approveSiswaName').innerText = siswa;
-        document.getElementById('approvePelanggaranText').innerText = pelanggaran;
-        document.getElementById('approveModal').classList.add('show');
-    }
-
-    function openRejectModal(id, siswa) {
-        document.getElementById('rejectForm').action = '/pelanggaran/' + id + '/reject';
-        document.getElementById('rejectSiswaName').innerText = siswa;
-        document.getElementById('rejectModal').classList.add('show');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('show');
-    }
-
-    function toggleCustomApprove(val) {
-        if(val === 'custom') {
-            document.getElementById('customApproveDiv').style.display = 'block';
-        } else {
-            document.getElementById('customApproveDiv').style.display = 'none';
-        }
-    }
-</script>
 @endsection

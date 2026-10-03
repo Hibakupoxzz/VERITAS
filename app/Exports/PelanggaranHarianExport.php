@@ -17,7 +17,14 @@ class PelanggaranHarianExport implements FromCollection, ShouldAutoSize, WithHea
 {
     public function collection()
     {
-        return Pelanggaran::with('siswa')
+        /*
+         * Hanya laporan yang sudah diverifikasi.
+         * Tanpa filter ini, laporan berstatus pending & ditolak
+         * ikut masuk ke file export resmi padahal tidak pernah
+         * tampil di halaman Data Pelanggaran.
+         */
+        return Pelanggaran::with(['siswa', 'aturanPelanggaran'])
+            ->verified()
             ->whereDate('tanggal', today())
             ->latest('id')
             ->get()
