@@ -192,7 +192,7 @@ class PelanggaranController extends Controller
         /** @var User $user */
         $user = auth()->user();
 
-        $query = Siswa::orderBy('nama');
+        $query = Siswa::urutKelas();
 
         // PDS dan BK kini dapat melihat semua siswa (Global)
 
@@ -226,11 +226,12 @@ class PelanggaranController extends Controller
             'siswa_id' => 'required|exists:siswas,id',
             'tanggal' => 'required|date',
 
-            // Boleh kosong
-            'aturan_pelanggaran_id' => 'nullable',
-
-            'jenis_pelanggaran_custom' => 'nullable|string|max:255',
-            'poin_custom' => 'nullable|numeric|min:0',
+            // WAJIB: jenis, kategori, dan poin selalu dari master aturan.
+            'aturan_pelanggaran_id' => [
+                'required',
+                'integer',
+                'exists:aturan_pelanggarans,id',
+            ],
 
             'keterangan' => 'nullable|string',
 
@@ -244,62 +245,30 @@ class PelanggaranController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Tentukan apakah menggunakan aturan resmi atau pelanggaran lainnya
+            | Ambil aturan resmi
             |--------------------------------------------------------------------------
+            |
+            | Dicek manual (bukan findOrFail) supaya pengguna mendapat
+            | pesan validasi yang ramah, bukan error 404.
+            |
+            | Nama, kategori, dan poin TIDAK pernah diambil dari input
+            | pengguna; semuanya selalu mengikuti master aturan.
             */
 
-            $aturan = null;
-            $namaPelanggaran = null;
-            $poin = 0;
-            $kategori = null;
+            $aturan = AturanPelanggaran::where('aktif', true)
+                ->find($request->aturan_pelanggaran_id);
 
-            if (
-                $request->aturan_pelanggaran_id &&
-                $request->aturan_pelanggaran_id !== 'custom'
-            ) {
-                /*
-                 * PELANGGARAN RESMI
-                 *
-                 * Poin TIDAK boleh diambil dari input user.
-                 * Poin selalu berasal dari master 62 aturan.
-                 */
-
-                $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
-                    ->where('aktif', true)
-                    ->firstOrFail();
-
-                $namaPelanggaran = $aturan->nama;
-                $poin = (int) $aturan->poin;
-                $kategori = $aturan->kategori;
-            } elseif ($request->aturan_pelanggaran_id === 'custom') {
-                /*
-                 * PELANGGARAN LAINNYA
-                 *
-                 * Nama dan poin boleh dimasukkan manual.
-                 */
-
-                if (! $request->jenis_pelanggaran_custom) {
-                    return back()
-                        ->withInput()
-                        ->withErrors([
-                            'jenis_pelanggaran_custom' => 'Nama pelanggaran lainnya wajib diisi.',
-                        ]);
-                }
-
-                if ($request->poin_custom === null) {
-                    return back()
-                        ->withInput()
-                        ->withErrors([
-                            'poin_custom' => 'Poin pelanggaran lainnya wajib diisi.',
-                        ]);
-                }
-
-                $namaPelanggaran = $request->jenis_pelanggaran_custom;
-                $poin = (int) $request->poin_custom;
-
-                // Kategori boleh kosong untuk pelanggaran custom
-                $kategori = $request->kategori;
+            if (! $aturan) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'aturan_pelanggaran_id' => 'Aturan pelanggaran yang dipilih tidak tersedia atau sudah tidak aktif.',
+                    ]);
             }
+
+            $namaPelanggaran = $aturan->nama;
+            $kategori = $aturan->kategori;
+            $poin = (int) $aturan->poin;
 
             /*
             |--------------------------------------------------------------------------
@@ -348,7 +317,7 @@ class PelanggaranController extends Controller
                 'siswa_id' => $request->siswa_id,
                 'pelapor_id' => $user->id, // Ditambahkan oleh BK/PDS sendiri
 
-                'aturan_pelanggaran_id' => $aturan?->id,
+                'aturan_pelanggaran_id' => $aturan->id,
 
                 'tanggal' => $request->tanggal,
 
@@ -363,8 +332,8 @@ class PelanggaranController extends Controller
                 'poin_sebelum' => $poinSebelum,
                 'poin_sesudah' => $poinSesudah,
 
-                // Jika aturan resmi memiliki tahap, gunakan tahap I
-                'sanksi_tahap' => $aturan ? 1 : null,
+                // Aturan selalu dipilih, jadi tahap sanksi selalu dimulai dari I
+                'sanksi_tahap' => 1,
 
                 'status' => 'diverifikasi',
                 'diverifikasi_oleh' => $user->id, // Langsung diverifikasi oleh pembuat (BK/PDS)
@@ -426,7 +395,7 @@ class PelanggaranController extends Controller
         $pelanggaran = Pelanggaran::with('aturanPelanggaran')
             ->findOrFail($id);
 
-        $siswas = Siswa::orderBy('nama')->get();
+        $siswas = Siswa::urutKelas()->get();
 
         $aturanPelanggarans = AturanPelanggaran::where('aktif', true)
             ->orderByRaw("
@@ -558,10 +527,11 @@ class PelanggaranController extends Controller
              * Aturan WAJIB dipilih: tanpa itu poin tidak ada sumbernya
              * dan laporan bisa terverifikasi dengan poin 0 tanpa warning.
              */
-            'aturan_pelanggaran_id' => 'required',
-            'jenis_pelanggaran_custom' => 'nullable|string|max:255',
-            'poin_custom' => 'nullable|numeric|min:0',
-            'kategori' => 'nullable|in:Ringan,Sedang,Berat,Luar Biasa',
+            'aturan_pelanggaran_id' => [
+                'required',
+                'integer',
+                'exists:aturan_pelanggarans,id',
+            ],
             'catatan_verifikasi' => 'nullable|string',
         ]);
 
@@ -570,37 +540,18 @@ class PelanggaranController extends Controller
 
         return DB::transaction(function () use ($request, $pelanggaran, $user) {
 
-            $aturan = null;
-            $namaPelanggaran = $pelanggaran->jenis_pelanggaran;
-            $poin = 0;
-            $kategori = null;
+            $aturan = AturanPelanggaran::where('aktif', true)
+                ->find($request->aturan_pelanggaran_id);
 
-            if (
-                $request->aturan_pelanggaran_id &&
-                $request->aturan_pelanggaran_id !== 'custom'
-            ) {
-                $aturan = AturanPelanggaran::where('id', $request->aturan_pelanggaran_id)
-                    ->where('aktif', true)
-                    ->firstOrFail();
-
-                $namaPelanggaran = $aturan->nama;
-                $poin = (int) $aturan->poin;
-                $kategori = $aturan->kategori;
-            } elseif ($request->aturan_pelanggaran_id === 'custom') {
-                if (! $request->jenis_pelanggaran_custom) {
-                    return back()->withErrors([
-                        'jenis_pelanggaran_custom' => 'Nama pelanggaran wajib diisi.',
-                    ]);
-                }
-                if ($request->poin_custom === null) {
-                    return back()->withErrors([
-                        'poin_custom' => 'Poin wajib diisi.',
-                    ]);
-                }
-                $namaPelanggaran = $request->jenis_pelanggaran_custom;
-                $poin = (int) $request->poin_custom;
-                $kategori = $request->kategori;
+            if (! $aturan) {
+                return back()->withErrors([
+                    'aturan_pelanggaran_id' => 'Aturan pelanggaran yang dipilih tidak tersedia atau sudah tidak aktif.',
+                ]);
             }
+
+            $namaPelanggaran = $aturan->nama;
+            $poin = (int) $aturan->poin;
+            $kategori = $aturan->kategori;
 
             /*
             | Hitung saldo poin siswa.
@@ -629,13 +580,13 @@ class PelanggaranController extends Controller
             }
 
             $pelanggaran->update([
-                'aturan_pelanggaran_id' => $aturan?->id,
+                'aturan_pelanggaran_id' => $aturan->id,
                 'jenis_pelanggaran' => $namaPelanggaran,
                 'kategori' => $kategori,
                 'poin' => $poin,
                 'poin_sebelum' => $poinSebelum,
                 'poin_sesudah' => $poinSesudah,
-                'sanksi_tahap' => $aturan ? 1 : null,
+                'sanksi_tahap' => 1,
                 'status' => 'diverifikasi',
                 'diverifikasi_oleh' => $user->id,
                 'catatan_verifikasi' => $request->catatan_verifikasi,

@@ -5,1746 +5,1100 @@
 
 @section('content')
 
-<div class="page-heading">
-    <div>
+@php
+    $Str = \Illuminate\Support\Str::class;
+
+    $kelasList = $kelasList ?? collect();
+
+    // Satu konfigurasi, tiga papan peringkat.
+    $boards = [
+        'prestasi' => [
+            'title' => 'Top Prestasi',
+            'desc'  => 'Siswa dengan prestasi terbanyak.',
+            'icon'  => 'fa-trophy',
+            'tone'  => 'ok',
+            'rows'  => $topPrestasi,
+            'value' => 'prestasis_count',
+            'empty' => ['Belum ada data prestasi', 'Data siswa yang memiliki prestasi akan muncul di sini.'],
+        ],
+        'pelanggaran' => [
+            'title' => 'Top Pelanggaran',
+            'desc'  => 'Siswa dengan pelanggaran terbanyak.',
+            'icon'  => 'fa-triangle-exclamation',
+            'tone'  => 'bad',
+            'rows'  => $topPelanggaran,
+            'value' => 'pelanggarans_count',
+            'empty' => ['Belum ada data pelanggaran', 'Data siswa yang memiliki pelanggaran akan muncul di sini.'],
+        ],
+        'saldo' => [
+            'title' => 'Saldo Poin',
+            'desc'  => 'Peringkat siswa berdasarkan saldo poin.',
+            'icon'  => 'fa-ranking-star',
+            'tone'  => 'brand',
+            'rows'  => $saldoSiswa,
+            'value' => 'saldo_poin',
+            'empty' => ['Belum ada data siswa', 'Data saldo poin siswa akan muncul di sini.'],
+        ],
+    ];
+@endphp
+
+<div class="lb-page">
+
+    {{-- HEADER --}}
+    <header class="lb-head">
         <h1>Leaderboard</h1>
         <p>Peringkat siswa berdasarkan prestasi, pelanggaran, dan saldo poin.</p>
+    </header>
+
+
+    {{-- TAB --}}
+    <div class="lb-tabs" role="tablist" aria-label="Jenis peringkat">
+        @foreach($boards as $key => $board)
+            <button
+                type="button"
+                role="tab"
+                id="tab-{{ $key }}"
+                class="lb-tab {{ $loop->first ? 'active' : '' }}"
+                data-tab="{{ $key }}"
+                aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                aria-controls="panel-{{ $key }}"
+                tabindex="{{ $loop->first ? '0' : '-1' }}"
+            >
+                <i class="fa-solid {{ $board['icon'] }}"></i>
+                {{ $board['title'] }}
+            </button>
+        @endforeach
     </div>
-</div>
 
 
-{{-- =========================================
-     TABS
-========================================= --}}
+    {{-- TOOLBAR: CARI & KELAS --}}
+    <div class="lb-toolbar">
 
-<div class="leaderboard-tabs">
+        <div class="lb-search">
+            <i class="fa-solid fa-magnifying-glass lb-search-icon"></i>
+            <input
+                type="text"
+                id="lbSearch"
+                class="lb-input"
+                placeholder="Cari nama, NISN, atau kelas siswa"
+                value="{{ request('search') }}"
+                autocomplete="off"
+                aria-label="Cari siswa"
+            >
+            <button type="button" id="lbClear" class="lb-clear is-hidden" title="Hapus pencarian" aria-label="Hapus pencarian">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
 
-    <button
-        type="button"
-        class="leaderboard-tab active"
-        data-tab="prestasi"
-    >
-        <i class="fa-solid fa-trophy"></i>
-        Top Prestasi
-    </button>
+        <div class="lb-seg" id="lbGrades" role="group" aria-label="Tingkat kelas">
+            <button type="button" class="lb-pill active" data-grade="">Semua</button>
+            <button type="button" class="lb-pill" data-grade="X">Kelas X</button>
+            <button type="button" class="lb-pill" data-grade="XI">Kelas XI</button>
+            <button type="button" class="lb-pill" data-grade="XII">Kelas XII</button>
+        </div>
 
-    <button
-        type="button"
-        class="leaderboard-tab"
-        data-tab="pelanggaran"
-    >
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        Top Pelanggaran
-    </button>
+        @if(count($kelasList) > 0)
+            <select id="lbKelas" class="lb-input lb-select" aria-label="Filter kelas">
+                <option value="">Semua kelas</option>
+                @foreach($kelasList as $kelasOption)
+                    <option value="{{ $kelasOption }}">{{ $kelasOption }}</option>
+                @endforeach
+            </select>
+        @endif
 
-    <button
-        type="button"
-        class="leaderboard-tab"
-        data-tab="saldo"
-    >
-        <i class="fa-solid fa-ranking-star"></i>
-        Saldo Poin
-    </button>
+    </div>
 
-</div>
+    <p class="lb-count">Menampilkan <strong id="lbCount">0</strong> siswa</p>
 
 
-{{-- =========================================
-     TOOLBAR: SEARCH & KELAS FILTER
-========================================= --}}
+    {{-- PAPAN PERINGKAT --}}
+    @foreach($boards as $key => $board)
 
-<div class="leaderboard-toolbar">
+        @php
+            $rows = $board['rows'];
+            $max  = max(1, (float) $rows->max($board['value']));
+        @endphp
 
-    <div class="lb-search-wrap">
-        <i class="fa-solid fa-magnifying-glass lb-search-icon"></i>
-        <input
-            type="text"
-            id="leaderboardSearch"
-            class="lb-search-input"
-            placeholder="Cari nama, NISN, atau kelas siswa..."
-            value="{{ request('search') }}"
-            autocomplete="off"
+        <section
+            class="lb-panel lb-tone-{{ $board['tone'] }} {{ $loop->first ? 'active' : '' }}"
+            id="panel-{{ $key }}"
+            role="tabpanel"
+            aria-labelledby="tab-{{ $key }}"
+            {{ $loop->first ? '' : 'hidden' }}
         >
-        <button type="button" id="clearSearchBtn" class="lb-clear-btn" style="display: none;" title="Hapus pencarian">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    </div>
 
-    <div class="lb-filter-wrap">
-        <div class="lb-class-pills">
-            <button
-                type="button"
-                class="lb-pill {{ !request('kelas') ? 'active' : '' }}"
-                data-kelas=""
-            >
-                Semua Kelas
-            </button>
-            <button
-                type="button"
-                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'X' ? 'active' : '' }}"
-                data-kelas="X"
-            >
-                Kelas X
-            </button>
-            <button
-                type="button"
-                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'XI' ? 'active' : '' }}"
-                data-kelas="XI"
-            >
-                Kelas XI
-            </button>
-            <button
-                type="button"
-                class="lb-pill {{ strtoupper(request('kelas') ?? '') === 'XII' ? 'active' : '' }}"
-                data-kelas="XII"
-            >
-                Kelas XII
-            </button>
-        </div>
+            <div class="lb-card">
 
-        @if(isset($kelasList) && $kelasList->count() > 0)
-            <div class="lb-select-wrap">
-                <select id="leaderboardSelectKelas" class="lb-select-kelas">
-                    <option value="">Semua Rombel</option>
-                    @foreach($kelasList as $kelasOption)
-                        <option
-                            value="{{ $kelasOption }}"
-                            {{ request('kelas') == $kelasOption ? 'selected' : '' }}
-                        >
-                            {{ $kelasOption }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        @endif
-    </div>
-
-</div>
-
-
-{{-- =========================================
-     TOP PRESTASI
-========================================= --}}
-
-<div class="leaderboard-panel active" id="panel-prestasi">
-
-    <div class="leaderboard-card">
-
-        <div class="leaderboard-header">
-
-            <div class="leaderboard-title">
-
-                <div class="header-icon">
-                    <i class="fa-solid fa-trophy"></i>
+                <div class="lb-card-head">
+                    <span class="lb-card-icon"><i class="fa-solid {{ $board['icon'] }}"></i></span>
+                    <div>
+                        <h2>{{ $board['title'] }}</h2>
+                        <p>{{ $board['desc'] }}</p>
+                    </div>
                 </div>
 
-                <div>
-                    <h2>Top Prestasi</h2>
-                    <p>Siswa dengan prestasi terbanyak.</p>
-                </div>
+                @if($rows->count())
 
-            </div>
+                    <ol class="lb-list">
 
-            <div class="header-badge">
-                <i class="fa-solid fa-medal"></i>
-                Prestasi
-            </div>
+                        @foreach($rows as $index => $siswa)
 
-        </div>
+                            @php
+                                $nilai = max(0, (float) data_get($siswa, $board['value'], 0));
+                                $lebar = min(100, round($nilai / $max * 100));
+                            @endphp
 
+                            <li class="lb-item"
+                                data-nama="{{ $Str::lower($siswa->nama) }}"
+                                data-nisn="{{ $Str::lower($siswa->nisn ?? '') }}"
+                                data-kelas="{{ $Str::lower($siswa->kelas ?? '') }}">
 
-        @if($topPrestasi->count())
+                                <span class="lb-rank {{ $index === 0 ? 'lb-rank-1' : '' }} {{ $index === 1 ? 'lb-rank-2' : '' }} {{ $index === 2 ? 'lb-rank-3' : '' }}">
+                                    {{ $index + 1 }}
+                                </span>
 
-            <div class="ranking-list">
+                                <span class="lb-avatar">{{ $Str::upper($Str::substr($siswa->nama, 0, 1)) }}</span>
 
-                @foreach($topPrestasi as $index => $siswa)
+                                <div class="lb-info">
+                                    <div class="lb-name">
+                                        <strong>{{ $siswa->nama }}</strong>
+                                        @if($siswa->kelas)
+                                            <span class="lb-chip">{{ $siswa->kelas }}</span>
+                                        @else
+                                            <span class="lb-chip lb-chip-empty">Tanpa kelas</span>
+                                        @endif
+                                    </div>
 
-                    <div class="ranking-item"
-                        data-nama="{{ strtolower($siswa->nama) }}"
-                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
-                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
+                                    <span class="lb-nisn">NISN: {{ $siswa->nisn ?? '-' }}</span>
 
-                        <div class="rank-number
-                            {{ $index === 0 ? 'rank-first' : '' }}
-                            {{ $index === 1 ? 'rank-second' : '' }}
-                            {{ $index === 2 ? 'rank-third' : '' }}
-                        ">
-                            {{ $index + 1 }}
-                        </div>
+                                    <span class="lb-bar" aria-hidden="true"><i style="width: {{ $lebar }}%"></i></span>
+                                </div>
 
+                                <div class="lb-metrics">
 
-                        <div class="student-avatar">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
+                                    @if($key === 'saldo')
 
+                                        <div class="lb-metric lb-metric-split">
+                                            <span class="lb-up" title="Total poin prestasi">
+                                                <i class="fa-solid fa-trophy"></i> {{ $siswa->prestasis_sum_poin ?? 0 }}
+                                            </span>
+                                            <span class="lb-down" title="Total poin pelanggaran">
+                                                <i class="fa-solid fa-triangle-exclamation"></i> {{ $siswa->pelanggarans_sum_poin ?? 0 }}
+                                            </span>
+                                        </div>
 
-                        <div class="student-info">
+                                        <div class="lb-metric lb-metric-main lb-metric-big">
+                                            <strong>{{ $siswa->saldo_poin }}</strong>
+                                            <span>saldo poin</span>
+                                        </div>
 
-                            <div class="student-name-row">
-                                <strong>
-                                    {{ $siswa->nama }}
-                                </strong>
-                                @if($siswa->kelas)
-                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
-                                @else
-                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
-                                @endif
-                            </div>
+                                    @elseif($key === 'prestasi')
 
-                            <span>
-                                NISN: {{ $siswa->nisn ?? '-' }}
-                            </span>
+                                        <div class="lb-metric">
+                                            <strong>{{ $siswa->prestasis_count }}</strong>
+                                            <span>prestasi</span>
+                                        </div>
 
-                        </div>
+                                        <div class="lb-metric lb-metric-main">
+                                            <strong>+{{ $siswa->prestasis_sum_poin ?? 0 }}</strong>
+                                            <span>total poin</span>
+                                        </div>
 
+                                    @else
 
-                        <div class="ranking-stat">
+                                        <div class="lb-metric">
+                                            <strong>{{ $siswa->pelanggarans_count }}</strong>
+                                            <span>pelanggaran</span>
+                                        </div>
 
-                            <strong>
-                                {{ $siswa->prestasis_count }}
-                            </strong>
+                                        <div class="lb-metric lb-metric-main">
+                                            <strong>-{{ $siswa->pelanggarans_sum_poin ?? 0 }}</strong>
+                                            <span>total poin</span>
+                                        </div>
 
-                            <span>
-                                prestasi
-                            </span>
+                                    @endif
 
-                        </div>
+                                </div>
 
+                                <a href="{{ route('siswa.show', $siswa->id) }}"
+                                   class="lb-go"
+                                   title="Lihat siswa"
+                                   aria-label="Lihat {{ $siswa->nama }}">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </a>
 
-                        <div class="ranking-points">
+                            </li>
 
-                            <strong>
-                                +{{ $siswa->prestasis_sum_poin ?? 0 }}
-                            </strong>
+                        @endforeach
 
-                            <span>
-                                total poin
-                            </span>
+                    </ol>
 
-                        </div>
-
-
-                        <a
-                            href="{{ route('siswa.show', $siswa->id) }}"
-                            class="view-student"
-                            title="Lihat siswa"
-                        >
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-
+                    {{-- Muncul saat pencarian/filter tidak menemukan hasil --}}
+                    <div class="lb-empty lb-empty-filter is-hidden">
+                        <span class="lb-empty-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <strong>Tidak ada siswa ditemukan</strong>
+                        <p>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</p>
                     </div>
 
-                @endforeach
-
-            </div>
-
-            <div class="empty-state empty-filter-state" style="display: none;">
-                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
-                <strong>Tidak Ada Siswa Ditemukan</strong>
-                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
-            </div>
-
-        @else
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="fa-solid fa-trophy"></i>
-                </div>
-
-                <strong>Belum ada data prestasi</strong>
-
-                <span>
-                    Data siswa yang memiliki prestasi akan muncul di sini.
-                </span>
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
-
-
-{{-- =========================================
-     TOP PELANGGARAN
-========================================= --}}
-
-<div class="leaderboard-panel" id="panel-pelanggaran">
-
-    <div class="leaderboard-card">
-
-        <div class="leaderboard-header">
-
-            <div class="leaderboard-title">
-
-                <div class="header-icon violation-icon">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-
-                <div>
-                    <h2>Top Pelanggaran</h2>
-                    <p>Siswa dengan pelanggaran terbanyak.</p>
-                </div>
-
-            </div>
-
-            <div class="header-badge violation-badge">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Pelanggaran
-            </div>
-
-        </div>
-
-
-        @if($topPelanggaran->count())
-
-            <div class="ranking-list">
-
-                @foreach($topPelanggaran as $index => $siswa)
-
-                    <div class="ranking-item"
-                        data-nama="{{ strtolower($siswa->nama) }}"
-                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
-                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
-
-                        <div class="rank-number
-                            {{ $index === 0 ? 'rank-first' : '' }}
-                            {{ $index === 1 ? 'rank-second' : '' }}
-                            {{ $index === 2 ? 'rank-third' : '' }}
-                        ">
-                            {{ $index + 1 }}
-                        </div>
-
-
-                        <div class="student-avatar violation-avatar">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-
-
-                        <div class="student-info">
-
-                            <div class="student-name-row">
-                                <strong>
-                                    {{ $siswa->nama }}
-                                </strong>
-                                @if($siswa->kelas)
-                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
-                                @else
-                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
-                                @endif
-                            </div>
-
+                    @if($key === 'saldo')
+                        <div class="lb-formula">
+                            <i class="fa-solid fa-calculator"></i>
                             <span>
-                                NISN: {{ $siswa->nisn ?? '-' }}
+                                Saldo poin dihitung dari
+                                <strong>100 &minus; total pelanggaran + total prestasi</strong>.
                             </span>
-
                         </div>
+                    @endif
 
+                @else
 
-                        <div class="ranking-stat">
-
-                            <strong>
-                                {{ $siswa->pelanggarans_count }}
-                            </strong>
-
-                            <span>
-                                pelanggaran
-                            </span>
-
-                        </div>
-
-
-                        <div class="ranking-points violation-points">
-
-                            <strong>
-                                -{{ $siswa->pelanggarans_sum_poin ?? 0 }}
-                            </strong>
-
-                            <span>
-                                total poin
-                            </span>
-
-                        </div>
-
-
-                        <a
-                            href="{{ route('siswa.show', $siswa->id) }}"
-                            class="view-student"
-                            title="Lihat siswa"
-                        >
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-
+                    <div class="lb-empty">
+                        <span class="lb-empty-icon"><i class="fa-solid {{ $board['icon'] }}"></i></span>
+                        <strong>{{ $board['empty'][0] }}</strong>
+                        <p>{{ $board['empty'][1] }}</p>
                     </div>
 
-                @endforeach
+                @endif
 
             </div>
 
-            <div class="empty-state empty-filter-state" style="display: none;">
-                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
-                <strong>Tidak Ada Siswa Ditemukan</strong>
-                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
-            </div>
+        </section>
 
-        @else
-
-            <div class="empty-state">
-
-                <div class="empty-icon violation-empty">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                </div>
-
-                <strong>Belum ada data pelanggaran</strong>
-
-                <span>
-                    Data siswa yang memiliki pelanggaran akan muncul di sini.
-                </span>
-
-            </div>
-
-        @endif
-
-    </div>
+    @endforeach
 
 </div>
 
-
-{{-- =========================================
-     SALDO POIN
-========================================= --}}
-
-<div class="leaderboard-panel" id="panel-saldo">
-
-    <div class="leaderboard-card">
-
-        <div class="leaderboard-header">
-
-            <div class="leaderboard-title">
-
-                <div class="header-icon">
-                    <i class="fa-solid fa-ranking-star"></i>
-                </div>
-
-                <div>
-                    <h2>Saldo Poin</h2>
-                    <p>Peringkat siswa berdasarkan saldo poin.</p>
-                </div>
-
-            </div>
-
-            <div class="header-badge">
-                <i class="fa-solid fa-star"></i>
-                Saldo
-            </div>
-
-        </div>
-
-
-        @if($saldoSiswa->count())
-
-            <div class="ranking-list">
-
-                @foreach($saldoSiswa as $index => $siswa)
-
-                    <div class="ranking-item"
-                        data-nama="{{ strtolower($siswa->nama) }}"
-                        data-nisn="{{ strtolower($siswa->nisn ?? '') }}"
-                        data-kelas="{{ strtolower($siswa->kelas ?? '') }}">
-
-                        <div class="rank-number
-                            {{ $index === 0 ? 'rank-first' : '' }}
-                            {{ $index === 1 ? 'rank-second' : '' }}
-                            {{ $index === 2 ? 'rank-third' : '' }}
-                        ">
-                            {{ $index + 1 }}
-                        </div>
-
-
-                        <div class="student-avatar">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-
-
-                        <div class="student-info">
-
-                            <div class="student-name-row">
-                                <strong>
-                                    {{ $siswa->nama }}
-                                </strong>
-                                @if($siswa->kelas)
-                                    <span class="student-kelas-badge">{{ $siswa->kelas }}</span>
-                                @else
-                                    <span class="student-kelas-badge empty">Tanpa Kelas</span>
-                                @endif
-                            </div>
-
-                            <span>
-                                NISN: {{ $siswa->nisn ?? '-' }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="saldo-detail">
-
-                            <span>
-                                <i class="fa-solid fa-trophy"></i>
-                                {{ $siswa->prestasis_sum_poin ?? 0 }}
-                            </span>
-
-                            <span class="saldo-minus">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                {{ $siswa->pelanggarans_sum_poin ?? 0 }}
-                            </span>
-
-                        </div>
-
-
-                        <div class="saldo-points">
-
-                            <strong>
-                                {{ $siswa->saldo_poin }}
-                            </strong>
-
-                            <span>
-                                saldo poin
-                            </span>
-
-                        </div>
-
-
-                        <a
-                            href="{{ route('siswa.show', $siswa->id) }}"
-                            class="view-student"
-                            title="Lihat siswa"
-                        >
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-
-                    </div>
-
-                @endforeach
-
-            </div>
-
-            <div class="empty-state empty-filter-state" style="display: none;">
-                <div class="empty-icon" style="background: #F3F4F6; color: #6B7280;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
-                <strong>Tidak Ada Siswa Ditemukan</strong>
-                <span>Tidak ada siswa yang sesuai dengan filter atau kata kunci pencarian.</span>
-            </div>
-
-
-            <div class="formula-box">
-
-                <i class="fa-solid fa-calculator"></i>
-
-                <span>
-                    Saldo poin dihitung berdasarkan:
-                    <strong>
-                        100 - total pelanggaran + total prestasi
-                    </strong>
-                </span>
-
-            </div>
-
-        @else
-
-            <div class="empty-state">
-
-                <div class="empty-icon">
-                    <i class="fa-solid fa-ranking-star"></i>
-                </div>
-
-                <strong>Belum ada data siswa</strong>
-
-                <span>
-                    Data saldo poin siswa akan muncul di sini.
-                </span>
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
+@endsection
 
 
 @section('styles')
+
 @include('partials.ui')
 
-/* ========================================
-   PAGE HEADING
-======================================== */
-
-.page-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 22px;
-}/* ========================================
-   TABS
-======================================== */
-
-.leaderboard-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    padding: 5px;
-    background: #F3F4F6;
-    border-radius: 11px;
-    margin-bottom: 20px;
-    width: fit-content;
-    max-width: 100%;
-}
-
-.leaderboard-tab {
-    height: 40px;
-    padding: 0 15px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: .2s;
-}
-
-.leaderboard-tab:hover {
-    color: var(--primary);
-}
-
-.leaderboard-tab.active {
-    background: #fff;
-    color: var(--primary);
-    box-shadow: 0 2px 7px rgba(0,0,0,.06);
-}
-
-.leaderboard-tab i {
-    font-size: 13px;
-}
-
-
-/* ========================================
-   PANEL
-======================================== */
-
-.leaderboard-panel {
-    display: none;
-}
-
-.leaderboard-panel.active {
-    display: block;
-}
-
-
-/* ========================================
-   CARD
-======================================== */
-
-.leaderboard-card {
-    background: #fff;
-    border: 1px solid #E5E7EB;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0,0,0,.04);
-}
-
-
-/* ========================================
-   HEADER
-======================================== */
-
-.leaderboard-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px 15px;
-    padding: 20px 22px;
-    background: #FFFCFA;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-.leaderboard-title {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    flex: 1 1 220px;
-    min-width: 0;
-}
-
-.leaderboard-title > div:last-child {
-    min-width: 0;
-}
-.leaderboard-title h2 {
-    margin: 0 0 4px;
-    font-size: 17px;
-    color: #1F2937;
-}
-
-.leaderboard-title p {
-    margin: 0;
-    font-size: 12px;
-    color: #6B7280;
-}
-
-.header-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 10px;
-    border-radius: 7px;
-    background: #F9E9E6;
-    color: var(--primary);
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.violation-icon {
-    background: #FEF2F2;
-    color: #B42318;
-}
-
-.violation-badge {
-    background: #FEF2F2;
-    color: #B42318;
-}
-
-
-/* ========================================
-   RANKING LIST
-======================================== */
-
-.ranking-list {
-    padding: 8px 22px 14px;
-}
-
-.ranking-item {
-    display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 14px 0;
-    border-bottom: 1px solid #F0F0F0;
-}
-
-.ranking-item:last-child {
-    border-bottom: none;
-}
-
-
-/* ========================================
-   RANK
-======================================== */
-
-.rank-number {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: #F3F4F6;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.rank-first {
-    background: #F9E9E6;
-    color: var(--primary);
-}
-
-.rank-second {
-    background: #F3F4F6;
-    color: #4B5563;
-}
-
-.rank-third {
-    background: #F6F1EC;
-    color: #8A5A3B;
-}
-
-
-/* ========================================
-   STUDENT
-======================================== */.violation-avatar {
-    background: #FEF2F2;
-    color: #B42318;
-}/* ========================================
-   STAT
-======================================== */
-
-.ranking-stat {
-    min-width: 88px;
-    text-align: center;
-}
-
-.ranking-stat strong {
-    display: block;
-    color: #374151;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.ranking-stat span {
-    color: #9CA3AF;
-    font-size: 10px;
-}
-
-
-/* ========================================
-   POINTS
-======================================== */
-
-.ranking-points {
-    min-width: 96px;
-    text-align: right;
-}
-
-.ranking-points strong {
-    display: block;
-    color: #287A3D;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.ranking-points span {
-    color: #9CA3AF;
-    font-size: 10px;
-}
-
-.violation-points strong {
-    color: #B42318;
-}
-
-
-/* ========================================
-   SALDO
-======================================== */
-
-.saldo-detail {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 112px;
-}
-
-.saldo-detail span {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #287A3D;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.saldo-detail span i {
-    font-size: 9px;
-}
-
-.saldo-detail .saldo-minus {
-    color: #B42318;
-}
-
-.saldo-points {
-    min-width: 96px;
-    text-align: right;
-}
-
-.saldo-points strong {
-    display: block;
-    color: var(--primary);
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.saldo-points span {
-    color: #9CA3AF;
-    font-size: 10px;
-}
-
-
-/* ========================================
-   VIEW
-======================================== */
-
-.view-student {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: #F3F4F6;
-    color: #6B7280;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    flex-shrink: 0;
-    transition: .2s;
-}
-
-.view-student:hover {
-    background: #F9E9E6;
-    color: var(--primary);
-}
-
-
-/* ========================================
-   FORMULA
-======================================== */
-
-.formula-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 4px 22px 20px;
-    padding: 12px;
-    border-radius: 8px;
-    background: #F9FAFB;
-    color: #6B7280;
-    font-size: 11px;
-    text-align: center;
-    overflow-wrap: anywhere;
-}
-
-.formula-box i {
-    color: var(--primary);
-}
-
-.formula-box strong {
-    color: #374151;
-}
-
-
-/* ========================================
-   EMPTY
-======================================== */.violation-empty {
-    background: #FEF2F2;
-    color: #B42318;
-}
-
-.empty-state strong {
-    color: #374151;
+/* =========================================================
+   LEADERBOARD
+   Satu warna aksen (--primary), bayangan tipis, tanpa gradien
+   atau efek hover mengangkat. Hijau hanya untuk prestasi dan
+   merah hanya untuk pelanggaran. Scope: .lb-page.
+========================================================= */
+
+.lb-page {
+    --lb-ink: #1f1b18;
+    --lb-muted: #6b625a;
+    --lb-faint: #968d84;
+    --lb-line: #e7e0d8;
+    --lb-line-soft: #f0eae3;
+    --lb-line-strong: #d6cdc3;
+    --lb-soft: #f7f3ee;
+    --lb-tint: #fcfaf7;
+    --lb-accent: var(--primary, #6d1408);
+    --lb-shadow: 0 1px 2px rgba(31, 27, 24, .04), 0 12px 28px -18px rgba(31, 27, 24, .22);
+
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    color: var(--lb-ink);
     font-size: 14px;
-    margin-bottom: 5px;
+    line-height: 1.55;
+    overflow-wrap: break-word;
 }
 
-.empty-state span {
-    color: #9CA3AF;
-    font-size: 12px;
-    max-width: 42ch;
-    overflow-wrap: anywhere;
+.lb-page *,
+.lb-page *::before,
+.lb-page *::after { box-sizing: border-box; }
+
+.lb-page .is-hidden { display: none !important; }
+
+.lb-page a { text-decoration: none; }
+
+/* Warna per papan */
+.lb-tone-ok    { --tone: #2f855a; --tone-ink: #1f6b44; --tone-bg: #e3f3ea; }
+.lb-tone-bad   { --tone: #c53030; --tone-ink: #9b2c2c; --tone-bg: #fbe3df; }
+.lb-tone-brand { --tone: var(--lb-accent); --tone-ink: var(--lb-accent); --tone-bg: #f6e3de; }
+
+
+/* ---------- HEADER ---------- */
+
+.lb-head { margin-bottom: 20px; }
+
+.lb-head h1 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
 }
 
-
-/* ========================================
-   RESPONSIVE
-======================================== */
-
-@media (max-width: 800px) {
-
-    .ranking-stat {
-        width: 75px;
-    }
-
-    .ranking-points {
-        width: 80px;
-    }
-
-    .saldo-detail {
-        width: 95px;
-        gap: 7px;
-    }
-
-}
-
-
-@media (max-width: 650px) {
-
-    .leaderboard-tabs {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .leaderboard-tab {
-        flex: 1 1 auto;
-        white-space: nowrap;
-        padding: 0 12px;
-    }
-
-    .ranking-list {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-
-    .ranking-item {
-        gap: 9px;
-    }
-
-    .ranking-stat {
-        width: auto;
-        min-width: 65px;
-    }
-
-    .ranking-points {
-        width: auto;
-        min-width: 70px;
-    }
-
-    .saldo-detail {
-        width: auto;
-        min-width: 75px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 3px;
-    }
-
-    .saldo-points {
-        width: auto;
-        min-width: 65px;
-    }
-
+.lb-head p {
+    margin: 0;
+    color: var(--lb-muted);
+    font-size: 14px;
 }
 
 
-@media (max-width: 500px) {
+/* ---------- TAB ---------- */
 
-    .leaderboard-header {
-        align-items: flex-start;
-        padding: 17px;
-    }
-
-    .header-badge {
-        display: none;
-    }
-
-    .leaderboard-title h2 {
-        font-size: 15px;
-    }
-
-    .leaderboard-title p {
-        font-size: 11px;
-    }
-
-    .ranking-item {
-        flex-wrap: wrap;
-        padding: 13px 0;
-    }
-
-    .rank-number {
-        width: 28px;
-        height: 28px;
-    }
-
-    .student-avatar {
-        width: 36px;
-        height: 36px;
-    }
-
-    .student-info {
-        width: calc(100% - 90px);
-    }
-
-    .ranking-stat {
-        margin-left: 37px;
-        text-align: left;
-    }
-
-    .ranking-points {
-        text-align: left;
-    }
-
-    .saldo-detail {
-        margin-left: 37px;
-    }
-
-    .saldo-points {
-        text-align: left;
-    }
-
-    .view-student {
-        margin-left: auto;
-    }
-
-    .formula-box {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
-
-    .leaderboard-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .lb-filter-wrap {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .lb-class-pills {
-        width: 100%;
-    }
-
-    .lb-select-kelas {
-        width: 100%;
-    }
-
-}
-
-/* ========================================
-   LEADERBOARD TOOLBAR & FILTER
-======================================== */
-
-.leaderboard-toolbar {
+.lb-tabs {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 20px;
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    border-radius: 14px;
-    padding: 12px 16px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+    gap: 24px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--lb-line);
+    overflow-x: auto;
 }
 
-.lb-search-wrap {
+.lb-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 0;
+    margin-bottom: -1px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--lb-muted);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+
+.lb-tab i { font-size: 13px; }
+
+.lb-tab:hover { color: var(--lb-ink); }
+
+.lb-tab.active {
+    border-bottom-color: var(--lb-accent);
+    color: var(--lb-accent);
+}
+
+.lb-tab:focus-visible,
+.lb-pill:focus-visible,
+.lb-go:focus-visible,
+.lb-clear:focus-visible {
+    outline: 2px solid var(--lb-accent);
+    outline-offset: 2px;
+}
+
+
+/* ---------- TOOLBAR ---------- */
+
+.lb-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.lb-search {
     position: relative;
-    flex: 1 1 220px;
-    min-width: min(250px, 100%);
+    flex: 1 1 280px;
+    min-width: 0;
 }
 
 .lb-search-icon {
     position: absolute;
-    left: 14px;
+    left: 13px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9CA3AF;
+    color: var(--lb-faint);
     font-size: 13px;
     pointer-events: none;
 }
 
-.lb-search-input {
+.lb-input {
+    display: block;
     width: 100%;
-    height: 40px;
-    padding: 0 36px 0 38px;
-    border: 1px solid #E5E7EB;
-    border-radius: 9px;
-    background: #F9FAFB;
-    font-size: 13px;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--lb-line-strong);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--lb-ink);
     font-family: inherit;
-    color: #1F2937;
+    font-size: 14px;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+.lb-search .lb-input { padding: 0 38px 0 36px; }
+
+.lb-input:hover { border-color: #c4b9ad; }
+
+.lb-input:focus {
     outline: none;
-    transition: all 0.2s ease;
+    border-color: var(--lb-accent);
+    box-shadow: 0 0 0 3px rgba(109, 20, 8, .14);
 }
 
-.lb-search-input:focus {
-    background: #ffffff;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(109, 20, 8, 0.12);
+.lb-select {
+    width: 190px;
+    padding-right: 36px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236b625a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
 }
 
-.lb-clear-btn {
+.lb-clear {
     position: absolute;
-    right: 10px;
+    right: 6px;
     top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #9CA3AF;
-    font-size: 13px;
-    cursor: pointer;
-    padding: 4px 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--lb-faint);
+    font-size: 13px;
+    cursor: pointer;
 }
 
-.lb-clear-btn:hover {
-    color: var(--primary);
-    background: #F3F4F6;
-}
+.lb-clear:hover { background: var(--lb-soft); color: var(--lb-ink); }
 
-.lb-filter-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    flex: 1 1 320px;
-    min-width: 0;
-}
-
-.lb-class-pills {
-    display: flex;
-    flex-wrap: wrap;
-    background: #F3F4F6;
-    padding: 4px;
-    border-radius: 9px;
-    gap: 4px;
-    max-width: 100%;
+/* Pilihan tingkat kelas: kontrol bersegmen */
+.lb-seg {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--lb-line);
+    border-radius: 10px;
+    background: var(--lb-soft);
 }
 
 .lb-pill {
+    padding: 8px 14px;
     border: none;
-    background: transparent;
-    padding: 6px 13px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #4B5563;
-    cursor: pointer;
-    transition: all 0.15s ease;
+    border-radius: 8px;
+    background: none;
+    color: var(--lb-muted);
     font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
     white-space: nowrap;
+    cursor: pointer;
+    transition: background .15s, color .15s;
 }
 
-.lb-pill:hover {
-    color: var(--primary);
-}
+.lb-pill:hover { color: var(--lb-ink); }
 
 .lb-pill.active {
-    background: var(--primary);
-    color: #ffffff;
-    box-shadow: 0 2px 5px rgba(109, 20, 8, 0.2);
+    background: #fff;
+    color: var(--lb-accent);
+    box-shadow: 0 1px 2px rgba(31, 27, 24, .1), 0 0 0 1px var(--lb-line);
 }
 
-.lb-select-wrap {
-    position: relative;
-    min-width: 0;
-    max-width: 100%;
-}
-
-.lb-select-kelas {
-    height: 38px;
-    max-width: 100%;
-    padding: 0 12px;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    background: #F9FAFB;
+.lb-count {
+    margin: 12px 2px 14px;
+    color: var(--lb-muted);
     font-size: 12px;
-    font-weight: 500;
-    color: #374151;
-    font-family: inherit;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
 }
 
-.lb-select-kelas:focus {
-    border-color: var(--primary);
+.lb-count strong { color: var(--lb-ink); }
+
+
+/* ---------- PANEL & KARTU ---------- */
+
+.lb-panel[hidden] { display: none; }
+
+.lb-card {
+    overflow: hidden;
+    border: 1px solid var(--lb-line);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: var(--lb-shadow);
 }
 
-.student-name-row {
+.lb-card-head {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
-    flex-wrap: wrap;
+    gap: 14px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--lb-line);
+    background: var(--lb-tint);
 }
 
-.student-name-row strong {
-    margin-bottom: 0 !important;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.student-kelas-badge {
-    display: inline-flex;
+.lb-card-icon {
+    display: flex;
     align-items: center;
-    padding: 2px 7px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--tone-bg);
+    color: var(--tone-ink);
+    font-size: 16px;
+}
+
+.lb-card-head h2 {
+    margin: 0 0 2px;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.lb-card-head p {
+    margin: 0;
+    color: var(--lb-muted);
+    font-size: 13px;
+}
+
+
+/* ---------- DAFTAR PERINGKAT ---------- */
+
+.lb-list {
+    margin: 0;
+    padding: 0 24px;
+    list-style: none;
+}
+
+.lb-item {
+    display: grid;
+    grid-template-columns: 34px 40px minmax(0, 1fr) auto 32px;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--lb-line-soft);
+}
+
+.lb-item:last-child { border-bottom: none; }
+
+.lb-item[hidden] { display: none; }
+
+.lb-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--lb-soft);
+    color: var(--lb-muted);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Medali emas / perak / perunggu, sengaja redup */
+.lb-rank-1 { background: #fdf0d3; color: #8a5a0a; }
+.lb-rank-2 { background: #eceff1; color: #4f5b66; }
+.lb-rank-3 { background: #f7e6d6; color: #8a4f22; }
+
+.lb-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--tone-bg);
+    color: var(--tone-ink);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.lb-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.lb-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+
+.lb-name strong {
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.lb-chip {
+    padding: 1px 9px;
     border-radius: 6px;
-    font-size: 11px;
+    background: #f1ebe4;
+    color: #4a423b;
+    font-size: 12px;
     font-weight: 600;
-    background: #FBEAE8;
-    color: var(--primary);
-    border: 1px solid #E8C2BD;
+    line-height: 1.6;
     white-space: nowrap;
 }
 
-.student-kelas-badge.empty {
-    background: #F3F4F6;
-    color: #6B7280;
-    border: 1px solid #E5E7EB;
+.lb-chip-empty {
+    background: none;
+    padding-left: 0;
+    color: var(--lb-faint);
+    font-weight: 500;
+}
+
+.lb-nisn {
+    color: var(--lb-muted);
+    font-size: 12px;
+}
+
+/* Batang tipis: nilai dibanding peringkat teratas */
+.lb-bar {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: 4px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background: var(--lb-line-soft);
+    overflow: hidden;
+}
+
+.lb-bar i {
+    display: block;
+    height: 100%;
+    min-width: 3px;
+    border-radius: 999px;
+    background: var(--tone);
 }
 
 
-/* ========================================
-   RESPONSIVE REFINEMENTS
-   ======================================== */
+/* ---------- ANGKA ---------- */
 
-@media (max-width: 1024px) {
-
-    .lb-search-wrap {
-        flex: 1 1 100%;
-    }
-
-    .ranking-list {
-        padding: 8px 18px 14px;
-    }
-
-    .ranking-item {
-        gap: 11px;
-    }
-
+.lb-metrics {
+    display: flex;
+    align-items: center;
+    gap: 28px;
 }
 
-@media (max-width: 768px) {
+.lb-metric {
+    min-width: 84px;
+    text-align: right;
+}
 
-    .leaderboard-toolbar {
-        padding: 12px;
+.lb-metric strong {
+    display: block;
+    color: var(--lb-ink);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.lb-metric span {
+    color: var(--lb-faint);
+    font-size: 11px;
+}
+
+.lb-metric-main strong { color: var(--tone-ink); }
+
+.lb-metric-big strong { font-size: 22px; }
+
+.lb-metric-split {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 72px;
+}
+
+.lb-metric-split span {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.lb-metric-split i { font-size: 10px; }
+
+.lb-up   { color: #1f6b44 !important; }
+.lb-down { color: #9b2c2c !important; }
+
+.lb-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: var(--lb-faint);
+    font-size: 12px;
+    transition: background .15s, color .15s;
+}
+
+.lb-go:hover {
+    background: var(--lb-soft);
+    color: var(--lb-accent);
+}
+
+
+/* ---------- KOSONG & CATATAN ---------- */
+
+.lb-empty {
+    padding: 44px 20px;
+    text-align: center;
+}
+
+.lb-empty-filter { padding: 36px 20px; }
+
+.lb-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: var(--tone-bg);
+    color: var(--tone-ink);
+    font-size: 20px;
+}
+
+.lb-empty-filter .lb-empty-icon {
+    background: var(--lb-soft);
+    color: var(--lb-muted);
+}
+
+.lb-empty strong {
+    display: block;
+    font-size: 16px;
+}
+
+.lb-empty p {
+    max-width: 44ch;
+    margin: 4px auto 0;
+    color: var(--lb-muted);
+}
+
+.lb-formula {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-top: 1px solid var(--lb-line);
+    background: var(--lb-tint);
+    color: var(--lb-muted);
+    font-size: 13px;
+}
+
+.lb-formula i { color: var(--lb-accent); }
+
+.lb-formula strong { color: var(--lb-ink); }
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 760px) {
+    .lb-head h1 { font-size: 24px; }
+
+    .lb-card-head { padding: 16px; }
+    .lb-list { padding: 0 16px; }
+    .lb-formula { padding: 14px 16px; }
+
+    /* Baris kedua: angka turun ke bawah, memenuhi lebar */
+    .lb-item {
+        grid-template-columns: 34px 40px minmax(0, 1fr) 32px;
+        gap: 10px 12px;
+        padding: 16px 0;
     }
 
-    .lb-search-input {
-        font-size: 16px;
-        height: 44px;
+    .lb-metrics {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+        gap: 24px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: var(--lb-tint);
     }
 
-    .lb-select-kelas {
-        font-size: 16px;
-        height: 44px;
-    }
+    .lb-metric { min-width: 0; text-align: left; }
 
-    .lb-pill {
-        flex: 1 1 auto;
-        text-align: center;
-        font-size: 13px;
-        padding: 8px 12px;
-    }
+    .lb-metric-split { align-items: flex-start; }
+    .lb-metric-split span { justify-content: flex-start; }
 
+    .lb-metric-big { margin-left: auto; text-align: right; }
+
+    .lb-bar { max-width: none; }
 }
 
 @media (max-width: 640px) {
+    .lb-toolbar { gap: 10px; }
 
-    .page-heading h1 {
-        font-size: clamp(19px, 3vw, 22px);
-    }
+    .lb-search { flex-basis: 100%; }
 
-    .page-heading p {
-        font-size: 13px;
-    }
+    .lb-seg { flex: 1 1 100%; }
+    .lb-pill { flex: 1; padding: 9px 4px; text-align: center; }
 
-    .leaderboard-card {
-        border-radius: 12px;
-    }
+    .lb-select { width: 100%; }
 
-    .leaderboard-header {
-        padding: 15px 14px;
-    }
-
-    .ranking-list {
-        padding: 6px 14px 12px;
-    }
-
-    .ranking-stat,
-    .ranking-points,
-    .saldo-detail,
-    .saldo-points {
-        min-width: 0;
-    }
-
-    .formula-box {
-        margin: 4px 14px 16px;
-    }
-
-    .empty-state {
-        min-height: 200px;
-        padding: 24px 16px;
-    }
-
-}
-
-@media (max-width: 576px) {
-
-    .leaderboard-tabs {
-        gap: 4px;
-    }
-
-    .leaderboard-tab {
-        flex: 1 1 100%;
-        height: 38px;
-    }
-
-    /* Ranking item -> 2 baris: identitas di atas, angka di bawah.
-       Memakai flex + pseudo-element pemutus baris agar tetap bekerja
-       meski JS memasang display:flex inline saat filter berjalan. */
-
-    .ranking-item {
-        flex-wrap: wrap;
-        align-items: center;
-        column-gap: 9px;
-        row-gap: 6px;
-        padding: 12px 0;
-    }
-
-    .ranking-item::before {
-        content: "";
-        flex: 0 0 100%;
-        height: 0;
-        order: 1;
-    }
-
-    .rank-number,
-    .student-avatar,
-    .student-info,
-    .view-student {
-        order: 0;
-    }
-
-    .ranking-stat,
-    .saldo-detail,
-    .ranking-points,
-    .saldo-points {
-        order: 2;
-    }
-
-    .rank-number {
-        width: 28px;
-        height: 28px;
-    }
-
-    .student-avatar {
-        width: 34px;
-        height: 34px;
-    }
-
-    .student-info {
-        width: auto;
-        flex: 1 1 0;
-        min-width: 0;
-    }
-
-    .ranking-stat,
-    .saldo-detail {
-        min-width: 0;
-        margin-left: 0;
-        flex: 1 1 auto;
-        text-align: left;
-    }
-
-    .ranking-points,
-    .saldo-points {
-        min-width: 66px;
-        text-align: left;
-    }
-
-    .view-student {
-        margin-left: auto;
-    }
-
-    .saldo-detail {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 3px;
-    }
-
-}
-
-@media (max-width: 480px) {
-
-    .leaderboard-title h2 {
-        font-size: 15px;
-    }
-
-    .leaderboard-title p {
-        font-size: 11px;
-    }
-
-    .header-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 16px;
-    }
-
-    .ranking-item {
-        column-gap: 8px;
-    }
-
-    .rank-number {
-        width: 26px;
-        height: 26px;
-        font-size: 11px;
-    }
-
-    .student-avatar {
-        width: 32px;
-        height: 32px;
-    }
-
-    .view-student {
-        width: 30px;
-        height: 30px;
-    }
-
-    .saldo-points strong {
-        font-size: 16px;
-    }
-
-    .empty-state {
-        min-height: 170px;
-    }
-
+    /* 16px mencegah iOS zoom otomatis saat input difokus */
+    .lb-input { font-size: 16px; }
 }
 
 @media (max-width: 400px) {
-
-    .page-heading h1 {
-        font-size: 19px;
-    }
-
-    .lb-pill {
-        font-size: 12px;
-        padding: 8px 8px;
-    }
-
-    .ranking-list {
-        padding: 6px 10px 10px;
-    }
-
-    .ranking-item {
-        column-gap: 7px;
-    }
-
-    .rank-number {
-        width: 24px;
-        height: 24px;
-    }
-
-    .student-avatar {
-        width: 30px;
-        height: 30px;
-    }
-
-    .view-student {
-        width: 28px;
-        height: 28px;
-    }
-
-    .formula-box {
-        margin: 4px 10px 14px;
-        text-align: left;
-    }
-
+    .lb-item { grid-template-columns: 30px 36px minmax(0, 1fr) 28px; gap: 10px 8px; }
+    .lb-rank { width: 30px; height: 30px; }
+    .lb-avatar { width: 36px; height: 36px; font-size: 14px; }
+    .lb-name strong { font-size: 14px; }
 }
 @endsection
 
 
+@section('scripts')
+
 <script>
+(function () {
+    'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
+    var $ = function (id) { return document.getElementById(id); };
 
-    const tabs = document.querySelectorAll('.leaderboard-tab');
-    const panels = document.querySelectorAll('.leaderboard-panel');
-    const searchInput = document.getElementById('leaderboardSearch');
-    const clearBtn = document.getElementById('clearSearchBtn');
-    const pillButtons = document.querySelectorAll('.lb-pill');
-    const selectKelas = document.getElementById('leaderboardSelectKelas');
+    var tabs     = Array.prototype.slice.call(document.querySelectorAll('.lb-tab'));
+    var panels   = Array.prototype.slice.call(document.querySelectorAll('.lb-panel'));
+    var search   = $('lbSearch');
+    var clearBtn = $('lbClear');
+    var select   = $('lbKelas');
+    var pills    = Array.prototype.slice.call(document.querySelectorAll('.lb-pill'));
+    var counter  = $('lbCount');
 
-    let activeGradeFilter = '';
-    let activeSpecificClass = '';
+    var GRADES = ['X', 'XI', 'XII'];
 
-    // Inisialisasi awal nilai dari tombol active
-    const defaultActivePill = document.querySelector('.lb-pill.active');
-    if (defaultActivePill) {
-        activeGradeFilter = defaultActivePill.dataset.kelas || '';
-    }
-    if (selectKelas && selectKelas.value) {
-        activeSpecificClass = selectKelas.value;
-    }
+    var state = {
+        tab: 'prestasi',
+        grade: '',   // '', 'X', 'XI', 'XII'
+        kelas: ''    // nama kelas lengkap dari dropdown
+    };
 
-    // Tab navigasi
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
-            const target = this.dataset.tab;
 
-            tabs.forEach(item => item.classList.remove('active'));
-            panels.forEach(panel => panel.classList.remove('active'));
+    /* =====================================================
+       UTIL
+    ===================================================== */
 
-            this.classList.add('active');
-
-            const panel = document.getElementById(`panel-${target}`);
-            if (panel) {
-                panel.classList.add('active');
-            }
-
-            applyFilters();
-        });
-    });
-
-    // Helper: Ekstraksi tingkatan kelas (XII, XI, X)
-    function extractGrade(kelasStr) {
-        if (!kelasStr) return '';
-        let k = kelasStr.trim().toLowerCase();
-        if (k.startsWith('kelas ')) {
-            k = k.substring(6).trim();
-        }
-        if (k.startsWith('xii') || k.startsWith('12')) return 'XII';
-        if (k.startsWith('xi') || k.startsWith('11')) return 'XI';
-        if (k.startsWith('x') || k.startsWith('10')) return 'X';
-        return '';
+    // "XII RPL 2" -> "XII", "X TKJ 1" -> "X", "XIIRPL" -> "XII"
+    function gradeOf(kelas) {
+        var m = String(kelas || '').trim().toUpperCase().match(/^(XII|XI|X)/);
+        return m ? m[1] : '';
     }
 
-    // Helper: Cek kecocokan kelas siswa dengan filter
-    function checkClassMatch(studentKelas, filterGrade, specificClass) {
-        if (!studentKelas) studentKelas = '';
-        const lowerK = studentKelas.trim().toLowerCase();
 
-        // 1. Jika rombel spesifik dipilih dari dropdown
-        if (specificClass) {
-            return lowerK === specificClass.trim().toLowerCase();
-        }
+    /* =====================================================
+       FILTER (cari + tingkat + kelas), berlaku di semua papan
+    ===================================================== */
 
-        // 2. Jika filter pil tingkatan kelas dipilih ('X', 'XI', 'XII')
-        if (filterGrade) {
-            const studentGrade = extractGrade(studentKelas);
-            return studentGrade === filterGrade;
-        }
+    var activeVisible = 0;
 
-        // 3. 'Semua Kelas'
-        return true;
-    }
+    function applyFilter() {
+        var q = (search.value || '').trim().toLowerCase();
+        var kelasSel = state.kelas.toLowerCase();
 
-    // Fungsi utama filter real-time
-    function applyFilters() {
-        const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        panels.forEach(function (panel) {
+            var items = panel.querySelectorAll('.lb-item');
+            var visible = 0;
 
-        // Tampilkan/sembunyikan tombol clear search
-        if (clearBtn) {
-            clearBtn.style.display = query ? 'flex' : 'none';
-        }
+            items.forEach(function (item) {
+                var nama  = item.dataset.nama  || '';
+                var nisn  = item.dataset.nisn  || '';
+                var kelas = item.dataset.kelas || '';
 
-        panels.forEach(panel => {
-            const items = panel.querySelectorAll('.ranking-item');
-            const rankingList = panel.querySelector('.ranking-list');
-            const emptyFilterState = panel.querySelector('.empty-filter-state');
+                var okQ = !q ||
+                    nama.indexOf(q)  !== -1 ||
+                    nisn.indexOf(q)  !== -1 ||
+                    kelas.indexOf(q) !== -1;
 
-            if (items.length === 0) {
-                return;
-            }
+                var okGrade = !state.grade || gradeOf(kelas) === state.grade;
+                var okKelas = !kelasSel || kelas.trim() === kelasSel;
 
-            let visibleCount = 0;
-
-            items.forEach(item => {
-                const nama = item.dataset.nama || '';
-                const nisn = item.dataset.nisn || '';
-                const kelas = item.dataset.kelas || '';
-
-                const matchesSearch = !query ||
-                    nama.includes(query) ||
-                    nisn.includes(query) ||
-                    kelas.includes(query);
-
-                const matchesClass = checkClassMatch(kelas, activeGradeFilter, activeSpecificClass);
-
-                if (matchesSearch && matchesClass) {
-                    item.style.display = 'flex';
-                    visibleCount++;
-
-                    // Update nomor peringkat dinamis sesuai hasil filter
-                    const rankEl = item.querySelector('.rank-number');
-                    if (rankEl) {
-                        rankEl.textContent = visibleCount;
-                        rankEl.classList.remove('rank-first', 'rank-second', 'rank-third');
-                        if (visibleCount === 1) rankEl.classList.add('rank-first');
-                        else if (visibleCount === 2) rankEl.classList.add('rank-second');
-                        else if (visibleCount === 3) rankEl.classList.add('rank-third');
-                    }
-                } else {
-                    item.style.display = 'none';
-                }
+                var show = okQ && okGrade && okKelas;
+                item.hidden = !show;
+                if (show) { visible++; }
             });
 
-            // Tampilkan empty state jika pencarian tidak menemukan hasil
-            if (emptyFilterState) {
-                if (visibleCount === 0) {
-                    emptyFilterState.style.display = 'flex';
-                    if (rankingList) rankingList.style.display = 'none';
-                } else {
-                    emptyFilterState.style.display = 'none';
-                    if (rankingList) rankingList.style.display = '';
-                }
+            var emptyFilter = panel.querySelector('.lb-empty-filter');
+            if (emptyFilter) {
+                emptyFilter.classList.toggle('is-hidden', !(items.length > 0 && visible === 0));
             }
+
+            if (panel.id === 'panel-' + state.tab) { activeVisible = visible; }
+        });
+
+        counter.textContent = activeVisible;
+        clearBtn.classList.toggle('is-hidden', !search.value);
+
+        syncUrl();
+    }
+
+    // Simpan filter di URL agar bisa dibagikan / dimuat ulang
+    function syncUrl() {
+        if (!window.history || !history.replaceState) { return; }
+
+        var params = new URLSearchParams(window.location.search);
+        var q = (search.value || '').trim();
+        var kelas = state.kelas || state.grade;
+
+        if (q) { params.set('search', q); } else { params.delete('search'); }
+        if (kelas) { params.set('kelas', kelas); } else { params.delete('kelas'); }
+
+        var qs = params.toString();
+        history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+    }
+
+
+    /* =====================================================
+       TINGKAT KELAS (pill) & KELAS (dropdown)
+    ===================================================== */
+
+    function paintPills() {
+        pills.forEach(function (p) {
+            p.classList.toggle('active', (p.dataset.grade || '') === state.grade);
         });
     }
 
-    // Event listener search input
-    if (searchInput) {
-        searchInput.addEventListener('input', applyFilters);
-    }
-
-    // Event listener clear search button
-    if (clearBtn) {
-        clearBtn.addEventListener('click', function () {
-            searchInput.value = '';
-            applyFilters();
-            searchInput.focus();
-        });
-    }
-
-    // Event listener pil kelas (Semua, X, XI, XII)
-    pillButtons.forEach(pill => {
+    pills.forEach(function (pill) {
         pill.addEventListener('click', function () {
-            pillButtons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            state.grade = pill.dataset.grade || '';
 
-            activeGradeFilter = this.dataset.kelas || '';
-            activeSpecificClass = '';
-
-            if (selectKelas) {
-                selectKelas.value = '';
+            // Kelas di dropdown yang tidak sesuai tingkat dilepas.
+            if (state.kelas && state.grade && gradeOf(state.kelas) !== state.grade) {
+                state.kelas = '';
+                if (select) { select.value = ''; }
             }
 
-            applyFilters();
+            paintPills();
+            applyFilter();
         });
     });
 
-    // Event listener select dropdown rombel spesifik
-    if (selectKelas) {
-        selectKelas.addEventListener('change', function () {
-            activeSpecificClass = this.value;
+    if (select) {
+        select.addEventListener('change', function () {
+            state.kelas = select.value;
 
-            if (activeSpecificClass) {
-                pillButtons.forEach(b => b.classList.remove('active'));
-                activeGradeFilter = '';
-            } else {
-                // Kembalikan ke pil pertama (Semua)
-                const firstPill = pillButtons[0];
-                if (firstPill) {
-                    firstPill.classList.add('active');
-                    activeGradeFilter = firstPill.dataset.kelas || '';
-                }
-            }
+            // Memilih kelas otomatis menyesuaikan tingkatnya.
+            state.grade = state.kelas ? gradeOf(state.kelas) : '';
 
-            applyFilters();
+            paintPills();
+            applyFilter();
         });
     }
 
-    // Jalankan filter saat halaman selesai dimuat
-    applyFilters();
 
-});
+    /* =====================================================
+       PENCARIAN
+    ===================================================== */
 
+    search.addEventListener('input', applyFilter);
+
+    search.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && search.value) {
+            search.value = '';
+            applyFilter();
+        }
+    });
+
+    clearBtn.addEventListener('click', function () {
+        search.value = '';
+        applyFilter();
+        search.focus();
+    });
+
+
+    /* =====================================================
+       TAB
+    ===================================================== */
+
+    function showTab(key, focus) {
+        var found = tabs.some(function (t) { return t.dataset.tab === key; });
+        if (!found) { key = 'prestasi'; }
+
+        state.tab = key;
+
+        tabs.forEach(function (t) {
+            var active = t.dataset.tab === key;
+            t.classList.toggle('active', active);
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+            t.tabIndex = active ? 0 : -1;
+            if (active && focus) { t.focus(); }
+        });
+
+        panels.forEach(function (p) {
+            var active = p.id === 'panel-' + key;
+            p.classList.toggle('active', active);
+            p.hidden = !active;
+        });
+
+        if (window.history && history.replaceState) {
+            history.replaceState(null, '', window.location.pathname + window.location.search + '#' + key);
+        }
+
+        applyFilter();
+    }
+
+    tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { showTab(tab.dataset.tab); });
+
+        // Panah kiri/kanan berpindah tab
+        tab.addEventListener('keydown', function (e) {
+            var next = null;
+
+            if (e.key === 'ArrowRight') { next = tabs[(i + 1) % tabs.length]; }
+            else if (e.key === 'ArrowLeft') { next = tabs[(i - 1 + tabs.length) % tabs.length]; }
+            else if (e.key === 'Home') { next = tabs[0]; }
+            else if (e.key === 'End') { next = tabs[tabs.length - 1]; }
+
+            if (next) {
+                e.preventDefault();
+                showTab(next.dataset.tab, true);
+            }
+        });
+    });
+
+
+    /* =====================================================
+       INISIALISASI
+       Dijalankan langsung jika DOM sudah siap, karena
+       layout bisa memuat script ini setelah DOMContentLoaded.
+    ===================================================== */
+
+    function init() {
+        // Filter awal dari URL (?kelas=XII atau ?kelas=XII RPL 2)
+        var awal = @json((string) request('kelas', ''));
+
+        if (awal) {
+            var up = awal.trim().toUpperCase();
+
+            if (GRADES.indexOf(up) !== -1) {
+                state.grade = up;
+            } else if (select) {
+                var cocok = Array.prototype.some.call(select.options, function (o) {
+                    return o.value.toLowerCase() === awal.trim().toLowerCase();
+                });
+
+                if (cocok) {
+                    select.value = Array.prototype.filter.call(select.options, function (o) {
+                        return o.value.toLowerCase() === awal.trim().toLowerCase();
+                    })[0].value;
+                    state.kelas = select.value;
+                    state.grade = gradeOf(state.kelas);
+                }
+            }
+        }
+
+        paintPills();
+
+        var hash = window.location.hash.replace('#', '');
+        showTab(hash || 'prestasi');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
 </script>
 
 @endsection

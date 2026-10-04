@@ -3,325 +3,649 @@
 @section('title', 'Tambah Prestasi - VERITAS')
 @section('page_title', 'Tambah Prestasi')
 
+@section('styles')
+@include('partials.ui')
+
+/* =========================================================
+   TAMBAH PRESTASI
+   Primitif bersama (.pv-card, .pv-field, .pv-label, .pv-input,
+   .pv-select, .pv-textarea, .pv-footer, .pv-btn-*, .upload-box,
+   .upload-icon, .pv-page-*) berasal dari partials/ui.blade.
+========================================================= */
+
+.pv-body,
+.pv-body *,
+.pv-body *::before,
+.pv-body *::after {
+    box-sizing: border-box;
+}
+
+.pv-body {
+    width: 100%;
+}
+
+.pv-body .is-hidden {
+    display: none !important;
+}
+
+.pv-inner {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* .pv-card di partial tidak punya padding */
+.pv-inner .pv-card {
+    padding: 24px 28px;
+}
+
+.pv-page-header,
+.pv-page-header > div {
+    min-width: 0;
+}
+
+.pv-page-header h1,
+.pv-page-header p {
+    overflow-wrap: anywhere;
+}
+
+.pv-req {
+    color: #dc2626;
+}
+
+.pv-hint {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: .75rem;
+    line-height: 1.5;
+}
+
+.pv-error {
+    margin-top: 8px;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+/* Dua kolom (tanggal + jenis, tingkat + poin) */
+.pv-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 18px;
+}
+
+
+/* ── Pencarian siswa ── */
+.pv-search-box {
+    position: relative;
+}
+
+.pv-search {
+    position: relative;
+    width: 100%;
+}
+
+.pv-search input {
+    padding-left: 42px;
+}
+
+.pv-search svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    stroke: #9ca3af;
+    pointer-events: none;
+}
+
+/* Daftar hasil tampil inline di dalam card (mendorong konten di bawahnya),
+   bukan popup melayang. */
+#hasilSiswa {
+    margin-top: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.pv-siswa-item {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    color: #111827;
+    font-family: inherit;
+    font-size: .875rem;
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+
+.pv-siswa-item:last-child {
+    border-bottom: none;
+}
+
+.pv-siswa-item:hover,
+.pv-siswa-item:focus-visible {
+    background: #f8fafc;
+    outline: none;
+}
+
+.pv-siswa-item strong {
+    display: block;
+}
+
+.pv-siswa-item small {
+    color: #6b7280;
+}
+
+.pv-siswa-status {
+    padding: 14px;
+    color: #9ca3af;
+    font-size: .8rem;
+    text-align: center;
+}
+
+.pv-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.pv-selected-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 50%;
+    background: #dbeafe;
+    font-weight: 700;
+}
+
+.pv-selected-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.pv-selected-text strong {
+    display: block;
+    font-size: .9rem;
+}
+
+.pv-selected-text small {
+    font-size: .75rem;
+    opacity: .85;
+}
+
+.pv-selected-change {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #fff;
+    color: #1d4ed8;
+    font-family: inherit;
+    font-size: .75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.pv-selected-change:hover {
+    background: #dbeafe;
+}
+
+
+/* ── Upload bukti ── */
+.pv-inner .pv-card.pv-card-search {
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+}
+
+.upload-box:hover,
+.upload-box:focus-within {
+    border-color: var(--primary);
+    background: #FFF8F6;
+}
+
+.upload-title {
+    margin-bottom: 8px;
+    color: #1F2937;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.upload-desc {
+    max-width: 450px;
+    margin-bottom: 22px;
+    color: #6B7280;
+    font-size: .9rem;
+    line-height: 1.7;
+}
+
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 26px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.upload-box:hover .upload-btn {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(109, 20, 8, .25);
+}
+
+.upload-error {
+    margin-top: 10px;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.upload-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    background: #fafafa;
+}
+
+#previewFoto {
+    display: block;
+    width: 140px;
+    height: 140px;
+    flex: 0 0 140px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .15);
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+}
+
+.file-info strong {
+    color: #111827;
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
+
+.file-info small {
+    color: #6B7280;
+}
+
+.upload-remove {
+    margin-top: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #b91c1c;
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.upload-remove:hover {
+    text-decoration: underline;
+}
+
+
+/* ── Footer ── */
+.pv-inner .pv-footer {
+    align-items: center;
+}
+
+.pv-bottom-footer {
+    padding: 48px 10px 15px;
+    color: #9CA3AF;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.pv-bottom-footer a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .pv-grid-2 { grid-template-columns: 1fr; }
+
+    .pv-inner .pv-card { padding: 18px; border-radius: 16px; }
+
+    .pv-inner .pv-footer { flex-direction: column-reverse; }
+
+    .pv-inner .pv-btn-primary,
+    .pv-inner .pv-btn-secondary {
+        width: 100%;
+        min-height: 46px;
+    }
+
+    .upload-box { padding: 28px 18px; }
+    .upload-title { font-size: 18px; }
+    .upload-desc { font-size: .85rem; }
+}
+
+@media (max-width: 576px) {
+    .pv-page-header { margin-bottom: 1rem; gap: 10px; }
+
+    .pv-page-icon { width: 40px; height: 40px; flex-basis: 40px; }
+    .pv-page-icon svg { width: 20px; height: 20px; }
+    .pv-page-title { font-size: 1.1rem; }
+    .pv-page-sub { font-size: .72rem; }
+
+    /* 16px mencegah iOS zoom otomatis saat input difokus */
+    .pv-input,
+    .pv-select,
+    .pv-textarea { font-size: 16px; }
+
+    .pv-search svg { left: 12px; width: 16px; height: 16px; }
+    .pv-search input { padding-left: 38px; }
+
+    .upload-icon { width: 62px; height: 62px; font-size: 26px; }
+    .upload-box { padding: 22px 14px; }
+    .upload-btn { width: 100%; justify-content: center; }
+
+    .upload-result { flex-direction: column; align-items: center; text-align: center; }
+    .file-info { align-items: center; }
+    #previewFoto { width: 100%; max-width: 260px; height: auto; max-height: 220px; flex-basis: auto; }
+
+    .pv-selected { flex-wrap: wrap; }
+    .pv-selected-change { width: 100%; }
+
+    .pv-bottom-footer { padding-top: 36px; font-size: 12px; }
+}
+
+@media (max-width: 400px) {
+    .pv-inner .pv-card { padding: 14px 12px; }
+    .pv-page-title { font-size: 1rem; }
+    .pv-page-sub { font-size: .68rem; }
+    .upload-title { font-size: 16px; }
+}
+@endsection
+
+
 @section('content')
 
-<div class="page-heading">
-    <div>
-        <h1>Tambah Prestasi</h1>
-        <p>Catat prestasi siswa dan tambahkan poin penghargaan.</p>
-    </div>
+@php
+    // Pulihkan siswa yang dipilih jika validasi gagal. Sebelumnya dicari lewat
+    // /search-siswa?q=<id>, padahal pencarian memakai nama/NISN sehingga
+    // siswa tidak pernah ketemu.
+    $oldSiswa = null;
 
-    <a href="{{ route('prestasi.index') }}" class="btn btn-secondary">
-        <i class="fa-solid fa-arrow-left"></i>
-        Kembali
-    </a>
-</div>
+    if (old('siswa_id') && class_exists(\App\Models\Siswa::class)) {
+        $found = \App\Models\Siswa::find(old('siswa_id'));
 
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <i class="fa-solid fa-circle-exclamation"></i>
+        if ($found) {
+            $oldSiswa = [
+                'id'    => $found->id,
+                'nama'  => $found->nama,
+                'nisn'  => $found->nisn,
+                'kelas' => $found->kelas ?? '',
+            ];
+        }
+    }
+
+    $tingkatList = ['Sekolah', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Nasional', 'Internasional'];
+@endphp
+
+<div class="pv-body">
+
+<div class="pv-inner">
+
+    {{-- HEADER --}}
+    <div class="pv-page-header">
+
+        <div class="pv-page-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+            </svg>
+        </div>
 
         <div>
-            <strong>Terjadi kesalahan.</strong>
-
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-@endif
-
-<div class="form-card">
-
-    <div class="form-card-header">
-        <div class="header-icon">
-            <i class="fa-solid fa-trophy"></i>
+            <h1 class="pv-page-title">Tambah Prestasi</h1>
+            <p class="pv-page-sub">Catat prestasi siswa dan tambahkan poin penghargaan</p>
         </div>
 
-        <div>
-            <h2>Data Prestasi</h2>
-            <p>Lengkapi informasi prestasi siswa di bawah ini.</p>
-        </div>
     </div>
 
-    <form action="{{ route('prestasi.store') }}"
-          method="POST"
-          enctype="multipart/form-data">
+    {{-- Catatan: ringkasan $errors sudah otomatis ditampilkan oleh
+         layouts/app.blade.php, jadi tidak diulang di sini. --}}
+
+
+    <form
+        action="{{ route('prestasi.store') }}"
+        method="POST"
+        enctype="multipart/form-data"
+        id="prestasiForm">
 
         @csrf
 
-        {{-- =========================
+
+        {{-- =====================================================
              DATA SISWA
-        ========================== --}}
+        ====================================================== --}}
+        <div class="pv-card pv-card-search">
 
-        <div class="form-section">
-            <div class="section-title">
-                <i class="fa-solid fa-user-graduate"></i>
-                Data Siswa
-            </div>
+            <div class="pv-section-label">Data Siswa <span class="pv-req">*</span></div>
 
-            <div class="form-group">
-                <label for="search_siswa">
-                    Cari Siswa
-                    <span>*</span>
-                </label>
+            <input type="hidden" name="siswa_id" id="siswa_id" value="{{ old('siswa_id') }}">
 
-                <div class="search-wrapper">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <div class="pv-search-box" id="searchBox">
+
+                <div class="pv-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
 
                     <input
                         type="text"
-                        id="search_siswa"
-                        class="form-control"
+                        id="searchSiswa"
+                        class="pv-input"
                         placeholder="Cari berdasarkan nama atau NISN..."
                         autocomplete="off"
-                    >
+                        aria-controls="hasilSiswa">
                 </div>
 
-                <div id="search-results" class="search-results"></div>
+                <div id="hasilSiswa" class="is-hidden" role="listbox"></div>
 
-                <input type="hidden"
-                       name="siswa_id"
-                       id="siswa_id"
-                       value="{{ old('siswa_id') }}">
+                <span class="pv-hint">Ketik minimal 2 huruf, lalu pilih siswa dari hasil pencarian.</span>
 
-                <div id="selected-student" class="selected-student" style="display:none;">
-                    <div class="student-icon">
-                        <i class="fa-solid fa-user"></i>
-                    </div>
-
-                    <div class="student-info">
-                        <strong id="selected-name"></strong>
-                        <span id="selected-nisn"></span>
-                    </div>
-
-                    <button type="button"
-                            id="remove-student"
-                            class="remove-student"
-                            title="Hapus siswa">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <small class="form-help">
-                    <i class="fa-solid fa-circle-info"></i>
-                    Pilih siswa dari hasil pencarian.
-                </small>
             </div>
+
+            <div id="selectedSiswa" class="pv-selected is-hidden">
+                <div class="pv-selected-avatar" id="selectedAvatar"></div>
+                <div class="pv-selected-text">
+                    <strong id="selectedNama"></strong>
+                    <small id="selectedMeta"></small>
+                </div>
+                <button type="button" class="pv-selected-change" id="gantiSiswa">Ganti</button>
+            </div>
+
+            <div class="pv-error is-hidden" id="siswaError" role="alert">
+                Pilih siswa terlebih dahulu.
+            </div>
+
         </div>
 
 
-        {{-- =========================
-             DATA PRESTASI
-        ========================== --}}
+        {{-- =====================================================
+             INFORMASI PRESTASI
+        ====================================================== --}}
+        <div class="pv-card">
 
-        <div class="form-section">
+            <div class="pv-section-label">Informasi Prestasi</div>
 
-            <div class="section-title">
-                <i class="fa-solid fa-medal"></i>
-                Informasi Prestasi
-            </div>
+            <div class="pv-grid-2">
 
-            <div class="form-grid">
-
-                <div class="form-group">
-                    <label for="tanggal">
-                        Tanggal
-                        <span>*</span>
+                <div class="pv-field">
+                    <label class="pv-label" for="tanggal">
+                        Tanggal <span class="pv-req">*</span>
                     </label>
-
-                    <div class="input-icon">
-                        <i class="fa-regular fa-calendar"></i>
-
-                        <input
-                            type="date"
-                            name="tanggal"
-                            id="tanggal"
-                            class="form-control"
-                            value="{{ old('tanggal', date('Y-m-d')) }}"
-                            required
-                        >
-                    </div>
+                    <input
+                        type="date"
+                        name="tanggal"
+                        id="tanggal"
+                        class="pv-input"
+                        value="{{ old('tanggal', date('Y-m-d')) }}"
+                        required>
                 </div>
 
-
-                <div class="form-group">
-                    <label for="jenis_prestasi">
-                        Jenis Prestasi
-                        <span>*</span>
+                <div class="pv-field">
+                    <label class="pv-label" for="jenis_prestasi">
+                        Jenis Prestasi <span class="pv-req">*</span>
                     </label>
-
-                    <div class="input-icon">
-                        <i class="fa-solid fa-trophy"></i>
-
-                        <input
-                            type="text"
-                            name="jenis_prestasi"
-                            id="jenis_prestasi"
-                            class="form-control"
-                            value="{{ old('jenis_prestasi') }}"
-                            placeholder="Contoh: Juara 1 Lomba Coding"
-                            required
-                        >
-                    </div>
+                    <input
+                        type="text"
+                        name="jenis_prestasi"
+                        id="jenis_prestasi"
+                        class="pv-input"
+                        value="{{ old('jenis_prestasi') }}"
+                        placeholder="Contoh: Juara 1 Lomba Coding"
+                        required>
                 </div>
 
-
-                <div class="form-group">
-                    <label for="tingkat">
-                        Tingkat Prestasi
-                    </label>
-
-                    <div class="input-icon">
-                        <i class="fa-solid fa-ranking-star"></i>
-
-                        <select
-                            name="tingkat"
-                            id="tingkat"
-                            class="form-control"
-                        >
-                            <option value="">-- Pilih Tingkat --</option>
-                            <option value="Sekolah" {{ old('tingkat') == 'Sekolah' ? 'selected' : '' }}>
-                                Sekolah
-                            </option>
-                            <option value="Kecamatan" {{ old('tingkat') == 'Kecamatan' ? 'selected' : '' }}>
-                                Kecamatan
-                            </option>
-                            <option value="Kabupaten/Kota" {{ old('tingkat') == 'Kabupaten/Kota' ? 'selected' : '' }}>
-                                Kabupaten/Kota
-                            </option>
-                            <option value="Provinsi" {{ old('tingkat') == 'Provinsi' ? 'selected' : '' }}>
-                                Provinsi
-                            </option>
-                            <option value="Nasional" {{ old('tingkat') == 'Nasional' ? 'selected' : '' }}>
-                                Nasional
-                            </option>
-                            <option value="Internasional" {{ old('tingkat') == 'Internasional' ? 'selected' : '' }}>
-                                Internasional
-                            </option>
-                        </select>
-                    </div>
+                <div class="pv-field">
+                    <label class="pv-label" for="tingkat">Tingkat Prestasi</label>
+                    <select name="tingkat" id="tingkat" class="pv-select">
+                        <option value="">-- Pilih Tingkat --</option>
+                        @foreach($tingkatList as $tingkat)
+                            <option value="{{ $tingkat }}" {{ old('tingkat') === $tingkat ? 'selected' : '' }}>{{ $tingkat }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
-
-                <div class="form-group">
-                    <label for="poin">
-                        Poin Prestasi
-                        <span>*</span>
+                <div class="pv-field">
+                    <label class="pv-label" for="poin">
+                        Poin Prestasi <span class="pv-req">*</span>
                     </label>
-
-                    <div class="input-icon">
-                        <i class="fa-solid fa-star"></i>
-
-                        <input
-                            type="number"
-                            name="poin"
-                            id="poin"
-                            class="form-control"
-                            value="{{ old('poin', 0) }}"
-                            min="0"
-                            placeholder="Contoh: 10"
-                            required
-                        >
-                    </div>
-
-                    <small class="form-help">
-                        <i class="fa-solid fa-circle-info"></i>
-                        Poin akan otomatis menambah saldo poin siswa.
-                    </small>
+                    <input
+                        type="number"
+                        name="poin"
+                        id="poin"
+                        class="pv-input"
+                        value="{{ old('poin', 0) }}"
+                        min="0"
+                        inputmode="numeric"
+                        placeholder="Contoh: 10"
+                        required>
+                    <span class="pv-hint">Poin akan otomatis menambah saldo poin siswa.</span>
                 </div>
 
             </div>
+
         </div>
 
 
-        {{-- =========================
+        {{-- =====================================================
              KETERANGAN & BUKTI
-        ========================== --}}
+        ====================================================== --}}
+        <div class="pv-card">
 
-        <div class="form-section">
+            <div class="pv-section-label">Keterangan &amp; Bukti</div>
 
-            <div class="section-title">
-                <i class="fa-solid fa-file-lines"></i>
-                Keterangan & Bukti
-            </div>
-
-            <div class="form-group">
-
-                <label for="keterangan">
-                    Keterangan
-                </label>
-
+            <div class="pv-field">
+                <label class="pv-label" for="keterangan">Keterangan</label>
                 <textarea
                     name="keterangan"
                     id="keterangan"
-                    class="form-control textarea"
+                    class="pv-textarea"
                     rows="4"
-                    placeholder="Tambahkan keterangan mengenai prestasi siswa..."
-                >{{ old('keterangan') }}</textarea>
-
+                    placeholder="Tambahkan keterangan mengenai prestasi siswa...">{{ old('keterangan') }}</textarea>
             </div>
 
+            <div class="pv-field">
 
-            <div class="form-group">
+                <label class="pv-label" for="bukti">Bukti Prestasi</label>
 
-                <label for="bukti">
-                    Bukti Prestasi
-                </label>
-
-                <div class="upload-box">
+                <label class="upload-box" for="bukti">
 
                     <input
                         type="file"
-                        name="bukti"
                         id="bukti"
-                        accept="image/*"
-                    >
+                        name="bukti"
+                        accept="image/jpeg,image/png"
+                        hidden>
 
-                    <div class="upload-content">
-                        <div class="upload-icon">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                        </div>
-
-                        <strong>Pilih foto bukti prestasi</strong>
-
-                        <span>
-                            JPG, JPEG, PNG maksimal 2 MB
-                        </span>
+                    <div class="upload-icon">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
                     </div>
 
-                </div>
+                    <div class="upload-title">Upload Bukti Prestasi</div>
 
-                <div id="file-name" class="file-name"></div>
+                    <div class="upload-desc">
+                        Pilih foto sertifikat, piala, atau dokumentasi lomba.
+                        <br>
+                        Format JPG atau PNG. Maksimal 2 MB.
+                    </div>
+
+                    <span class="upload-btn">
+                        <i class="fa-solid fa-image"></i>
+                        Pilih Foto
+                    </span>
+
+                </label>
+
+                <div class="upload-error is-hidden" id="uploadError" role="alert"></div>
+
+                <div class="upload-result is-hidden" id="uploadResult">
+                    <img id="previewFoto" alt="Preview bukti">
+                    <div class="file-info">
+                        <strong id="fileName"></strong>
+                        <small id="fileSize"></small>
+                        <button type="button" class="upload-remove" id="hapusFoto">
+                            <i class="fa-solid fa-trash"></i> Hapus foto
+                        </button>
+                    </div>
+                </div>
 
             </div>
 
         </div>
 
 
-        {{-- =========================
-             ACTION
-        ========================== --}}
+        {{-- TOMBOL --}}
+        <div class="pv-footer">
 
-        <div class="form-footer">
+            <a href="{{ route('prestasi.index') }}" class="pv-btn-secondary">Batal</a>
 
-            <a href="{{ route('prestasi.index') }}"
-               class="btn btn-secondary">
-
-                <i class="fa-solid fa-xmark"></i>
-                Batal
-
-            </a>
-
-            <button type="submit"
-                    class="btn btn-primary">
-
-                <i class="fa-solid fa-floppy-disk"></i>
-                Simpan Prestasi
-
-            </button>
+            <button type="submit" class="pv-btn-primary" id="btnSimpan">Simpan Prestasi</button>
 
         </div>
 
@@ -329,807 +653,283 @@
 
 </div>
 
+</div>
 
-@section('styles')
-@include('partials.ui')
 
-    /* ========================================
-       PAGE HEADING
-    ======================================== */
+{{-- FOOTER --}}
+<footer class="pv-bottom-footer">
+    © {{ date('Y') }} VERITAS — Sistem Monitoring Pelanggaran Siswa.
+    <br>
+    Developed by
+    <a href="https://kicauorgspark.my.id" target="_blank" rel="noopener">KicawOrgspark</a>
+</footer>
 
-    .page-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 24px;
-    }    /* ========================================
-       FORM CARD
-    ======================================== */    .form-card-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 22px 24px;
-        border-bottom: 1px solid #E5E7EB;
-        background: #FFFCFA;
-    }
-
-.form-card-header h2 {
-        margin: 0 0 4px;
-        color: #1F2937;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .form-card-header p {
-        margin: 0;
-        color: #6B7280;
-        font-size: 13px;
-    }
-
-
-    /* ========================================
-       FORM SECTION
-    ======================================== */
-
-    .form-section {
-        padding: 26px 24px;
-        border-bottom: 1px solid #E5E7EB;
-    }
-
-    .section-title {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        color: #1F2937;
-        font-size: 15px;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-
-    .section-title i {
-        color: var(--primary);
-        width: 20px;
-        text-align: center;
-    }
-
-
-    /* ========================================
-       FORM
-    ======================================== */
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 20px;
-    }
-
-    .form-grid > *,
-    .form-group > *,
-    .input-icon,
-    .search-wrapper,.form-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .form-grid .form-group {
-        margin-bottom: 0;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        color: #374151;
-    }
-
-    .form-group label span {
-        color: #B42318;
-    }
-
-.form-control:focus {
-        border-color: var(--primary);
-        box-shadow: var(--focus-ring);
-    }    select.form-control {
-        cursor: pointer;
-    }
-
-    .input-icon {
-        position: relative;
-    }
-
-    .input-icon > i {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9CA3AF;
-        font-size: 14px;
-        pointer-events: none;
-    }
-
-    .input-icon .form-control {
-        padding-left: 38px;
-    }
-
-
-    /* ========================================
-       SEARCH SISWA
-    ======================================== */
-
-    .search-wrapper {
-        position: relative;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9CA3AF;
-        font-size: 14px;
-        z-index: 2;
-    }
-
-    .search-wrapper .form-control {
-        padding-left: 39px;
-    }
-
-    .search-results {
-        position: relative;
-        z-index: 20;
-    }
-
-    .search-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 14px;
-        border: 1px solid #E5E7EB;
-        border-top: none;
-        background: #fff;
-        cursor: pointer;
-        transition: .15s;
-    }
-
-    .search-item:first-child {
-        border-top: 1px solid #E5E7EB;
-        border-radius: 9px 9px 0 0;
-        margin-top: 5px;
-    }
-
-    .search-item:last-child {
-        border-radius: 0 0 9px 9px;
-    }
-
-    .search-item:hover {
-        background: #FFF7F5;
-    }
-
-    .search-item-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 9px;
-        background: #F9E9E6;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .search-item-info {
-        min-width: 0;
-    }
-
-    .search-item-info strong {
-        display: block;
-        font-size: 14px;
-        color: #1F2937;
-        margin-bottom: 3px;
-    }
-
-    .search-item-info span {
-        display: block;
-        color: #6B7280;
-        font-size: 12px;
-    }
-
-    .search-empty {
-        padding: 14px;
-        margin-top: 5px;
-        border: 1px solid #E5E7EB;
-        border-radius: 9px;
-        background: #fff;
-        color: #6B7280;
-        text-align: center;
-        font-size: 13px;
-    }
-
-
-    /* ========================================
-       SELECTED STUDENT
-    ======================================== */
-
-    .selected-student {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 10px;
-        padding: 12px;
-        border: 1px solid #D8E8DC;
-        border-radius: 10px;
-        background: #F5FBF6;
-    }
-
-    .student-icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 9px;
-        background: #E1F0E4;
-        color: #287A3D;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-.remove-student {
-        width: 34px;
-        height: 34px;
-        border: none;
-        border-radius: 8px;
-        background: #FEECEC;
-        color: #B42318;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: .2s;
-    }
-
-    .remove-student:hover {
-        background: #FCDADA;
-    }
-
-
-    /* ========================================
-       HELP TEXT
-    ======================================== */
-
-    .form-help {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 7px;
-        color: #6B7280;
-        font-size: 11px;
-        flex-wrap: wrap;
-        overflow-wrap: anywhere;
-    }
-
-    .form-help i {
-        color: #9CA3AF;
-    }
-
-
-    /* ========================================
-       UPLOAD
-    ======================================== */    .upload-box:hover {
-        border-color: var(--primary);
-        background: #FFFCFA;
-    }
-
-    .upload-box input[type="file"] {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 2;
-    }
-
-    .upload-content {
-        min-height: 145px;
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        gap: 7px;
-    }
-
-.upload-content strong {
-        font-size: 13px;
-        color: #374151;
-    }
-
-    .upload-content span {
-        color: #9CA3AF;
-        font-size: 11px;
-    }
-
-    .file-name {
-        display: none;
-        margin-top: 8px;
-        padding: 9px 12px;
-        border-radius: 8px;
-        background: #F3F4F6;
-        color: #4B5563;
-        font-size: 12px;
-        max-width: 100%;
-        overflow-wrap: anywhere;
-    }
-
-
-    /* ========================================
-       BUTTON
-    ======================================== */    .btn-primary:hover {
-        background: var(--primary-dark);
-    }
-
-.btn-secondary:hover {
-        background: #E5E7EB;
-    }
-
-
-    /* ========================================
-       FORM FOOTER
-    ======================================== */    /* ========================================
-       ALERT
-    ======================================== */    .alert ul {
-        margin: 5px 0 0 17px;
-        padding: 0;
-    }
-
-    .alert li {
-        margin-bottom: 2px;
-    }
-
-
-    /* ========================================
-       RESPONSIVE
-    ======================================== */
-
-    @media (max-width: 768px) {
-
-        .page-heading {
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .page-heading > div {
-            flex: 1 1 240px;
-            min-width: 0;
-        }
-
-        .page-heading h1 {
-            font-size: 22px;
-        }
-
-        .page-heading p {
-            font-size: 13px;
-        }
-
-        .page-heading .btn {
-            flex-shrink: 0;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-            gap: 0;
-        }
-
-        .form-grid .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-grid .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .form-section {
-            padding: 22px 18px;
-        }
-
-        .form-card-header {
-            padding: 18px;
-        }
-
-        .form-footer {
-            padding: 16px 18px;
-            flex-direction: column-reverse;
-            flex-wrap: wrap;
-        }
-
-        .form-footer .btn {
-            width: 100%;
-        }
-
-        .search-item,
-        .selected-student {
-            flex-wrap: wrap;
-        }
-
-        .search-item-info,
-        .student-info {
-            flex: 1 1 140px;
-        }
-
-        .btn {
-            height: auto;
-            min-height: 42px;
-            padding: 10px 16px;
-        }
-
-    }
-
-
-    @media (max-width: 640px) {
-
-        .form-section {
-            padding: 20px 16px;
-        }
-
-        .form-card-header {
-            padding: 16px;
-        }
-
-        .alert {
-            flex-wrap: wrap;
-        }
-
-        .alert ul {
-            margin-left: 12px;
-        }
-
-    }
-
-
-    @media (max-width: 576px) {
-
-        .form-control,
-        input.form-control,
-        select.form-control,
-        textarea.form-control,
-        .textarea {
-            width: 100%;
-            max-width: 100%;
-            min-width: 0;
-            font-size: 16px;
-        }
-
-        .form-control {
-            height: 46px;
-        }
-
-        .upload-box input[type="file"] {
-            max-width: 100%;
-        }
-
-        .upload-content {
-            padding: 20px 16px;
-        }
-
-    }
-
-
-    @media (max-width: 480px) {
-
-        .page-heading {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 12px;
-        }
-
-        .page-heading > div {
-            flex: 0 0 auto;
-            width: 100%;
-        }
-
-        .page-heading .btn {
-            width: 100%;
-        }
-
-        .form-card-header {
-            align-items: flex-start;
-        }
-
-        .header-icon {
-            width: 40px;
-            height: 40px;
-            font-size: 17px;
-        }
-
-        .form-card-header h2 {
-            font-size: 16px;
-        }
-
-        .section-title {
-            font-size: 14px;
-        }
-
-        .upload-content {
-            min-height: 130px;
-        }
-
-        .form-footer {
-            flex-direction: column-reverse;
-        }
-
-        .form-footer .btn {
-            width: 100%;
-            min-height: 46px;
-        }
-
-        .page-heading .btn {
-            min-height: 44px;
-        }
-
-    }
-
-
-    @media (max-width: 400px) {
-
-        .form-section {
-            padding: 18px 12px;
-        }
-
-        .form-card-header {
-            padding: 14px 12px;
-        }
-
-        .form-footer {
-            padding: 14px 12px;
-        }
-
-        .page-heading h1 {
-            font-size: 20px;
-        }
-
-        .header-icon {
-            width: 36px;
-            height: 36px;
-            font-size: 15px;
-        }
-
-        .selected-student,
-        .search-item {
-            padding: 10px;
-            gap: 10px;
-        }
-
-        .remove-student {
-            width: 32px;
-            height: 32px;
-        }
-
-        .upload-content {
-            min-height: 115px;
-            padding: 16px 12px;
-        }
-
-        .upload-content span {
-            font-size: 10px;
-        }
-
-    }
 @endsection
 
 
+@section('scripts')
 <script>
+(function () {
+    'use strict';
 
-document.addEventListener('DOMContentLoaded', function () {
+    var $ = function (id) { return document.getElementById(id); };
 
-    const searchInput = document.getElementById('search_siswa');
-    const searchResults = document.getElementById('search-results');
-
-    const siswaId = document.getElementById('siswa_id');
-
-    const selectedStudent = document.getElementById('selected-student');
-    const selectedName = document.getElementById('selected-name');
-    const selectedNisn = document.getElementById('selected-nisn');
-
-    const removeStudent = document.getElementById('remove-student');
-
-    let searchTimeout;
+    var form = $('prestasiForm');
 
 
-    /* ========================================
-       SEARCH SISWA
-    ======================================== */
+    /* =====================================================
+       CARI SISWA
+       Hasil dirender lewat textContent (bukan innerHTML) agar
+       nama siswa yang berisi tanda kutip / tag HTML aman.
+    ===================================================== */
 
-    searchInput.addEventListener('input', function () {
+    var SEARCH_URL = @json(url('/search-siswa'));
+    var OLD_SISWA  = @json($oldSiswa);
 
-        const keyword = this.value.trim();
+    var searchInput = $('searchSiswa');
+    var results     = $('hasilSiswa');
+    var searchBox   = $('searchBox');
+    var siswaId     = $('siswa_id');
+    var selected    = $('selectedSiswa');
+    var siswaError  = $('siswaError');
 
-        clearTimeout(searchTimeout);
+    var timer = null;
+    var lastRequest = 0;
 
-        if (keyword.length < 2) {
-            searchResults.innerHTML = '';
+    function hideResults() {
+        results.classList.add('is-hidden');
+        results.innerHTML = '';
+    }
+
+    function showStatus(text) {
+        results.innerHTML = '';
+        var div = document.createElement('div');
+        div.className = 'pv-siswa-status';
+        div.textContent = text;
+        results.appendChild(div);
+        results.classList.remove('is-hidden');
+    }
+
+    function metaText(item, withLabel) {
+        var nisn  = item.nisn || '-';
+        var kelas = item.kelas || '';
+
+        if (withLabel) {
+            return 'NISN: ' + nisn + (kelas ? ' • Kelas: ' + kelas : '');
+        }
+
+        return nisn + (kelas ? ' • ' + kelas : '');
+    }
+
+    function renderResults(list) {
+        results.innerHTML = '';
+
+        if (!list.length) {
+            showStatus('Siswa tidak ditemukan.');
             return;
         }
 
-        searchTimeout = setTimeout(() => {
+        list.forEach(function (item) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pv-siswa-item';
+            btn.setAttribute('role', 'option');
 
-            fetch(`/search-siswa?q=${encodeURIComponent(keyword)}`)
-                .then(response => response.json())
-                .then(data => {
+            var name = document.createElement('strong');
+            name.textContent = item.nama;
 
-                    searchResults.innerHTML = '';
+            var meta = document.createElement('small');
+            meta.textContent = metaText(item, false);
 
-                    if (!data.length) {
+            btn.appendChild(name);
+            btn.appendChild(meta);
 
-                        searchResults.innerHTML = `
-                            <div class="search-empty">
-                                <i class="fa-solid fa-user-slash"></i>
-                                Siswa tidak ditemukan.
-                            </div>
-                        `;
+            btn.addEventListener('click', function () { pickSiswa(item); });
 
-                        return;
-                    }
+            results.appendChild(btn);
+        });
 
-
-                    data.forEach(siswa => {
-
-                        const item = document.createElement('div');
-
-                        item.className = 'search-item';
-
-                        item.innerHTML = `
-                            <div class="search-item-icon">
-                                <i class="fa-solid fa-user-graduate"></i>
-                            </div>
-
-                            <div class="search-item-info">
-                                <strong>${escapeHtml(siswa.nama)}</strong>
-                                <span>NISN: ${escapeHtml(siswa.nisn ?? '-')}</span>
-                            </div>
-                        `;
-
-
-                        item.addEventListener('click', function () {
-
-                            pilihSiswa(siswa);
-
-                        });
-
-
-                        searchResults.appendChild(item);
-
-                    });
-
-                })
-                .catch(error => {
-
-                    console.error(error);
-
-                    searchResults.innerHTML = `
-                        <div class="search-empty">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            Gagal mengambil data siswa.
-                        </div>
-                    `;
-
-                });
-
-        }, 300);
-
-    });
-
-
-    /* ========================================
-       PILIH SISWA
-    ======================================== */
-
-    function pilihSiswa(siswa) {
-
-        siswaId.value = siswa.id;
-
-        searchInput.value = '';
-
-        searchResults.innerHTML = '';
-
-        selectedName.textContent = siswa.nama;
-
-        selectedNisn.textContent = `NISN: ${siswa.nisn ?? '-'}`;
-
-        selectedStudent.style.display = 'flex';
-
+        results.classList.remove('is-hidden');
     }
 
+    function pickSiswa(item) {
+        siswaId.value = item.id;
 
-    /* ========================================
-       HAPUS SISWA
-    ======================================== */
+        $('selectedAvatar').textContent = (item.nama || '?').charAt(0).toUpperCase();
+        $('selectedNama').textContent = item.nama;
+        $('selectedMeta').textContent = metaText(item, true);
 
-    removeStudent.addEventListener('click', function () {
+        selected.classList.remove('is-hidden');
+        searchBox.classList.add('is-hidden');
+        siswaError.classList.add('is-hidden');
+        hideResults();
+    }
 
+    function clearSiswa() {
         siswaId.value = '';
-
-        selectedName.textContent = '';
-
-        selectedNisn.textContent = '';
-
-        selectedStudent.style.display = 'none';
-
+        searchInput.value = '';
+        selected.classList.add('is-hidden');
+        searchBox.classList.remove('is-hidden');
         searchInput.focus();
+    }
 
-    });
+    $('gantiSiswa').addEventListener('click', clearSiswa);
 
+    searchInput.addEventListener('input', function () {
+        clearTimeout(timer);
 
-    /* ========================================
-       FILE NAME
-    ======================================== */
+        var q = searchInput.value.trim();
 
-    const fileInput = document.getElementById('bukti');
-    const fileName = document.getElementById('file-name');
-
-    fileInput.addEventListener('change', function () {
-
-        if (this.files.length > 0) {
-
-            fileName.style.display = 'block';
-
-            fileName.innerHTML = `
-                <i class="fa-solid fa-paperclip"></i>
-                ${escapeHtml(this.files[0].name)}
-            `;
-
-        } else {
-
-            fileName.style.display = 'none';
-
-            fileName.innerHTML = '';
-
+        if (q.length < 2) {
+            lastRequest++; // batalkan respons yang masih berjalan
+            hideResults();
+            return;
         }
 
+        timer = setTimeout(function () {
+            var current = ++lastRequest;
+            showStatus('Mencari...');
+
+            fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(function (res) {
+                if (!res.ok) { throw new Error('HTTP ' + res.status); }
+                return res.json();
+            })
+            .then(function (data) {
+                // Abaikan respons lama yang datang terlambat.
+                if (current !== lastRequest) { return; }
+                renderResults(Array.isArray(data) ? data : []);
+            })
+            .catch(function () {
+                if (current !== lastRequest) { return; }
+                showStatus('Gagal memuat data siswa. Coba lagi.');
+            });
+        }, 300);
+    });
+
+    // Navigasi keyboard: panah bawah/atas pindah antar hasil, Esc menutup.
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') {
+            var first = results.querySelector('.pv-siswa-item');
+            if (first) { e.preventDefault(); first.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+        }
+    });
+
+    results.addEventListener('keydown', function (e) {
+        var items = Array.prototype.slice.call(results.querySelectorAll('.pv-siswa-item'));
+        var i = items.indexOf(document.activeElement);
+
+        if (e.key === 'ArrowDown' && i < items.length - 1) {
+            e.preventDefault();
+            items[i + 1].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (i > 0) { items[i - 1].focus(); } else { searchInput.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+            searchInput.focus();
+        }
+    });
+
+    // Klik di luar area pencarian menutup daftar hasil.
+    document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) { hideResults(); }
+    });
+
+    // Pulihkan siswa terpilih setelah validasi server gagal.
+    if (OLD_SISWA) { pickSiswa(OLD_SISWA); }
+
+
+    /* =====================================================
+       FOTO BUKTI
+    ===================================================== */
+
+    var MAX_SIZE  = 2 * 1024 * 1024; // 2 MB
+    var TIPE_OK   = ['image/jpeg', 'image/png'];
+    var fotoInput = $('bukti');
+    var preview   = $('previewFoto');
+    var result    = $('uploadResult');
+    var errorBox  = $('uploadError');
+    var objectUrl = null;
+
+    function resetFoto() {
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        fotoInput.value = '';
+        preview.removeAttribute('src');
+        result.classList.add('is-hidden');
+    }
+
+    function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.toggle('is-hidden', !msg);
+    }
+
+    fotoInput.addEventListener('change', function () {
+        showError('');
+
+        var file = fotoInput.files && fotoInput.files[0];
+        if (!file) { resetFoto(); return; }
+
+        if (TIPE_OK.indexOf(file.type) === -1) {
+            resetFoto();
+            showError('File harus berupa gambar JPG atau PNG.');
+            return;
+        }
+
+        if (file.size > MAX_SIZE) {
+            resetFoto();
+            showError('Ukuran foto melebihi 2 MB. Pilih foto yang lebih kecil.');
+            return;
+        }
+
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); }
+        objectUrl = URL.createObjectURL(file);
+
+        preview.src = objectUrl;
+        $('fileName').textContent = file.name;
+        $('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        result.classList.remove('is-hidden');
+    });
+
+    $('hapusFoto').addEventListener('click', function () {
+        resetFoto();
+        showError('');
     });
 
 
-    /* ========================================
-       ESCAPE HTML
-    ======================================== */
+    /* =====================================================
+       VALIDASI SISWA + MENCEGAH KIRIM GANDA
+    ===================================================== */
 
-    function escapeHtml(value) {
+    var btnSimpan = $('btnSimpan');
+    var labelAwal = btnSimpan.textContent;
 
-        const div = document.createElement('div');
+    form.addEventListener('submit', function (e) {
+        if (!siswaId.value) {
+            e.preventDefault();
+            siswaError.classList.remove('is-hidden');
+            searchBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            searchInput.focus();
+            return;
+        }
 
-        div.textContent = value ?? '';
+        btnSimpan.disabled = true;
+        btnSimpan.textContent = 'Menyimpan...';
+    });
 
-        return div.innerHTML;
-
-    }
-
-
-    /* ========================================
-       RESTORE OLD SELECTED STUDENT
-    ======================================== */
-
-    @if(old('siswa_id'))
-
-        fetch(`/search-siswa?q={{ old('siswa_id') }}`)
-            .then(response => response.json())
-            .then(data => {
-
-                const siswa = data.find(
-                    item => String(item.id) === String({{ old('siswa_id') }})
-                );
-
-                if (siswa) {
-                    pilihSiswa(siswa);
-                }
-
-            })
-            .catch(() => {});
-
-    @endif
-
-});
-
+    // Pulihkan tombol jika pengguna kembali lewat tombol Back.
+    window.addEventListener('pageshow', function () {
+        btnSimpan.disabled = false;
+        btnSimpan.textContent = labelAwal;
+    });
+})();
 </script>
-
 @endsection

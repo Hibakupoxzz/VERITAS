@@ -25,7 +25,8 @@ class SiswaController extends Controller
 
         // PDS dan BK kini dapat melihat semua kelas (Global)
 
-        $siswas = $query->latest()->get();
+        // Urut kelas mengikuti urutan resmi sekolah, bukan id terbaru.
+        $siswas = $query->urutKelas()->get();
 
         return view('siswa.index', compact('siswas'));
     }
@@ -127,6 +128,7 @@ class SiswaController extends Controller
 
         return Siswa::where('nama', 'like', "%{$keyword}%")
             ->orWhere('nisn', 'like', "%{$keyword}%")
+            ->urutKelas()
             ->limit(10)
             ->get();
     }
@@ -144,7 +146,7 @@ class SiswaController extends Controller
 
     /**
      * Import data siswa dari file Excel / CSV.
-    */
+     */
     public function import(Request $request)
     {
         $request->validate([

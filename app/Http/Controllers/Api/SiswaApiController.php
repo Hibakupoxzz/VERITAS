@@ -42,7 +42,7 @@ class SiswaApiController extends Controller
             ->when($validated['kelas'] ?? null, function ($query, $kelas) {
                 $query->where('kelas', $kelas);
             })
-            ->orderBy('nama')
+            ->urutKelas()
             ->get();
 
         // Kembalikan semua data sekaligus bila ?all=1

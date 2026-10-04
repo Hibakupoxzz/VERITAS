@@ -117,277 +117,283 @@
     {{-- =========================================================
          3. FORMULIR LAPOR PELANGGARAN
 
+         Markup & perilaku form sengaja dibuat sama dengan
+         /pelanggaran/create (Tambah Pelanggaran) supaya konsisten:
+         kartu pv-card, combobox cari siswa, cari jenis pelanggaran,
+         poin otomatis dari master, dan dua tombol foto.
+
          Catatan: flash session('success') / 'error' dan ringkasan
          $errors sudah otomatis ditampilkan oleh layouts/app.blade.php,
          jadi tidak diulang di sini (sebelumnya tampil dua kali).
     ========================================================= --}}
-    <div class="walas-card" id="form-lapor">
+    <div class="pv-body" id="form-lapor">
 
-        <div class="walas-card-header">
-            <div class="walas-card-header-main">
-                <div class="walas-card-icon"><i class="fa-solid fa-bullhorn"></i></div>
-                <div class="walas-card-header-text">
-                    <h2>Formulir Lapor Pelanggaran</h2>
-                    <p>Isi rincian temuan pelanggaran siswa di bawah ini secara objektif dan lengkap.</p>
+        <div class="pv-inner">
+
+            <div class="pv-page-header">
+
+                <div class="pv-page-icon">
+                    <i class="fa-solid fa-bullhorn"></i>
                 </div>
+
+                <div>
+                    <h1 class="pv-page-title">Formulir Lapor Pelanggaran</h1>
+                    <p class="pv-page-sub">Isi rincian temuan pelanggaran siswa secara objektif dan lengkap.</p>
+                </div>
+
             </div>
+
+            <form
+                action="{{ route('lapor.store') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                id="laporForm"
+            >
+                @csrf
+
+                {{-- =====================================================
+                     PILIH SISWA
+                ====================================================== --}}
+                <div class="pv-card pv-card-search">
+
+                    <div class="pv-section-label">Pilih Siswa</div>
+
+                    <input type="hidden"
+                           name="siswa_id"
+                           id="siswa_id"
+                           value="{{ old('siswa_id', $selectedSiswaId ?? '') }}">
+
+                    <div class="pv-search-box" id="searchBox">
+
+                        <div class="pv-search">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+
+                            <input
+                                type="text"
+                                id="searchSiswa"
+                                class="pv-input"
+                                placeholder="Cari nama atau NISN siswa"
+                                autocomplete="off"
+                                aria-controls="hasilSiswa">
+                        </div>
+
+                        <div id="hasilSiswa" class="is-hidden" role="listbox"></div>
+
+                        <span class="pv-hint">
+                            Ketik minimal 2 huruf. Kosongkan jika laporan tidak
+                            ditujukan ke siswa tertentu.
+                        </span>
+
+                    </div>
+
+                    <div id="selectedSiswa" class="pv-selected is-hidden">
+                        <div class="pv-selected-avatar" id="selectedAvatar"></div>
+                        <div class="pv-selected-text">
+                            <strong id="selectedNama"></strong>
+                            <small id="selectedMeta"></small>
+                        </div>
+                        <button type="button" class="pv-selected-change" id="gantiSiswa">Ganti</button>
+                    </div>
+
+                </div>
+
+
+                {{-- =====================================================
+                     DETAIL PELANGGARAN
+                ====================================================== --}}
+                <div class="pv-card">
+
+                    <div class="pv-section-label">Detail Pelanggaran</div>
+
+                    <div class="pv-grid-2">
+
+                        <div class="pv-field">
+                            <label class="pv-label" for="tanggal">
+                                Tanggal Kejadian <span class="pv-req">*</span>
+                            </label>
+                            <input
+                                type="date"
+                                name="tanggal"
+                                id="tanggal"
+                                class="pv-input"
+                                value="{{ old('tanggal', $today) }}"
+                                max="{{ $today }}"
+                                required>
+                        </div>
+
+                        <div class="pv-field">
+                            <label class="pv-label" for="kategoriPelanggaran">Kategori</label>
+                            <select id="kategoriPelanggaran" class="pv-select">
+                                <option value="">-- Semua Kategori --</option>
+                                <option value="Ringan">Ringan</option>
+                                <option value="Sedang">Sedang</option>
+                                <option value="Berat">Berat</option>
+                                <option value="Luar Biasa">Luar Biasa</option>
+                            </select>
+                            <span class="pv-hint">Menyaring daftar jenis pelanggaran di bawah.</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="pv-field">
+
+                        <label class="pv-label" for="aturan_pelanggaran_id">
+                            Aturan Pelanggaran <span class="pv-req">*</span>
+                        </label>
+
+                        <input
+                            type="search"
+                            id="cariAturan"
+                            class="pv-input"
+                            placeholder="Cari jenis pelanggaran (kode atau nama)..."
+                            autocomplete="off">
+
+                        <select name="aturan_pelanggaran_id" id="aturan_pelanggaran_id" class="pv-select" required>
+
+                            <option value="">-- Pilih jenis pelanggaran --</option>
+
+                            @foreach($aturanPelanggarans as $aturan)
+                                <option
+                                    value="{{ $aturan->id }}"
+                                    data-kategori="{{ $aturan->kategori }}"
+                                    data-poin="{{ $aturan->poin }}"
+                                    {{ (string) old('aturan_pelanggaran_id') === (string) $aturan->id ? 'selected' : '' }}
+                                >{{ $aturan->kode }} — {{ $aturan->nama }} ({{ $aturan->poin }} poin)</option>
+                            @endforeach
+
+                        </select>
+
+                        <span class="pv-hint" id="cariAturanInfo"></span>
+
+                    </div>
+
+
+                    <div class="pv-field">
+
+                        <label class="pv-label" for="poinOtomatis">Poin</label>
+
+                        {{-- Poin selalu mengikuti master aturan, jadi field ini
+                             hanya untuk ditampilkan dan tidak pernah dikirim. --}}
+                        <input
+                            type="number"
+                            id="poinOtomatis"
+                            class="pv-input"
+                            min="0"
+                            value=""
+                            placeholder="Poin otomatis"
+                            readonly>
+
+                        <small id="infoPoin" class="pv-hint">
+                            Pilih aturan pelanggaran untuk mendapatkan poin.
+                        </small>
+
+                        <div id="poinBadge" class="poin-badge"></div>
+
+                    </div>
+
+
+                    <div class="pv-field">
+
+                        <label class="pv-label" for="keterangan">
+                            Kronologi &amp; Deskripsi Kejadian
+                        </label>
+
+                        <textarea
+                            name="keterangan"
+                            id="keterangan"
+                            class="pv-textarea"
+                            rows="4"
+                            placeholder="Jelaskan secara rinci kronologi temuan, saksi yang melihat, atau keterangan lain yang memperjelas laporan..."
+                        >{{ old('keterangan') }}</textarea>
+
+                    </div>
+
+                </div>
+
+
+                {{-- =====================================================
+                     FOTO BUKTI
+                ====================================================== --}}
+                <div class="pv-card">
+
+                    <div class="pv-section-label">Foto Bukti</div>
+
+                    {{-- Dua tombol terpisah: satu memaksa kamera (capture),
+                         satu membuka galeri (tanpa capture). Atribut capture
+                         dipasang/dilepas sebelum input diklik, jadi tetap satu
+                         input agar name="foto_bukti" hanya terkirim satu kali. --}}
+                    <div class="upload-box">
+
+                        <input
+                            type="file"
+                            id="foto_bukti"
+                            name="foto_bukti"
+                            accept="image/jpeg,image/png,image/webp"
+                            hidden>
+
+                        <div class="upload-icon">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+
+                        <div class="upload-title">Upload Foto Bukti</div>
+
+                        <div class="upload-desc">
+                            Ambil foto langsung dengan kamera, atau pilih foto yang
+                            sudah ada di galeri.
+                            <br>
+                            Format JPG, PNG, atau WEBP. Maksimal 5 MB.
+                        </div>
+
+                        <div class="upload-actions">
+
+                            <button type="button" class="upload-btn" id="btnAmbilFoto">
+                                <i class="fa-solid fa-camera-retro"></i>
+                                Ambil Foto (Kamera)
+                            </button>
+
+                            <button type="button" class="upload-btn upload-btn-secondary" id="btnPilihGaleri">
+                                <i class="fa-solid fa-image"></i>
+                                Pilih dari Galeri
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="upload-error is-hidden" id="uploadError" role="alert"></div>
+
+                    <div class="upload-result is-hidden" id="uploadResult">
+                        <img id="previewFoto" alt="Preview foto">
+                        <div class="file-info">
+                            <strong id="fileName"></strong>
+                            <small id="fileSize"></small>
+                            <button type="button" class="upload-remove" id="hapusFoto">
+                                <i class="fa-solid fa-trash"></i> Hapus foto
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                {{-- TOMBOL --}}
+                <div class="pv-footer">
+
+                    <a href="{{ route('lapor.riwayat') }}" class="pv-btn-secondary">Riwayat Laporan</a>
+
+                    <button type="submit" class="pv-btn-primary" id="btnSimpan">
+                        Kirim Laporan ke BK / PDS
+                    </button>
+
+                </div>
+
+            </form>
+
         </div>
-
-        <form
-            action="{{ route('lapor.store') }}"
-            method="POST"
-            enctype="multipart/form-data"
-            class="walas-form"
-            id="laporForm"
-        >
-            @csrf
-
-            {{-- SISWA + TANGGAL --}}
-            <div class="walas-form-row">
-
-                @if($multiKelas)
-                <div class="walas-form-group">
-                    <label class="walas-label" for="form_filter_kelas">
-                        <i class="fa-solid fa-filter"></i> Saring Kelas Siswa
-                        <span class="optional">(Opsional)</span>
-                    </label>
-                    <select id="form_filter_kelas" class="walas-input">
-                        <option value="">-- Semua Kelas ({{ count($kelasList) }} Kelas) --</option>
-                        @foreach($kelasList as $kelasOpt)
-                            <option value="{{ $kelasOpt }}">{{ $kelasOpt }}</option>
-                        @endforeach
-                    </select>
-                    <span class="walas-help">Pilih kelas jika ingin menyaring daftar siswa.</span>
-                </div>
-                @endif
-
-                <div class="walas-form-group">
-                    <label class="walas-label" for="siswa_id">
-                        Pilih Siswa Pelanggar
-                        <span class="optional">(Opsional)</span>
-                    </label>
-
-                    <select name="siswa_id" id="siswa_id" class="walas-input searchable-select">
-                        <option value="">-- Tidak memilih siswa --</option>
-
-                        @foreach($siswas as $siswa)
-                            <option
-                                value="{{ $siswa->id }}"
-                                data-kelas="{{ $siswa->kelas }}"
-                                data-nisn="{{ $siswa->nisn }}"
-                                {{ (string) old('siswa_id', $selectedSiswaId ?? '') === (string) $siswa->id ? 'selected' : '' }}
-                            >
-                                {{ $siswa->nama }}@if($siswa->kelas) — {{ $siswa->kelas }}@endif @if(!empty($siswa->nisn)) (NISN: {{ $siswa->nisn }})@endif
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <span class="walas-help">Pilih siswa jika laporan ditujukan kepada siswa tertentu.</span>
-                </div>
-
-                <div class="walas-form-group">
-                    <label class="walas-label" for="tanggal">
-                        Tanggal Kejadian <span class="required">*</span>
-                    </label>
-                    <input
-                        type="date"
-                        name="tanggal"
-                        id="tanggal"
-                        class="walas-input"
-                        value="{{ old('tanggal', $today) }}"
-                        max="{{ $today }}"
-                        required
-                    >
-                    <span class="walas-help">Tanggal saat pelanggaran terjadi atau ditemukan.</span>
-                </div>
-
-            </div>
-
-
-            {{-- JENIS / MODE PELANGGARAN --}}
-            <div class="walas-form-group">
-
-                <span class="walas-label" id="modeLabel">
-                    Nama / Jenis Pelanggaran <span class="required">*</span>
-                </span>
-
-                <div class="pelanggaran-mode" role="radiogroup" aria-labelledby="modeLabel">
-
-                    <label class="mode-option">
-                        <input type="radio" name="pelanggaran_mode" value="aturan"
-                               {{ old('pelanggaran_mode', 'aturan') === 'aturan' ? 'checked' : '' }}>
-                        <div class="mode-option-icon"><i class="fa-solid fa-list-check"></i></div>
-                        <div class="mode-option-text">
-                            <strong>Pilih dari aturan</strong>
-                            <small>Gunakan aturan pelanggaran yang tersedia</small>
-                        </div>
-                    </label>
-
-                    <label class="mode-option">
-                        <input type="radio" name="pelanggaran_mode" value="manual"
-                               {{ old('pelanggaran_mode') === 'manual' ? 'checked' : '' }}>
-                        <div class="mode-option-icon"><i class="fa-solid fa-pen-to-square"></i></div>
-                        <div class="mode-option-text">
-                            <strong>Isi secara manual</strong>
-                            <small>Tulis nama pelanggaran sendiri</small>
-                        </div>
-                    </label>
-
-                </div>
-
-            </div>
-
-
-            {{-- MODE ATURAN --}}
-            <div id="modeAturan" class="walas-form-group">
-
-                <label class="walas-label" for="aturan_pelanggaran_id">
-                    Aturan Pelanggaran <span class="required">*</span>
-                </label>
-
-                <select name="aturan_pelanggaran_id" id="aturan_pelanggaran_id" class="walas-input">
-                    <option value="">-- Pilih Aturan Pelanggaran --</option>
-
-                    @foreach($aturanPelanggarans as $aturan)
-                        <option
-                            value="{{ $aturan->id }}"
-                            data-kategori="{{ $aturan->kategori }}"
-                            data-poin="{{ $aturan->poin }}"
-                            {{ (string) old('aturan_pelanggaran_id') === (string) $aturan->id ? 'selected' : '' }}
-                        >
-                            {{ $aturan->kode }} — {{ $aturan->nama }} ({{ $aturan->poin }} poin)
-                        </option>
-                    @endforeach
-                </select>
-
-            </div>
-
-
-            {{-- MODE MANUAL --}}
-            <div id="modeManual" class="is-hidden">
-
-                <div class="walas-form-group">
-                    <label class="walas-label" for="jenis_pelanggaran_manual">
-                        Nama Pelanggaran <span class="required">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        name="jenis_pelanggaran_manual"
-                        id="jenis_pelanggaran_manual"
-                        class="walas-input"
-                        value="{{ old('jenis_pelanggaran_manual') }}"
-                        placeholder="Contoh: Merokok di area toilet lantai 2"
-                    >
-                    <span class="walas-help">Tuliskan nama atau jenis pelanggaran secara singkat dan jelas.</span>
-                </div>
-
-            </div>
-
-
-            {{-- KATEGORI + POIN --}}
-            <div class="walas-detail-row">
-
-                <div class="walas-form-group">
-                    <label class="walas-label" for="kategori_manual">
-                        Kategori <span class="required">*</span>
-                    </label>
-                    <select name="kategori_manual" id="kategori_manual" class="walas-input">
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach(['Ringan', 'Sedang', 'Berat', 'Luar Biasa'] as $kat)
-                            <option value="{{ $kat }}" {{ old('kategori_manual') === $kat ? 'selected' : '' }}>
-                                {{ $kat }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="walas-form-group">
-                    <label class="walas-label" for="poin_manual">
-                        Poin <span class="required">*</span>
-                    </label>
-                    <input
-                        type="number"
-                        name="poin_manual"
-                        id="poin_manual"
-                        class="walas-input"
-                        value="{{ old('poin_manual', 0) }}"
-                        min="0"
-                        placeholder="0"
-                    >
-                </div>
-
-                <span class="walas-help walas-detail-hint" id="autoHint">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    Kategori dan poin terisi otomatis sesuai aturan yang dipilih.
-                </span>
-
-            </div>
-
-
-            {{-- KETERANGAN --}}
-            <div class="walas-form-group">
-                <label class="walas-label" for="keterangan">
-                    Kronologi &amp; Deskripsi Kejadian
-                    <span class="optional">(Opsional)</span>
-                </label>
-                <textarea
-                    name="keterangan"
-                    id="keterangan"
-                    class="walas-textarea"
-                    rows="4"
-                    placeholder="Jelaskan secara rinci kronologi temuan, saksi yang melihat, atau keterangan lain yang memperjelas laporan..."
-                >{{ old('keterangan') }}</textarea>
-            </div>
-
-
-            {{-- FOTO BUKTI --}}
-            <div class="walas-form-group">
-
-                <label class="walas-label" for="foto_bukti">
-                    Unggah Foto Bukti
-                    <span class="optional">(Opsional)</span>
-                </label>
-
-                <div class="walas-file-wrapper" id="fileWrapper">
-                    <input
-                        type="file"
-                        name="foto_bukti"
-                        id="foto_bukti"
-                        class="walas-file-input"
-                        accept="image/jpeg,image/png,image/webp"
-                    >
-                    <div class="walas-file-dummy">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>Klik untuk memilih file foto bukti kejadian</span>
-                        <small>Format yang didukung: JPG, PNG, WEBP (Maksimal 5 MB)</small>
-                    </div>
-                </div>
-
-                <span class="walas-help walas-error is-hidden" id="fotoError"></span>
-
-                <div id="imagePreviewContainer" class="walas-preview is-hidden">
-                    <img id="imagePreview" class="walas-preview-img" src="" alt="Preview Bukti">
-                    <div class="walas-preview-info">
-                        <strong id="fotoName"></strong>
-                        <small id="fotoSize"></small>
-                        <button type="button" id="removeFoto" class="walas-link-danger">
-                            <i class="fa-solid fa-trash"></i> Hapus foto
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-
-            {{-- SUBMIT --}}
-            <div class="walas-form-actions">
-                <button type="submit" class="btn-submit-laporan" id="btnSubmit">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>Kirim Laporan ke BK / PDS</span>
-                </button>
-            </div>
-
-        </form>
 
     </div>
 
@@ -479,6 +485,8 @@
                                     <button type="button"
                                             class="dir-pick-btn js-pick"
                                             data-id="{{ $siswa->id }}"
+                                            data-nama="{{ $siswa->nama }}"
+                                            data-nisn="{{ $siswa->nisn }}"
                                             data-kelas="{{ $siswa->kelas }}">
                                         <i class="fa-solid fa-bullhorn"></i>
                                         Pilih untuk Melapor
@@ -704,6 +712,384 @@
 @section('styles')
 
 @include('partials.ui')
+
+/* =========================================================
+   FORMULIR LAPOR (prefix pv-)
+   Styling form ini sengaja sama dengan
+   /pelanggaran/create supaya keduanya terasa satu produk.
+   Primitive pv-* berasal dari partials/ui; yang di sini
+   hanya penyesuaian yang memang spesifik halaman.
+========================================================= */
+
+.walas-container .pv-body {
+    width: 100%;
+}
+
+.walas-container .pv-inner {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* .pv-card di partial tidak punya padding */
+.walas-container .pv-card {
+    padding: 24px 28px;
+}
+
+.walas-container .pv-req {
+    color: #dc2626;
+}
+
+.walas-container .pv-hint {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: .75rem;
+    line-height: 1.5;
+}
+
+/* Dua kolom (tanggal + kategori) */
+.walas-container .pv-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 18px;
+}
+
+.walas-container .pv-page-header,
+.walas-container .pv-page-header > div {
+    min-width: 0;
+}
+
+.walas-container .pv-page-header h1,
+.walas-container .pv-page-header p {
+    overflow-wrap: anywhere;
+}
+
+/* Ikon header pakai Font Awesome, bukan inline SVG seperti
+   di /pelanggaran/create, jadi ukuran hurufnya perlu diatur. */
+.walas-container .pv-page-icon {
+    font-size: 20px;
+}
+
+/* Hanya input readonly yang tampil "terkunci", supaya form
+   tidak terlihat seperti nonaktif. */
+.walas-container .pv-input[readonly] {
+    background: #f3f4f6;
+    color: #374151;
+    cursor: not-allowed;
+}
+
+.walas-container .pv-input[readonly]:focus {
+    border-color: var(--c-border);
+    box-shadow: none;
+}
+
+
+/* ── Pencarian siswa ── */
+.walas-container .pv-search-box {
+    position: relative;
+}
+
+.walas-container .pv-search {
+    position: relative;
+    width: 100%;
+}
+
+.walas-container .pv-search input {
+    padding-left: 42px;
+}
+
+.walas-container .pv-search svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    stroke: #9ca3af;
+    pointer-events: none;
+}
+
+/* Daftar hasil tampil inline di dalam kartu, bukan popup melayang. */
+.walas-container #hasilSiswa {
+    margin-top: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.walas-container .pv-siswa-item {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    color: #111827;
+    font-family: inherit;
+    font-size: .875rem;
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .pv-siswa-item:last-child {
+    border-bottom: none;
+}
+
+.walas-container .pv-siswa-item:hover,
+.walas-container .pv-siswa-item:focus-visible {
+    background: #f8fafc;
+    outline: none;
+}
+
+.walas-container .pv-siswa-item strong {
+    display: block;
+}
+
+.walas-container .pv-siswa-item small {
+    color: #6b7280;
+}
+
+.walas-container .pv-siswa-status {
+    padding: 14px;
+    color: #9ca3af;
+    font-size: .8rem;
+    text-align: center;
+}
+
+.walas-container .pv-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e40af;
+}
+
+.walas-container .pv-selected-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 50%;
+    background: #dbeafe;
+    font-weight: 700;
+}
+
+.walas-container .pv-selected-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .pv-selected-text strong {
+    display: block;
+    font-size: .9rem;
+}
+
+.walas-container .pv-selected-text small {
+    font-size: .75rem;
+    opacity: .85;
+}
+
+.walas-container .pv-selected-change {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #fff;
+    color: #1d4ed8;
+    font-family: inherit;
+    font-size: .75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.walas-container .pv-selected-change:hover {
+    background: #dbeafe;
+}
+
+
+/* ── Jenis Pelanggaran: input cari + select ── */
+.walas-container #cariAturan,
+.walas-container #aturan_pelanggaran_id {
+    display: block;
+    width: 100%;
+    min-height: 42px;            /* samakan tinggi keduanya */
+}
+
+.walas-container #cariAturan {
+    margin-bottom: 8px;          /* jarak ke dropdown */
+    -webkit-appearance: none;    /* hilangkan gaya bawaan type="search" */
+    appearance: none;
+}
+
+.walas-container #cariAturan::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+
+/* ── Poin ── */
+.walas-container .poin-badge {
+    display: none;
+    margin-top: 8px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: .78rem;
+    line-height: 1.5;
+}
+
+.walas-container .poin-badge.active {
+    display: block;
+}
+
+
+/* ── Upload foto ── */
+.walas-container .pv-card.pv-card-search {
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+}
+
+.walas-container .upload-box:hover,
+.walas-container .upload-box:focus-within {
+    border-color: var(--primary);
+    background: #FFF8F6;
+}
+
+.walas-container .upload-title {
+    margin-bottom: 8px;
+    color: #1F2937;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.walas-container .upload-desc {
+    max-width: 450px;
+    margin-bottom: 22px;
+    color: #6B7280;
+    font-size: .9rem;
+    line-height: 1.7;
+}
+
+.walas-container .upload-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.walas-container .upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 26px;
+    border: none;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.walas-container .upload-box:hover .upload-btn {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(109, 20, 8, .25);
+}
+
+/* Tombol galeri dibuat netral supaya pilihan kedua jelas berbeda
+   dari tombol kamera yang memakai warna utama. */
+.walas-container .upload-btn-secondary {
+    border: 2px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+}
+
+.walas-container .upload-box:hover .upload-btn-secondary {
+    box-shadow: 0 12px 25px rgba(109, 20, 8, .12);
+}
+
+.walas-container .upload-error {
+    margin-top: 10px;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.walas-container .upload-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    background: #fafafa;
+}
+
+.walas-container #previewFoto {
+    display: block;
+    width: 140px;
+    height: 140px;
+    flex: 0 0 140px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .15);
+}
+
+.walas-container .file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+}
+
+.walas-container .file-info strong {
+    color: #111827;
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .file-info small {
+    color: #6B7280;
+}
+
+.walas-container .upload-remove {
+    margin-top: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #b91c1c;
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.walas-container .upload-remove:hover {
+    text-decoration: underline;
+}
+
+
+/* ── Footer ── */
+.walas-container .pv-inner .pv-footer {
+    align-items: center;
+}
+
 
 /* =========================================================
    PORTAL LAPOR PELANGGARAN
@@ -984,361 +1370,6 @@ html {
     margin: 0;
     color: #6b7280;
     font-size: 13px;
-}
-
-
-/* ---------- FORM ---------- */
-
-.walas-container .walas-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.walas-container .walas-form-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
-
-.walas-container .walas-form-group {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.walas-container .walas-label {
-    display: block;
-    margin-bottom: 6px;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.walas-container .walas-label .required { color: #dc2626; }
-
-.walas-container .walas-label .optional {
-    color: #9ca3af;
-    font-size: 11px;
-    font-weight: 400;
-}
-
-.walas-container .walas-input,
-.walas-container .walas-textarea {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    padding: 11px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    background: #fff;
-    color: #111827;
-    font-family: inherit;
-    font-size: 13px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-
-.walas-container .walas-input:focus,
-.walas-container .walas-textarea:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(109, 20, 8, 0.12);
-}
-
-.walas-container .walas-input:disabled {
-    background: #f3f4f6;
-    color: #4b5563;
-    -webkit-text-fill-color: #4b5563;
-    opacity: 1;
-    cursor: not-allowed;
-}
-
-.walas-container .walas-textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-.walas-container .walas-help {
-    margin-top: 5px;
-    color: #6b7280;
-    font-size: 11px;
-    overflow-wrap: anywhere;
-}
-
-.walas-container .walas-error {
-    color: #b91c1c;
-    font-weight: 600;
-}
-
-/* Tom Select (jika diaktifkan di layout lewat .searchable-select) */
-.walas-container .searchable-select,
-.walas-container .ts-wrapper,
-.walas-container .ts-control {
-    width: 100%;
-    max-width: 100%;
-}
-
-.walas-container .ts-wrapper .ts-control {
-    min-height: 42px;
-    border-radius: 10px;
-}
-
-.walas-container .ts-wrapper .ts-dropdown {
-    max-width: 100%;
-    max-height: 260px;
-    overflow-y: auto;
-}
-
-
-/* ---------- MODE PELANGGARAN ---------- */
-
-.walas-container .pelanggaran-mode {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.walas-container .mode-option {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 15px;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    background: #fff;
-    cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-}
-
-.walas-container .mode-option:hover {
-    border-color: #cbd5e1;
-}
-
-.walas-container .mode-option input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.walas-container .mode-option-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: #f9fafb;
-    color: #6b7280;
-    font-size: 16px;
-    transition: all 0.15s ease;
-}
-
-.walas-container .mode-option-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-}
-
-.walas-container .mode-option-text strong {
-    color: #374151;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.walas-container .mode-option-text small {
-    color: #9ca3af;
-    font-size: 11px;
-}
-
-.walas-container .mode-option:has(input:checked) {
-    border-color: var(--primary);
-    background: #fff8f7;
-    box-shadow: 0 0 0 1px rgba(109, 20, 8, 0.08);
-}
-
-.walas-container .mode-option:has(input:checked) .mode-option-icon {
-    background: var(--primary);
-    color: #fff;
-}
-
-.walas-container .mode-option:has(input:checked) .mode-option-text strong {
-    color: var(--primary);
-}
-
-/* Fokus keyboard terlihat walau radio disembunyikan */
-.walas-container .mode-option:has(input:focus-visible) {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-
-/* ---------- KATEGORI + POIN ---------- */
-
-.walas-container .walas-detail-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 160px;
-    gap: 20px;
-}
-
-.walas-container .walas-detail-hint {
-    grid-column: 1 / -1;
-    margin-top: -10px;
-}
-
-.walas-container .walas-detail-hint i {
-    color: var(--primary);
-}
-
-
-/* ---------- UPLOAD FOTO ---------- */
-
-.walas-container .walas-file-wrapper {
-    position: relative;
-    padding: 24px 16px;
-    border: 2px dashed #d1d5db;
-    border-radius: 12px;
-    background: #fafafa;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.walas-container .walas-file-wrapper:hover,
-.walas-container .walas-file-wrapper:focus-within {
-    border-color: var(--primary);
-    background: #fff8f8;
-}
-
-.walas-container .walas-file-input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.walas-container .walas-file-dummy {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    color: #4b5563;
-    pointer-events: none;
-}
-
-.walas-container .walas-file-dummy i {
-    color: var(--primary);
-    font-size: 28px;
-}
-
-.walas-container .walas-file-dummy span {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.walas-container .walas-file-dummy small {
-    color: #9ca3af;
-    font-size: 11px;
-}
-
-.walas-container .walas-preview {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 12px;
-    padding: 10px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fafafa;
-}
-
-.walas-container .walas-preview-img {
-    display: block;
-    width: 84px;
-    height: 84px;
-    flex-shrink: 0;
-    object-fit: cover;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-}
-
-.walas-container .walas-preview-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
-    min-width: 0;
-}
-
-.walas-container .walas-preview-info strong {
-    max-width: 100%;
-    color: #111827;
-    font-size: 13px;
-    overflow-wrap: anywhere;
-}
-
-.walas-container .walas-preview-info small {
-    color: #6b7280;
-    font-size: 11px;
-}
-
-.walas-container .walas-link-danger {
-    margin-top: 4px;
-    padding: 0;
-    border: none;
-    background: none;
-    color: #b91c1c;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.walas-container .walas-link-danger:hover {
-    text-decoration: underline;
-}
-
-
-/* ---------- SUBMIT ---------- */
-
-.walas-container .walas-form-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 6px;
-}
-
-.walas-container .btn-submit-laporan {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 13px 28px;
-    border: none;
-    border-radius: 12px;
-    background: var(--primary);
-    color: #fff;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(109, 20, 8, 0.25);
-    transition: all 0.2s ease;
-}
-
-.walas-container .btn-submit-laporan:hover {
-    background: #550f06;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(109, 20, 8, 0.35);
-}
-
-.walas-container .btn-submit-laporan:disabled {
-    opacity: 0.7;
-    cursor: wait;
-    transform: none;
 }
 
 
@@ -1838,10 +1869,6 @@ html {
     .walas-container .btn-banner-primary,
     .walas-container .btn-banner-secondary { flex: 1; min-width: 140px; }
 
-    .walas-container .walas-form-row,
-    .walas-container .walas-detail-row,
-    .walas-container .pelanggaran-mode { grid-template-columns: 1fr; }
-
     .walas-container .walas-card-header { flex-direction: column; align-items: flex-start; }
 
     .walas-container .walas-card-header-main,
@@ -1863,8 +1890,15 @@ html {
     .walas-container .report-header { flex-direction: column; align-items: flex-start; gap: 12px; }
     .walas-container .report-feedback { padding: 12px; }
 
-    .walas-container .walas-form-actions { justify-content: stretch; }
-    .walas-container .btn-submit-laporan { width: 100%; }
+    .walas-container .pv-card { padding: 18px; border-radius: 16px; }
+    .walas-container .pv-grid-2 { grid-template-columns: 1fr; }
+    .walas-container .pv-inner .pv-footer { flex-direction: column-reverse; }
+    .walas-container .pv-btn-primary,
+    .walas-container .pv-btn-secondary { width: 100%; min-height: 46px; }
+
+    .walas-container .upload-box { padding: 28px 18px; }
+    .walas-container .upload-title { font-size: 18px; }
+    .walas-container .upload-desc { font-size: .85rem; }
 
     .walas-container .dir-table { min-width: 460px; }
     .walas-container .dir-table-area { padding: 12px 16px 18px; }
@@ -1885,21 +1919,16 @@ html {
 
 @media (max-width: 576px) {
     /* 16px mencegah iOS zoom otomatis saat input difokus */
-    .walas-container .walas-input,
-    .walas-container .walas-textarea,
+    .walas-container .pv-input,
+    .walas-container .pv-select,
+    .walas-container .pv-textarea,
     .walas-container .dir-search-input,
     .walas-container .dir-kelas-select { font-size: 16px; }
 
-    .walas-container .mode-option { padding: 12px; }
+    .walas-container .pv-search svg { left: 12px; width: 16px; height: 16px; }
+    .walas-container .pv-search input { padding-left: 38px; }
+
     .walas-container .walas-card-icon { width: 40px; height: 40px; border-radius: 11px; font-size: 16px; }
-
-    .walas-container .walas-preview { flex-direction: column; align-items: flex-start; }
-
-    .walas-container .ts-wrapper .ts-dropdown {
-        position: static !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
 
     .walas-container .walas-empty-state { padding: 30px 10px; }
 }
@@ -1916,13 +1945,30 @@ html {
     .walas-container .dir-th,
     .walas-container .dir-td { padding: 9px 10px; }
     .walas-container .dir-pick-btn { padding: 6px 10px; font-size: 11px; }
-    .walas-container .walas-file-wrapper { padding: 18px 12px; }
+
+    .walas-container .pv-page-header { margin-bottom: 1rem; gap: 10px; }
+    .walas-container .pv-page-icon { width: 40px; height: 40px; flex-basis: 40px; font-size: 17px; }
+
+    .walas-container .upload-icon { width: 62px; height: 62px; font-size: 26px; }
+    .walas-container .upload-box { padding: 22px 14px; }
+    .walas-container .upload-actions { flex-direction: column; }
+    .walas-container .upload-btn { width: 100%; justify-content: center; }
+
+    .walas-container .upload-result { flex-direction: column; align-items: center; text-align: center; }
+    .walas-container .file-info { align-items: center; }
+    .walas-container #previewFoto { width: 100%; max-width: 260px; height: auto; max-height: 220px; flex-basis: auto; }
+
+    .walas-container .pv-selected { flex-wrap: wrap; }
+    .walas-container .pv-selected-change { width: 100%; }
 }
 
 @media (max-width: 400px) {
     .walas-container .walas-banner { padding: 18px 12px; }
     .walas-container .walas-card-header h2 { font-size: 16px; }
-    .walas-container .btn-submit-laporan { padding: 12px 14px; font-size: 13px; }
+    .walas-container .pv-card { padding: 14px 12px; }
+    .walas-container .pv-page-title { font-size: 1rem; }
+    .walas-container .pv-page-sub { font-size: .68rem; }
+    .walas-container .upload-title { font-size: 16px; }
     .walas-container .badge-status { padding: 5px 10px; font-size: 11px; }
     .walas-container .dir-table { min-width: 360px; }
 }
@@ -1939,65 +1985,261 @@ html {
     var $ = function (id) { return document.getElementById(id); };
 
     var form          = $('laporForm');
-    var modeAturan    = $('modeAturan');
-    var modeManual    = $('modeManual');
-    var aturanSelect  = $('aturan_pelanggaran_id');
-    var kategoriInput = $('kategori_manual');
-    var poinInput     = $('poin_manual');
-    var namaManual    = $('jenis_pelanggaran_manual');
-    var autoHint      = $('autoHint');
-    var siswaSelect   = $('siswa_id');
-    var filterKelas   = $('form_filter_kelas');
+    var kategoriSelect = $('kategoriPelanggaran');
+    var cariAturan     = $('cariAturan');
+    var aturanSelect   = $('aturan_pelanggaran_id');
+    var poinInput      = $('poinOtomatis');
+    var infoPoin       = $('infoPoin');
+    var poinBadge      = $('poinBadge');
+    var infoCari       = $('cariAturanInfo');
 
 
     /* =====================================================
-       MODE PELANGGARAN (aturan / manual)
+       KATEGORI + JENIS PELANGGARAN + POIN
+
+       Menyalin perilaku /pelanggaran/create: daftar aturan
+       disimpan sekali lalu opsi dibangun ulang saat kategori
+       atau kata kunci berubah (andalan di Safari/iOS).
     ===================================================== */
 
-    function syncAturan() {
-        var opt = aturanSelect.options[aturanSelect.selectedIndex];
+    var placeholderText = aturanSelect.options[0].textContent.trim();
 
-        if (!opt || !opt.value) {
-            kategoriInput.value = '';
-            poinInput.value = 0;
+    var semuaAturan = [];
+
+    Array.prototype.forEach.call(aturanSelect.options, function (o) {
+        if (o.value === '') { return; }
+
+        semuaAturan.push({
+            value: o.value,
+            text: o.textContent.replace(/\s+/g, ' ').trim(),
+            kategori: o.dataset.kategori || '',
+            poin: o.dataset.poin || '0'
+        });
+    });
+
+    function renderAturan(kategori) {
+        var pilihan = aturanSelect.value;
+        var keyword = (cariAturan.value || '').toLowerCase().trim();
+
+        aturanSelect.innerHTML = '';
+        aturanSelect.appendChild(new Option(placeholderText, ''));
+
+        var jumlahCocok = 0;
+
+        semuaAturan.forEach(function (r) {
+            if (kategori && r.kategori !== kategori) { return; }
+            if (keyword && r.text.toLowerCase().indexOf(keyword) === -1) { return; }
+
+            jumlahCocok++;
+
+            var opt = new Option(r.text, r.value);
+            opt.dataset.kategori = r.kategori;
+            opt.dataset.poin = r.poin;
+            aturanSelect.appendChild(opt);
+        });
+
+        // Pertahankan pilihan jika masih ada di daftar.
+        var masihAda = Array.prototype.some.call(aturanSelect.options, function (o) {
+            return o.value === pilihan;
+        });
+
+        aturanSelect.value = masihAda ? pilihan : '';
+
+        // Info jumlah hasil + pesan bila tidak ada yang cocok.
+        if (jumlahCocok === 0) {
+            infoCari.textContent = keyword
+                ? 'Tidak ada jenis pelanggaran yang cocok dengan "' + (cariAturan.value || '').trim() + '".'
+                : 'Tidak ada jenis pelanggaran pada kategori ini.';
+        } else if (keyword) {
+            infoCari.textContent = jumlahCocok + ' jenis pelanggaran ditemukan.';
+        } else {
+            infoCari.textContent = '';
+        }
+    }
+
+    function updatePoin() {
+        poinBadge.classList.remove('active');
+        poinBadge.textContent = '';
+
+        if (! aturanSelect.value) {
+            poinInput.value = '';
+            infoPoin.textContent = 'Pilih jenis pelanggaran untuk mendapatkan poin.';
             return;
         }
 
-        kategoriInput.value = opt.dataset.kategori || '';
-        poinInput.value     = opt.dataset.poin || 0;
+        // Poin selalu mengikuti master aturan dan tidak bisa diubah.
+        var opt  = aturanSelect.options[aturanSelect.selectedIndex];
+        var poin = opt.dataset.poin;
+
+        poinInput.value = poin;
+        infoPoin.textContent = 'Poin otomatis berdasarkan aturan pelanggaran.';
+
+        poinBadge.textContent = 'Poin aturan resmi: ' + poin + '. Tidak dapat diubah.';
+        poinBadge.classList.add('active');
     }
 
-    function updateMode() {
-        var checked = form.querySelector('input[name="pelanggaran_mode"]:checked');
-        if (!checked) { return; }
-
-        var isAturan = checked.value === 'aturan';
-
-        modeAturan.classList.toggle('is-hidden', !isAturan);
-        modeManual.classList.toggle('is-hidden', isAturan);
-        autoHint.classList.toggle('is-hidden', !isAturan);
-
-        // Field yang disabled tidak ikut terkirim ke server.
-        aturanSelect.disabled = !isAturan;
-        aturanSelect.required = isAturan;
-
-        namaManual.disabled = isAturan;
-        namaManual.required = !isAturan;
-
-        // Pada mode aturan, kategori & poin hanya tampilan otomatis.
-        kategoriInput.disabled = isAturan;
-        poinInput.disabled     = isAturan;
-        kategoriInput.required = !isAturan;
-        poinInput.required     = !isAturan;
-
-        if (isAturan) { syncAturan(); }
-    }
-
-    form.querySelectorAll('input[name="pelanggaran_mode"]').forEach(function (r) {
-        r.addEventListener('change', updateMode);
+    kategoriSelect.addEventListener('change', function () {
+        renderAturan(kategoriSelect.value);
+        updatePoin();
     });
 
-    aturanSelect.addEventListener('change', syncAturan);
+    cariAturan.addEventListener('input', function () {
+        renderAturan(kategoriSelect.value);
+        updatePoin();
+    });
+
+    aturanSelect.addEventListener('change', updatePoin);
+
+    // Nilai select sudah dibawa dari old() oleh Blade, jadi cukup
+    // refresh tampilan poin tanpa perlu menyimpan apa pun.
+    updatePoin();
+
+
+    /* =====================================================
+       PILIH SISWA (combobox)
+
+       Daftar siswa sudah dibatasi server sesuai role
+       (walas hanya kelasnya), jadi pencarian cukup di sisi
+       klien. Hasil dirender lewat textContent, bukan innerHTML,
+       agar nama yang berisi tanda kutip / tag HTML aman.
+    ===================================================== */
+
+    var SISWAS = @json($siswaOptions);
+
+    var searchInput = $('searchSiswa');
+    var results     = $('hasilSiswa');
+    var searchBox   = $('searchBox');
+    var siswaId     = $('siswa_id');
+    var selected    = $('selectedSiswa');
+
+    function hideResults() {
+        results.classList.add('is-hidden');
+        results.innerHTML = '';
+    }
+
+    function showStatus(text) {
+        results.innerHTML = '';
+        var div = document.createElement('div');
+        div.className = 'pv-siswa-status';
+        div.textContent = text;
+        results.appendChild(div);
+        results.classList.remove('is-hidden');
+    }
+
+    function renderResults(list) {
+        results.innerHTML = '';
+
+        if (!list.length) {
+            showStatus('Siswa tidak ditemukan.');
+            return;
+        }
+
+        list.forEach(function (item) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pv-siswa-item';
+            btn.setAttribute('role', 'option');
+
+            var name = document.createElement('strong');
+            name.textContent = item.nama;
+
+            var meta = document.createElement('small');
+            meta.textContent = (item.nisn ? item.nisn + ' • ' : '') + (item.kelas || '-');
+
+            btn.appendChild(name);
+            btn.appendChild(meta);
+
+            btn.addEventListener('click', function () { pickSiswa(item); });
+
+            results.appendChild(btn);
+        });
+
+        results.classList.remove('is-hidden');
+    }
+
+    function pickSiswa(item) {
+        siswaId.value = item.id;
+
+        $('selectedAvatar').textContent = (item.nama || '?').charAt(0).toUpperCase();
+        $('selectedNama').textContent = item.nama;
+        $('selectedMeta').textContent = 'NISN: ' + (item.nisn || '-') + ' • Kelas: ' + (item.kelas || '-');
+
+        selected.classList.remove('is-hidden');
+        searchBox.classList.add('is-hidden');
+        hideResults();
+    }
+
+    function clearSiswa() {
+        siswaId.value = '';
+        searchInput.value = '';
+        selected.classList.add('is-hidden');
+        searchBox.classList.remove('is-hidden');
+        searchInput.focus();
+    }
+
+    $('gantiSiswa').addEventListener('click', clearSiswa);
+
+    searchInput.addEventListener('input', function () {
+        var q = searchInput.value.trim().toLowerCase();
+
+        if (q.length < 2) {
+            hideResults();
+            return;
+        }
+
+        var list = SISWAS.filter(function (s) {
+            var nama  = (s.nama || '').toLowerCase();
+            var nisn  = (s.nisn || '').toLowerCase();
+            return nama.indexOf(q) !== -1 || nisn.indexOf(q) !== -1;
+        });
+
+        renderResults(list.slice(0, 20));
+    });
+
+    // Navigasi keyboard: panah bawah/atas pindah antar hasil, Esc menutup.
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') {
+            var first = results.querySelector('.pv-siswa-item');
+            if (first) { e.preventDefault(); first.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+        }
+    });
+
+    results.addEventListener('keydown', function (e) {
+        var items = Array.prototype.slice.call(results.querySelectorAll('.pv-siswa-item'));
+        var i = items.indexOf(document.activeElement);
+
+        if (e.key === 'ArrowDown' && i < items.length - 1) {
+            e.preventDefault();
+            items[i + 1].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (i > 0) { items[i - 1].focus(); } else { searchInput.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+            searchInput.focus();
+        }
+    });
+
+    // Klik di luar area pencarian menutup daftar hasil.
+    document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) { hideResults(); }
+    });
+
+    // Siswa yang sudah terpilih (old() atau ?siswa_id= dari halaman
+    // daftar siswa) langsung tampil sebagai chip, tanpa perlu
+    // mengetik ulang namanya.
+    (function restoreSiswa() {
+        var awal = String(siswaId.value || '');
+        if (!awal) { return; }
+
+        var item = SISWAS.filter(function (s) { return String(s.id) === awal; })[0];
+        if (!item) { return; }
+
+        searchInput.value = '';
+        pickSiswa(item);
+    })();
 
 
     /* =====================================================
@@ -2006,15 +2248,17 @@ html {
 
     var MAX_SIZE = 5 * 1024 * 1024; // 5 MB, sesuai teks di form
     var fotoInput   = $('foto_bukti');
-    var fotoBox     = $('imagePreviewContainer');
-    var fotoImg     = $('imagePreview');
-    var fotoError   = $('fotoError');
-    var fotoName    = $('fotoName');
-    var fotoSize    = $('fotoSize');
+    var fotoBox     = $('uploadResult');
+    var fotoImg     = $('previewFoto');
+    var fotoError   = $('uploadError');
+    var fotoName    = $('fileName');
+    var fotoSize    = $('fileSize');
+    var objectUrl   = null;
 
     function resetFoto() {
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
         fotoInput.value = '';
-        fotoImg.src = '';
+        fotoImg.removeAttribute('src');
         fotoBox.classList.add('is-hidden');
     }
 
@@ -2041,19 +2285,44 @@ html {
             return;
         }
 
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            fotoImg.src = e.target.result;
-            fotoName.textContent = file.name;
-            fotoSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-            fotoBox.classList.remove('is-hidden');
-        };
-        reader.readAsDataURL(file);
+        // Object URL lebih ringan daripada FileReader untuk foto
+        // besar, karena tidak mengubah file jadi base64 di memori.
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); }
+        objectUrl = URL.createObjectURL(file);
+
+        fotoImg.src = objectUrl;
+        fotoName.textContent = file.name;
+        fotoSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        fotoBox.classList.remove('is-hidden');
     });
 
-    $('removeFoto').addEventListener('click', function () {
+    $('hapusFoto').addEventListener('click', function () {
         resetFoto();
         showFotoError('');
+    });
+
+    /* Dua tombol untuk satu input file:
+       - "Ambil Foto" memasang capture="environment" supaya kamera
+         langsung dibuka.
+       - "Pilih dari Galeri" melepas capture supaya file chooser
+         menampilkan daftar foto.
+       Atribut harus terpasang sebelum dialog dibuka, makanya diubah
+       sebelum input.click(). */
+    function openFotoDialog(capture) {
+        if (capture) {
+            fotoInput.setAttribute('capture', 'environment');
+        } else {
+            fotoInput.removeAttribute('capture');
+        }
+        fotoInput.click();
+    }
+
+    $('btnAmbilFoto').addEventListener('click', function () {
+        openFotoDialog(true);
+    });
+
+    $('btnPilihGaleri').addEventListener('click', function () {
+        openFotoDialog(false);
     });
 
 
@@ -2061,95 +2330,31 @@ html {
        MENCEGAH KIRIM GANDA
     ===================================================== */
 
-    var btnSubmit = $('btnSubmit');
-    var btnLabel  = btnSubmit.querySelector('span');
-    var btnIcon   = btnSubmit.querySelector('i');
-    var labelAwal = btnLabel.textContent;
+    var btnSubmit = $('btnSimpan');
+    var labelAwal = btnSubmit.textContent.trim();
 
     form.addEventListener('submit', function () {
         btnSubmit.disabled = true;
-        btnLabel.textContent = 'Mengirim...';
-        btnIcon.className = 'fa-solid fa-spinner fa-spin';
+        btnSubmit.textContent = 'Mengirim...';
     });
 
     // Tombol dipulihkan jika pengguna kembali lewat tombol Back.
     window.addEventListener('pageshow', function () {
         btnSubmit.disabled = false;
-        btnLabel.textContent = labelAwal;
-        btnIcon.className = 'fa-solid fa-paper-plane';
+        btnSubmit.textContent = labelAwal;
     });
-
-
-    /* =====================================================
-       FILTER KELAS -> DROPDOWN SISWA
-
-       Memakai daftar master + membangun ulang opsi, bukan
-       option.style.display: Safari/iOS mengabaikan display:none
-       pada <option>, dan Tom Select tidak ikut terpengaruh.
-    ===================================================== */
-
-    var placeholderText = siswaSelect.options[0] ? siswaSelect.options[0].textContent : '';
-
-    var siswaMaster = Array.prototype.filter.call(siswaSelect.options, function (o) {
-        return o.value !== '';
-    }).map(function (o) {
-        return {
-            value: o.value,
-            text: o.textContent.replace(/\s+/g, ' ').trim(),
-            kelasRaw: o.dataset.kelas || '',
-            kelas: (o.dataset.kelas || '').toLowerCase().trim(),
-            nisn: o.dataset.nisn || ''
-        };
-    });
-
-    function applySiswaFilter(kelas, selectedValue) {
-        var key  = (kelas || '').toLowerCase().trim();
-        var list = siswaMaster.filter(function (s) { return !key || s.kelas === key; });
-
-        var wanted = selectedValue !== undefined ? String(selectedValue) : String(siswaSelect.value || '');
-        var keep   = list.some(function (s) { return s.value === wanted; }) ? wanted : '';
-
-        var ts = siswaSelect.tomselect; // ada jika Tom Select aktif
-
-        if (ts) {
-            ts.clear(true);
-            ts.clearOptions();
-            ts.addOptions(list.map(function (s) { return { value: s.value, text: s.text }; }));
-            if (keep) { ts.setValue(keep, true); }
-            ts.refreshOptions(false);
-            return;
-        }
-
-        siswaSelect.innerHTML = '';
-        siswaSelect.appendChild(new Option(placeholderText, ''));
-
-        list.forEach(function (s) {
-            var opt = new Option(s.text, s.value);
-            opt.dataset.kelas = s.kelasRaw;
-            opt.dataset.nisn  = s.nisn;
-            siswaSelect.appendChild(opt);
-        });
-
-        siswaSelect.value = keep;
-    }
-
-    if (filterKelas) {
-        filterKelas.addEventListener('change', function () {
-            applySiswaFilter(filterKelas.value);
-        });
-    }
 
 
     /* =====================================================
        DIREKTORI SISWA: cari, filter kelas, pilih
     ===================================================== */
 
-    var searchInput = $('searchSiswaInput');
-    var dirKelas    = $('selectDirectoryKelas');
-    var dirCount    = $('dirCount');
-    var dirEmpty    = $('dirEmptyMessage');
-    var pillRow     = $('dirPillRow');
-    var dirRows     = document.querySelectorAll('.dir-siswa-row');
+    var dirSearch = $('searchSiswaInput');
+    var dirKelas  = $('selectDirectoryKelas');
+    var dirCount  = $('dirCount');
+    var dirEmpty  = $('dirEmptyMessage');
+    var pillRow   = $('dirPillRow');
+    var dirRows   = document.querySelectorAll('.dir-siswa-row');
 
     function syncPills(kelasVal) {
         if (!pillRow) { return; }
@@ -2159,7 +2364,7 @@ html {
     }
 
     function filterDirectory() {
-        var q = (searchInput.value || '').toLowerCase().trim();
+        var q = (dirSearch.value || '').toLowerCase().trim();
         var k = dirKelas ? dirKelas.value.toLowerCase().trim() : '';
         var shown = 0;
 
@@ -2184,7 +2389,7 @@ html {
         syncPills(k);
     }
 
-    searchInput.addEventListener('input', filterDirectory);
+    dirSearch.addEventListener('input', filterDirectory);
 
     if (dirKelas) {
         dirKelas.addEventListener('change', filterDirectory);
@@ -2205,10 +2410,14 @@ html {
         var btn = e.target.closest('.js-pick');
         if (!btn) { return; }
 
-        var kelas = btn.dataset.kelas || '';
-
-        if (filterKelas) { filterKelas.value = kelas; }
-        applySiswaFilter(filterKelas ? kelas : '', btn.dataset.id);
+        // Form memakai combobox, jadi siswa langsung dipasang
+        // sebagai chip terpilih tanpa perlu menyaring dropdown.
+        pickSiswa({
+            id: btn.dataset.id,
+            nama: btn.dataset.nama,
+            nisn: btn.dataset.nisn,
+            kelas: btn.dataset.kelas
+        });
 
         var card = $('form-lapor');
         card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2257,28 +2466,7 @@ html {
     }
 
 
-    /* =====================================================
-       INISIALISASI
-    ===================================================== */
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        updateMode();
-
-        // Jika siswa sudah terpilih (misalnya dari halaman daftar siswa),
-        // saring dropdown ke kelas siswa tersebut.
-        if (filterKelas && siswaSelect.value) {
-            var picked = siswaMaster.filter(function (s) {
-                return s.value === String(siswaSelect.value);
-            })[0];
-
-            if (picked && picked.kelasRaw) {
-                filterKelas.value = picked.kelasRaw;
-                applySiswaFilter(picked.kelasRaw, picked.value);
-            }
-        }
-    });
-})();
+    })();
 </script>
 
 @endsection

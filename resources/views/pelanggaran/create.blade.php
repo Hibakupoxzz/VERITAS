@@ -7,1428 +7,1123 @@
 @section('styles')
 @include('partials.ui')
 
-*,
-*::before,
-*::after {
-        box-sizing: border-box;
-    }
+/* =========================================================
+   TAMBAH PELANGGARAN
+   Primitif bersama (.pv-card, .pv-field, .pv-label, .pv-input,
+   .pv-select, .pv-textarea, .pv-footer, .pv-btn-*, .upload-box,
+   .upload-icon, .pv-page-*) berasal dari partials/ui.blade.
+========================================================= */
 
-.pv-body .container {
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto;
-    }
-    .pv-input,
-    .pv-select,
-    .pv-input:focus,
-    .pv-select:focus,
-    .pv-input[readonly] {
-        background: #f3f4f6;
-        color: #374151;
-        cursor: not-allowed;
-    }
+.pv-body,
+.pv-body *,
+.pv-body *::before,
+.pv-body *::after {
+    box-sizing: border-box;
+}
+
+.pv-body {
+    width: 100%;
+}
+
+.pv-body .is-hidden {
+    display: none !important;
+}
+
+.pv-inner {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* .pv-card di partial tidak punya padding */
+.pv-inner .pv-card {
+    padding: 24px 28px;
+}
+
+.pv-page-header,
+.pv-page-header > div {
+    min-width: 0;
+}
+
+.pv-page-header h1,
+.pv-page-header p {
+    overflow-wrap: anywhere;
+}
+
+.pv-req {
+    color: #dc2626;
+}
+
+.pv-hint {
+    display: block;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: .75rem;
+    line-height: 1.5;
+}
+
+/* Dua kolom (tanggal + kategori). Belum didefinisikan di partial. */
+.pv-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 18px;
+}
+
+/*
+ * Hanya input readonly yang tampil "terkunci".
+ * Sebelumnya selector ini ikut mengenai SEMUA .pv-input dan
+ * .pv-select sehingga seluruh form terlihat nonaktif.
+ */
+.pv-input[readonly] {
+    background: #f3f4f6;
+    color: #374151;
+    cursor: not-allowed;
+}
+
+.pv-input[readonly]:focus {
+    border-color: var(--c-border);
+    box-shadow: none;
+}
+
+
+/* ── Pencarian siswa ── */
+.pv-search-box {
+    position: relative;
+}
 
 .pv-search {
-        position: relative;
-        width: 100%;
-    }
+    position: relative;
+    width: 100%;
+}
 
-    .pv-search input {
-        padding-left: 42px;
-    }
+.pv-search input {
+    padding-left: 42px;
+}
 
-    .pv-search svg {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 18px;
-        height: 18px;
-        stroke: #9ca3af;
-        pointer-events: none;
-    }
+.pv-search svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    transform: translateY(-50%);
+    stroke: #9ca3af;
+    pointer-events: none;
+}
 
-    #hasilSiswa {
-        margin-top: 10px;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        overflow: hidden;
-        display: none;
-        width: 100%;
-    }
+/* Daftar hasil tampil inline di dalam card (mendorong konten di bawahnya),
+   bukan popup melayang. */
+#hasilSiswa {
+    margin-top: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
 
-    .pv-siswa-item {
-        padding: 12px;
-        cursor: pointer;
-        background: white;
-        border-bottom: 1px solid #f3f4f6;
-        word-break: break-word;
-    }
+.pv-siswa-item {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fff;
+    color: #111827;
+    font-family: inherit;
+    font-size: .875rem;
+    text-align: left;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+}
 
-    .pv-siswa-item:hover {
-        background: #f8fafc;
-    }
+.pv-siswa-item:last-child {
+    border-bottom: none;
+}
 
-    .pv-siswa-item:last-child {
-        border-bottom: none;
-    }
+.pv-siswa-item:hover,
+.pv-siswa-item:focus-visible {
+    background: #f8fafc;
+    outline: none;
+}
 
-    .pv-selected {
-        margin-top: 12px;
-        padding: 12px;
-        background: #eff6ff;
-        border-radius: 10px;
-        color: #1e40af;
-        display: none;
-        word-break: break-word;
-    }
+.pv-siswa-item strong {
+    display: block;
+}
 
-    .pv-alert-error {
-        background: #fff1f1;
-        border: 1px solid #fecaca;
-        border-left: 4px solid var(--c-badge-danger-text);
-        border-radius: 10px;
-        padding: 12px 16px;
-        margin-bottom: 1rem;
-        color: #991b1b;
-    }
+.pv-siswa-item small {
+    color: #6b7280;
+}
 
-    .pv-alert-error ul {
-        margin: 6px 0 0 20px;
-    }
+.pv-siswa-status {
+    padding: 14px;
+    color: #9ca3af;
+    font-size: .8rem;
+    text-align: center;
+}
 
-.pv-btn-primary:hover {
-        background: var(--primary-dark);
-    }
+.pv-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #1e40af;
+}
 
-.pv-btn-secondary:hover {
-        background: #f9fafb;
-    }
+.pv-selected-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 50%;
+    background: #dbeafe;
+    font-weight: 700;
+}
 
-    /*
-    |--------------------------------------------------------------------------
-    | POIN
-    |--------------------------------------------------------------------------
-    */
+.pv-selected-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
 
-    .poin-wrapper {
-        position: relative;
-    }
+.pv-selected-text strong {
+    display: block;
+    font-size: .9rem;
+}
 
-    .poin-badge {
-        display: none;
-        margin-top: 8px;
-        padding: 9px 12px;
-        border-radius: 9px;
-        background: #fef3c7;
-        color: #92400e;
-        font-size: .78rem;
-        line-height: 1.5;
-    }
+.pv-selected-text small {
+    font-size: .75rem;
+    opacity: .85;
+}
 
-    .poin-badge.active {
-        display: block;
-    }
+.pv-selected-change {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #fff;
+    color: #1d4ed8;
+    font-family: inherit;
+    font-size: .75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPLOAD FOTO
-    |--------------------------------------------------------------------------
-    */    .upload-box:hover {
-        border-color: var(--primary);
-        background: #FFF8F6;
-    }
+.pv-selected-change:hover {
+    background: #dbeafe;
+}
+
+
+/* ── Jenis Pelanggaran: input cari + select ── */
+#cariAturan,
+#aturan_pelanggaran_id {
+    display: block;
+    width: 100%;
+    min-height: 42px;            /* samakan tinggi keduanya */
+}
+
+#cariAturan {
+    margin-bottom: 8px;          /* jarak ke dropdown */
+    -webkit-appearance: none;    /* hilangkan gaya bawaan type="search" */
+    appearance: none;
+}
+
+#cariAturan::-webkit-search-cancel-button {
+    cursor: pointer;
+}
+
+
+/* ── Poin ── */
+.poin-badge {
+    display: none;
+    margin-top: 8px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: .78rem;
+    line-height: 1.5;
+}
+
+.poin-badge.active {
+    display: block;
+}
+
+
+/* ── Upload foto ── */
+.pv-inner .pv-card.pv-card-search {
+    position: relative;
+    z-index: 5;
+    overflow: visible;
+}
+
+.upload-box:hover,
+.upload-box:focus-within {
+    border-color: var(--primary);
+    background: #FFF8F6;
+}
 
 .upload-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1F2937;
-        margin-bottom: 10px;
-    }
+    margin-bottom: 8px;
+    color: #1F2937;
+    font-size: 20px;
+    font-weight: 700;
+}
 
-    .upload-desc {
-        max-width: 450px;
-        color: #6B7280;
-        line-height: 1.7;
-        margin-bottom: 28px;
-    }
+.upload-desc {
+    max-width: 450px;
+    margin-bottom: 22px;
+    color: #6B7280;
+    font-size: .9rem;
+    line-height: 1.7;
+}
 
-    .upload-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 14px 28px;
-        border-radius: 14px;
-        background: var(--primary);
-        color: #fff;
-        font-weight: 600;
-        transition: .3s;
-    }
+.upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 26px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
 
-    .upload-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 25px rgba(109,20,8,.25);
-    }
+.upload-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
 
-    #previewFoto {
-        display: none;
+.upload-box:hover .upload-btn {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(109, 20, 8, .25);
+}
+
+.upload-btn {
+    border: none;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Tombol galeri dibuat netral supaya pilihan kedua jelas berbeda
+   dari tombol kamera yang memakai warna utama. */
+.upload-btn-secondary {
+    border: 2px solid var(--primary);
+    background: #fff;
+    color: var(--primary);
+}
+
+.upload-box:hover .upload-btn-secondary {
+    box-shadow: 0 12px 25px rgba(109, 20, 8, .12);
+}
+
+.upload-error {
+    margin-top: 10px;
+    color: #b91c1c;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+.upload-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    background: #fafafa;
+}
+
+#previewFoto {
+    display: block;
+    width: 140px;
+    height: 140px;
+    flex: 0 0 140px;
+    object-fit: cover;
+    border: 3px solid #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .15);
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+}
+
+.file-info strong {
+    color: #111827;
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
+
+.file-info small {
+    color: #6B7280;
+}
+
+.upload-remove {
+    margin-top: 6px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #b91c1c;
+    font-family: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.upload-remove:hover {
+    text-decoration: underline;
+}
+
+
+/* ── Footer ── */
+.pv-inner .pv-footer {
+    align-items: center;
+}
+
+.pv-bottom-footer {
+    padding: 48px 10px 15px;
+    color: #9CA3AF;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.pv-bottom-footer a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .pv-grid-2 { grid-template-columns: 1fr; }
+
+    .pv-inner .pv-card { padding: 18px; border-radius: 16px; }
+
+    .pv-inner .pv-footer { flex-direction: column-reverse; }
+
+    .pv-inner .pv-btn-primary,
+    .pv-inner .pv-btn-secondary {
         width: 100%;
-        max-width: 650px;
-        max-height: 420px;
-        margin-top: 30px;
-        border-radius: 18px;
-        object-fit: cover;
-        border: 6px solid white;
-        box-shadow: 0 20px 45px rgba(0,0,0,.18);
+        min-height: 46px;
     }
 
-    .file-info {
-        display: none;
-        width: 100%;
-        max-width: 650px;
-        margin-top: 20px;
-        padding: 18px;
-        background: white;
-        border: 1px solid #E5E7EB;
-        border-radius: 14px;
-        text-align: left;
-        word-break: break-word;
-    }
-
-    .file-info strong {
-        display: block;
-        font-size: 15px;
-        color: #111827;
-    }
-
-    .file-info small {
-        color: #6B7280;
-    }
-
-    #infoPoin {
-        display: block;
-        margin-top: 6px;
-        color: #6b7280;
-        font-size: .75rem;
-        line-height: 1.5;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | FOOTER
-    |--------------------------------------------------------------------------
-    */
-
-    .pv-bottom-footer {
-        padding: 60px 10px 15px;
-        text-align: center;
-        color: #9CA3AF;
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .pv-bottom-footer a {
-        color: var(--primary);
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | MOBILE
-    |--------------------------------------------------------------------------
-    */
-
-    @media (max-width: 768px) {
-
-        .pv-grid-2 {
-            grid-template-columns: 1fr;
-        }
-
-        .pv-card {
-            padding: 1rem;
-            border-radius: 16px;
-        }
-
-        .pv-footer {
-            flex-direction: column-reverse;
-        }
-
-        .pv-btn-primary,
-        .pv-btn-secondary {
-            width: 100%;
-            min-height: 46px;
-        }
-
-        .upload-box {
-            padding: 30px 20px;
-        }
-
-        .upload-title {
-            font-size: 20px;
-        }
-
-        .upload-desc {
-            font-size: 14px;
-        }
-        }
-
-    @media (max-width: 576px) {
-
-        .pv-page-header {
-            margin-bottom: 1rem;
-            gap: 10px;
-        }
-
-        .pv-page-icon {
-            width: 40px;
-            height: 40px;
-            flex-basis: 40px;
-        }
-
-        .pv-page-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .pv-page-title {
-            font-size: 1.1rem;
-        }
-
-        .pv-page-sub {
-            font-size: .72rem;
-        }
-
-        .pv-input,
-        .pv-select,
-        .pv-textarea {
-            font-size: 16px;
-        }
-
-        .upload-icon {
-            width: 70px;
-            height: 70px;
-            font-size: 30px;
-        }
-
-        .pv-bottom-footer {
-            padding-top: 40px;
-            font-size: 12px;
-        }
-        }
-
-    @media (max-width: 380px) {
-
-        .pv-card {
-            padding: 12px;
-        }
-
-        .pv-page-title {
-            font-size: 1rem;
-        }
-
-        .pv-page-sub {
-            font-size: .68rem;
-        }
-
-        .upload-title {
-            font-size: 18px;
-        }
-
-        .upload-desc {
-            font-size: 13px;
-        }
-        }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESPONSIVE HARDENING
-    |--------------------------------------------------------------------------
-    */
-
-    .pv-page-header,
-    .pv-page-header > div {
-        min-width: 0;
-    }
-
-    .pv-page-header h1,
-    .pv-page-header p {
-        overflow-wrap: anywhere;
-    }
-
-    #previewFoto {
-        height: auto;
-    }
-
-    .pv-section-label,    @media (max-width: 1200px) {
-
-        .upload-box {
-            padding: 40px 30px;
-        }
-        }
-
-    @media (max-width: 1024px) {
-
-        .upload-box {
-            padding: 34px 24px;
-        }
-
-        .upload-icon {
-            width: 80px;
-            height: 80px;
-            font-size: 34px;
-            margin-bottom: 18px;
-        }
-        }
-
-    @media (max-width: 900px) {
-
-        .pv-grid-2 {
-            grid-template-columns: 1fr;
-        }
-
-        .upload-box {
-            padding: 28px 20px;
-            border-radius: 18px;
-        }
-        }
-
-    @media (max-width: 768px) {
-
-        .pv-footer {
-            flex-wrap: wrap;
-        }
-
-        .pv-btn-primary,
-        .pv-btn-secondary {
-            min-height: 44px;
-        }
-
-        #previewFoto {
-            max-height: 300px;
-        }
-        }
-
-    @media (max-width: 640px) {
-
-        .upload-box {
-            padding: 24px 16px;
-        }
-
-        .upload-title {
-            font-size: 18px;
-        }
-
-        .upload-desc {
-            margin-bottom: 20px;
-        }
-
-        .upload-btn {
-            padding: 12px 22px;
-        }
-
-        .pv-textarea {
-            min-height: 90px;
-        }
-
-        .pv-alert-error {
-            padding: 12px;
-        }
-
-        .pv-alert-error ul {
-            margin-left: 16px;
-        }
-        }
-
-    @media (max-width: 576px) {
-
-        .pv-input,
-        .pv-select,
-        .pv-textarea,
-        .pv-search input {
-            font-size: 16px;
-        }
-
-        .pv-search svg {
-            left: 12px;
-            width: 16px;
-            height: 16px;
-        }
-
-        .pv-search input {
-            padding-left: 38px;
-        }
-
-        .upload-box {
-            padding: 20px 12px;
-        }
-
-        .upload-btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        #previewFoto {
-            max-height: 220px;
-            border-width: 4px;
-            margin-top: 20px;
-        }
-
-        .file-info {
-            padding: 14px;
-            margin-top: 16px;
-        }
-        }
-
-    @media (max-width: 480px) {
-
-        .pv-footer {
-            flex-direction: column-reverse;
-            gap: 8px;
-        }
-
-        .pv-footer .pv-btn-primary,
-        .pv-footer .pv-btn-secondary {
-            width: 100%;
-            min-height: 46px;
-            justify-content: center;
-        }
-
-        .pv-card {
-            padding: 0.9rem;
-        }
-
-        .upload-icon {
-            width: 62px;
-            height: 62px;
-            font-size: 26px;
-            margin-bottom: 14px;
-        }
-
-        .pv-bottom-footer {
-            padding: 32px 8px 12px;
-        }
-        }
-
-    @media (max-width: 400px) {
-
-        .pv-card {
-            padding: 0.75rem;
-        }
-
-        .pv-page-title {
-            font-size: 1rem;
-        }
-
-        .pv-page-sub {
-            font-size: 0.68rem;
-        }
-
-        .upload-box {
-            padding: 16px 10px;
-        }
-
-        .upload-title {
-            font-size: 16px;
-        }
-
-        .upload-desc {
-            font-size: 12.5px;
-        }
-
-        .pv-selected {
-            padding: 10px;
-        }
-        }
+    .upload-box { padding: 28px 18px; }
+    .upload-title { font-size: 18px; }
+    .upload-desc { font-size: .85rem; }
+}
+
+@media (max-width: 576px) {
+    .pv-page-header { margin-bottom: 1rem; gap: 10px; }
+
+    .pv-page-icon { width: 40px; height: 40px; flex-basis: 40px; }
+    .pv-page-icon svg { width: 20px; height: 20px; }
+    .pv-page-title { font-size: 1.1rem; }
+    .pv-page-sub { font-size: .72rem; }
+
+    /* 16px mencegah iOS zoom otomatis saat input difokus */
+    .pv-input,
+    .pv-select,
+    .pv-textarea { font-size: 16px; }
+
+    .pv-search svg { left: 12px; width: 16px; height: 16px; }
+    .pv-search input { padding-left: 38px; }
+
+    .upload-icon { width: 62px; height: 62px; font-size: 26px; }
+    .upload-box { padding: 22px 14px; }
+    .upload-actions { flex-direction: column; }
+    .upload-btn { width: 100%; justify-content: center; }
+
+    .upload-result { flex-direction: column; align-items: center; text-align: center; }
+    .file-info { align-items: center; }
+    #previewFoto { width: 100%; max-width: 260px; height: auto; max-height: 220px; flex-basis: auto; }
+
+    .pv-selected { flex-wrap: wrap; }
+    .pv-selected-change { width: 100%; }
+
+    .pv-bottom-footer { padding-top: 36px; font-size: 12px; }
+}
+
+@media (max-width: 400px) {
+    .pv-inner .pv-card { padding: 14px 12px; }
+    .pv-page-title { font-size: 1rem; }
+    .pv-page-sub { font-size: .68rem; }
+    .upload-title { font-size: 16px; }
+}
 @endsection
 
 
 @section('content')
 
+@php
+    $today = date('Y-m-d');
+@endphp
+
 <div class="pv-body">
 
-    <div class="container">
+<div class="pv-inner">
 
-        {{-- HEADER --}}
-        <div class="pv-page-header">
+    {{-- HEADER --}}
+    <div class="pv-page-header">
 
-            <div class="pv-page-icon">
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2">
-                    <path d="M12 8v4l3 3"/>
-                    <circle
-                        cx="12"
-                        cy="12"
-                        r="10"/>
-                </svg>
-            </div>
-
-            <div>
-                <h1 class="pv-page-title">
-                    Tambah Pelanggaran
-                </h1>
-
-                <p class="pv-page-sub">
-                    Catat pelanggaran siswa ke dalam sistem
-                </p>
-            </div>
-
+        <div class="pv-page-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 8v4l3 3"/>
+                <circle cx="12" cy="12" r="10"/>
+            </svg>
         </div>
 
+        <div>
+            <h1 class="pv-page-title">Tambah Pelanggaran</h1>
+            <p class="pv-page-sub">Catat pelanggaran siswa ke dalam sistem</p>
+        </div>
 
-        {{-- ERROR --}}
-        @if($errors->any())
+    </div>
 
-            <div class="pv-alert-error">
-
-                <strong>
-                    Data belum lengkap:
-                </strong>
-
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-
-            </div>
-
-        @endif
+    {{-- Catatan: ringkasan $errors sudah otomatis ditampilkan oleh
+         layouts/app.blade.php, jadi tidak diulang di sini. --}}
 
 
-        <form
-            action="{{ route('pelanggaran.store') }}"
-            method="POST"
-            enctype="multipart/form-data">
+    <form
+        action="{{ route('pelanggaran.store') }}"
+        method="POST"
+        enctype="multipart/form-data"
+        id="pelanggaranForm">
 
-            @csrf
+        @csrf
 
 
-            {{-- =========================================================
-                 PILIH SISWA
-                 JANGAN DIUBAH
-            ========================================================== --}}
+        {{-- =====================================================
+             PILIH SISWA
+        ====================================================== --}}
+        <div class="pv-card pv-card-search">
 
-            <input
-                type="hidden"
-                name="siswa_id"
-                id="siswa_id">
+            <div class="pv-section-label">Pilih Siswa</div>
 
-            <div class="pv-card">
+            <input type="hidden" name="siswa_id" id="siswa_id">
 
-                <div class="pv-section-label">
-                    Pilih Siswa
-                </div>
+            <div class="pv-search-box" id="searchBox">
 
                 <div class="pv-search">
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2">
-
-                        <circle
-                            cx="11"
-                            cy="11"
-                            r="8"/>
-
-                        <line
-                            x1="21"
-                            y1="21"
-                            x2="16.65"
-                            y2="16.65"/>
-
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
 
                     <input
                         type="text"
                         id="searchSiswa"
                         class="pv-input"
-                        placeholder="Cari nama atau NISN siswa">
-
+                        placeholder="Cari nama atau NISN siswa"
+                        autocomplete="off"
+                        aria-controls="hasilSiswa">
                 </div>
 
-                <div id="hasilSiswa"></div>
+                <div id="hasilSiswa" class="is-hidden" role="listbox"></div>
 
-                <div
-                    id="selectedSiswa"
-                    class="pv-selected">
-                </div>
+                <span class="pv-hint">Ketik minimal 2 huruf. Kosongkan jika laporan tidak ditujukan ke siswa tertentu.</span>
 
             </div>
 
-
-            {{-- =========================================================
-                 DETAIL PELANGGARAN
-            ========================================================== --}}
-
-            <div class="pv-card">
-
-                <div class="pv-section-label">
-                    Detail Pelanggaran
+            <div id="selectedSiswa" class="pv-selected is-hidden">
+                <div class="pv-selected-avatar" id="selectedAvatar"></div>
+                <div class="pv-selected-text">
+                    <strong id="selectedNama"></strong>
+                    <small id="selectedMeta"></small>
                 </div>
+                <button type="button" class="pv-selected-change" id="gantiSiswa">Ganti</button>
+            </div>
+
+        </div>
 
 
-                {{-- TANGGAL + KATEGORI --}}
+        {{-- =====================================================
+             DETAIL PELANGGARAN
+        ====================================================== --}}
+        <div class="pv-card">
 
-                <div class="pv-grid-2">
+            <div class="pv-section-label">Detail Pelanggaran</div>
 
-                    {{-- TANGGAL --}}
-
-                    <div class="pv-field">
-
-                        <label class="pv-label">
-                            Tanggal
-                            <span style="color:#2563eb;">*</span>
-                        </label>
-
-                        <input
-                            type="date"
-                            name="tanggal"
-                            class="pv-input"
-                            value="{{ old('tanggal', date('Y-m-d')) }}"
-                            required>
-
-                    </div>
-
-
-                    {{-- KATEGORI --}}
-
-                    <div class="pv-field">
-
-                        <label class="pv-label">
-                            Kategori
-                        </label>
-
-                        <select
-                            id="kategoriPelanggaran"
-                            class="pv-select">
-
-                            <option value="">
-                                -- Semua Kategori --
-                            </option>
-
-                            <option value="Ringan">
-                                Ringan
-                            </option>
-
-                            <option value="Sedang">
-                                Sedang
-                            </option>
-
-                            <option value="Berat">
-                                Berat
-                            </option>
-
-                            <option value="Luar Biasa">
-                                Luar Biasa
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =====================================================
-                     JENIS PELANGGARAN
-                ====================================================== --}}
+            <div class="pv-grid-2">
 
                 <div class="pv-field">
-
-                    <label
-                        class="pv-label"
-                        for="aturan_pelanggaran_id">
-
-                        Jenis Pelanggaran
-
+                    <label class="pv-label" for="tanggal">
+                        Tanggal <span class="pv-req">*</span>
                     </label>
-
-                    <select
-                        name="aturan_pelanggaran_id"
-                        id="aturan_pelanggaran_id"
-                        class="pv-select">
-
-                        <option value="">
-                            -- Tidak memilih pelanggaran --
-                        </option>
-
-                        @foreach($aturanPelanggarans as $aturan)
-
-                            <option
-                                value="{{ $aturan->id }}"
-                                data-kategori="{{ $aturan->kategori }}"
-                                data-poin="{{ $aturan->poin }}"
-                                data-nama="{{ $aturan->nama }}">
-
-                                {{ $aturan->kode }} -
-                                {{ $aturan->nama }}
-                                ({{ $aturan->poin }} poin)
-
-                            </option>
-
-                        @endforeach
-
-                        <option value="custom">
-                            Pelanggaran lainnya
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- =====================================================
-                     PELANGGARAN LAINNYA
-                ====================================================== --}}
-
-                <div
-                    class="pv-field"
-                    id="customPelanggaran"
-                    style="display:none;">
-
-                    <label
-                        class="pv-label"
-                        for="jenis_pelanggaran_custom">
-
-                        Nama Pelanggaran
-
-                    </label>
-
                     <input
-                        type="text"
-                        name="jenis_pelanggaran_custom"
-                        id="jenis_pelanggaran_custom"
+                        type="date"
+                        name="tanggal"
+                        id="tanggal"
                         class="pv-input"
-                        value="{{ old('jenis_pelanggaran_custom') }}"
-                        placeholder="Masukkan nama pelanggaran">
-
+                        value="{{ old('tanggal', $today) }}"
+                        max="{{ $today }}"
+                        required>
                 </div>
 
-
-                {{-- =====================================================
-                     POIN
-                ====================================================== --}}
-
                 <div class="pv-field">
-
-                    <label
-                        class="pv-label"
-                        for="poin_custom">
-
-                        Poin
-
-                    </label>
-
-                    <div class="poin-wrapper">
-
-                        <input
-                            type="number"
-                            name="poin_custom"
-                            id="poin_custom"
-                            class="pv-input"
-                            min="0"
-                            value="{{ old('poin_custom') }}"
-                            placeholder="Poin otomatis"
-                            readonly>
-
-                    </div>
-
-                    <small id="infoPoin">
-                        Pilih jenis pelanggaran untuk mendapatkan poin.
-                    </small>
-
-                    <div
-                        id="poinBadge"
-                        class="poin-badge">
-
-                        Poin aturan resmi tidak dapat diubah.
-
-                    </div>
-
-                </div>
-
-
-                {{-- =====================================================
-                     KETERANGAN
-                ====================================================== --}}
-
-                <div class="pv-field">
-
-                    <label
-                        class="pv-label"
-                        for="keterangan">
-
-                        Keterangan
-
-                    </label>
-
-                    <textarea
-                        name="keterangan"
-                        id="keterangan"
-                        class="pv-textarea"
-                        placeholder="Tambahkan keterangan...">{{ old('keterangan') }}</textarea>
-
+                    <label class="pv-label" for="kategoriPelanggaran">Kategori</label>
+                    <select id="kategoriPelanggaran" class="pv-select">
+                        <option value="">-- Semua Kategori --</option>
+                        <option value="Ringan">Ringan</option>
+                        <option value="Sedang">Sedang</option>
+                        <option value="Berat">Berat</option>
+                        <option value="Luar Biasa">Luar Biasa</option>
+                    </select>
+                    <span class="pv-hint">Menyaring daftar jenis pelanggaran di bawah.</span>
                 </div>
 
             </div>
 
 
-            {{-- =========================================================
-                 FOTO BUKTI
-            ========================================================== --}}
+            {{-- JENIS PELANGGARAN --}}
+            <div class="pv-field">
 
-            <div class="pv-card">
+                <label class="pv-label" for="aturan_pelanggaran_id">Jenis Pelanggaran</label>
 
-                <div class="pv-section-label">
-                    Foto Bukti
+                <input
+                    type="search"
+                    id="cariAturan"
+                    class="pv-input"
+                    placeholder="Cari jenis pelanggaran (kode atau nama)..."
+                    autocomplete="off">
+
+                <select name="aturan_pelanggaran_id" id="aturan_pelanggaran_id" class="pv-select" required>
+
+                    <option value="">-- Pilih jenis pelanggaran --</option>
+
+                    @foreach($aturanPelanggarans as $aturan)
+                        <option
+                            value="{{ $aturan->id }}"
+                            data-kategori="{{ $aturan->kategori }}"
+                            data-poin="{{ $aturan->poin }}"
+                            {{ (string) old('aturan_pelanggaran_id') === (string) $aturan->id ? 'selected' : '' }}>{{ $aturan->kode }} - {{ $aturan->nama }} ({{ $aturan->poin }} poin)</option>
+                    @endforeach
+
+                </select>
+
+                <span class="pv-hint" id="cariAturanInfo"></span>
+
+            </div>
+
+
+            {{-- POIN --}}
+            <div class="pv-field">
+
+                <label class="pv-label" for="poinOtomatis">Poin</label>
+
+                {{-- Poin selalu mengikuti master aturan, jadi field ini
+                     hanya untuk ditampilkan dan tidak pernah dikirim. --}}
+                <input
+                    type="number"
+                    id="poinOtomatis"
+                    class="pv-input"
+                    min="0"
+                    value=""
+                    placeholder="Poin otomatis"
+                    readonly>
+
+                <small id="infoPoin" class="pv-hint">
+                    Pilih jenis pelanggaran untuk mendapatkan poin.
+                </small>
+
+                <div id="poinBadge" class="poin-badge"></div>
+
+            </div>
+
+
+            {{-- KETERANGAN --}}
+            <div class="pv-field">
+
+                <label class="pv-label" for="keterangan">Keterangan</label>
+
+                <textarea
+                    name="keterangan"
+                    id="keterangan"
+                    class="pv-textarea"
+                    placeholder="Tambahkan keterangan...">{{ old('keterangan') }}</textarea>
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             FOTO BUKTI
+        ====================================================== --}}
+        <div class="pv-card">
+
+            <div class="pv-section-label">Foto Bukti</div>
+
+            {{-- Dua tombol terpisah: satu memaksa kamera (capture),
+                 satu membuka galeri (tanpa capture). Atribut capture
+                 dipasang/dilepas sebelum input diklik, jadi tetap satu
+                 input agar name="foto_bukti" hanya terkirim satu kali. --}}
+            <div class="upload-box">
+
+                <input
+                    type="file"
+                    id="foto_bukti"
+                    name="foto_bukti"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden>
+
+                <div class="upload-icon">
+                    <i class="fa-solid fa-camera"></i>
                 </div>
 
-                <label class="upload-box">
+                <div class="upload-title">Upload Foto Bukti</div>
 
-                    <input
-                        type="file"
-                        id="foto_bukti"
-                        name="foto_bukti"
-                        accept="image/*"
-                        capture="environment"
-                        hidden>
+                <div class="upload-desc">
+                    Ambil foto langsung dengan kamera, atau pilih foto yang
+                    sudah ada di galeri.
+                    <br>
+                    Format JPG, PNG, atau WEBP. Maksimal 5 MB.
+                </div>
 
-                    <div class="upload-icon">
-                        <i class="fa-solid fa-camera"></i>
-                    </div>
+                <div class="upload-actions">
 
-                    <div class="upload-title">
-                        Upload Foto Bukti
-                    </div>
+                    <button type="button" class="upload-btn" id="btnAmbilFoto">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        Ambil Foto (Kamera)
+                    </button>
 
-                    <div class="upload-desc">
-
-                        Ambil foto menggunakan kamera
-                        atau pilih dari galeri.
-
-                        <br>
-
-                        Format JPG, PNG, JPEG.
-
-                    </div>
-
-                    <span class="upload-btn">
+                    <button type="button" class="upload-btn upload-btn-secondary" id="btnPilihGaleri">
                         <i class="fa-solid fa-image"></i>
-                        Pilih Foto
-                    </span>
+                        Pilih dari Galeri
+                    </button>
 
-                    <img
-                        id="previewFoto"
-                        alt="Preview foto">
-
-                    <div
-                        id="fileInfo"
-                        class="file-info">
-
-                        <strong id="fileName"></strong>
-
-                        <small id="fileSize"></small>
-
-                    </div>
-
-                </label>
+                </div>
 
             </div>
 
+            <div class="upload-error is-hidden" id="uploadError" role="alert"></div>
 
-            {{-- =========================================================
-                 BUTTON
-            ========================================================== --}}
-
-            <div class="pv-footer">
-
-                <a
-                    href="{{ route('pelanggaran.index') }}"
-                    class="pv-btn-secondary">
-
-                    Kembali
-
-                </a>
-
-                <button
-                    type="submit"
-                    class="pv-btn-primary">
-
-                    Simpan Pelanggaran
-
-                </button>
-
+            <div class="upload-result is-hidden" id="uploadResult">
+                <img id="previewFoto" alt="Preview foto">
+                <div class="file-info">
+                    <strong id="fileName"></strong>
+                    <small id="fileSize"></small>
+                    <button type="button" class="upload-remove" id="hapusFoto">
+                        <i class="fa-solid fa-trash"></i> Hapus foto
+                    </button>
+                </div>
             </div>
 
-        </form>
+        </div>
 
-    </div>
+
+        {{-- TOMBOL --}}
+        <div class="pv-footer">
+
+            <a href="{{ route('pelanggaran.index') }}" class="pv-btn-secondary">Kembali</a>
+
+            <button type="submit" class="pv-btn-primary" id="btnSimpan">Simpan Pelanggaran</button>
+
+        </div>
+
+    </form>
+
+</div>
 
 </div>
 
 
 {{-- FOOTER --}}
-
 <footer class="pv-bottom-footer">
-
     © {{ date('Y') }} VERITAS — Sistem Monitoring Pelanggaran Siswa.
-
     <br>
-
     Developed by
-
-    <a
-        href="https://kicauorgspark.my.id"
-        target="_blank">
-
-        KicawOrgspark
-
-    </a>
-
+    <a href="https://kicauorgspark.my.id" target="_blank" rel="noopener">KicawOrgspark</a>
 </footer>
 
-
-{{-- =========================================================
-     JQUERY
-========================================================= --}}
-
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+@endsection
 
 
+@section('scripts')
 <script>
+(function () {
+    'use strict';
 
-/*
-|--------------------------------------------------------------------------
-| FOTO BUKTI
-|--------------------------------------------------------------------------
-*/
+    var $ = function (id) { return document.getElementById(id); };
 
-const fotoInput = document.getElementById("foto_bukti");
-const preview = document.getElementById("previewFoto");
-const fileInfo = document.getElementById("fileInfo");
-const fileName = document.getElementById("fileName");
-const fileSize = document.getElementById("fileSize");
+    var form = $('pelanggaranForm');
 
-if (fotoInput) {
 
-    fotoInput.addEventListener("change", function () {
+    /* =====================================================
+       FOTO BUKTI
+    ===================================================== */
 
-        if (!this.files.length) {
+    var MAX_SIZE   = 5 * 1024 * 1024; // 5 MB
+    var fotoInput  = $('foto_bukti');
+    var preview    = $('previewFoto');
+    var result     = $('uploadResult');
+    var errorBox   = $('uploadError');
+    var objectUrl  = null;
+
+    function resetFoto() {
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+        fotoInput.value = '';
+        preview.removeAttribute('src');
+        result.classList.add('is-hidden');
+    }
+
+    function showError(msg) {
+        errorBox.textContent = msg;
+        errorBox.classList.toggle('is-hidden', !msg);
+    }
+
+    fotoInput.addEventListener('change', function () {
+        showError('');
+
+        var file = fotoInput.files && fotoInput.files[0];
+        if (!file) { resetFoto(); return; }
+
+        if (!file.type.startsWith('image/')) {
+            resetFoto();
+            showError('File harus berupa gambar (JPG, PNG, atau WEBP).');
             return;
         }
 
-        const file = this.files[0];
-
-        preview.src = URL.createObjectURL(file);
-
-        preview.style.display = "block";
-
-        fileInfo.style.display = "block";
-
-        fileName.textContent = file.name;
-
-        fileSize.textContent =
-            (file.size / 1024 / 1024).toFixed(2) + " MB";
-
-    });
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| SEARCH SISWA
-|
-| KODE SEARCH TETAP SEPERTI PUNYA KAMU
-|--------------------------------------------------------------------------
-*/
-
-let timer;
-
-$('#searchSiswa').on('keyup', function(){
-
-    clearTimeout(timer);
-
-    let q = $(this).val();
-
-    if(q.length < 2){
-
-        $('#hasilSiswa').hide();
-
-        return;
-    }
-
-    timer = setTimeout(function(){
-
-        $.get('/search-siswa',{q:q},function(data){
-
-            let html = '';
-
-            data.forEach(item => {
-
-                html += `
-                <div class="pv-siswa-item pilihSiswa"
-                    data-id="${item.id}"
-                    data-nama="${item.nama}"
-                    data-nisn="${item.nisn}"
-                    data-kelas="${item.kelas}">
-
-                    <strong>${item.nama}</strong><br>
-
-                    <small>
-                        ${item.nisn} • ${item.kelas}
-                    </small>
-
-                </div>
-                `;
-
-            });
-
-            $('#hasilSiswa')
-                .html(html)
-                .show();
-
-        });
-
-    },300);
-
-});
-
-
-$(document).on('click','.pilihSiswa',function(){
-
-    let id = $(this).data('id');
-
-    let nama = $(this).data('nama');
-
-    let nisn = $(this).data('nisn');
-
-    let kelas = $(this).data('kelas');
-
-    $('#siswa_id').val(id);
-
-    $('#searchSiswa').val(nama);
-
-    $('#selectedSiswa')
-        .html(`
-            <strong>${nama}</strong><br>
-            NISN : ${nisn}<br>
-            Kelas : ${kelas}
-        `)
-        .show();
-
-    $('#hasilSiswa').hide();
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| KATEGORI + JENIS PELANGGARAN + POIN
-|--------------------------------------------------------------------------
-*/
-
-$(document).ready(function(){
-
-    const kategoriSelect =
-        $('#kategoriPelanggaran');
-
-    const aturanSelect =
-        $('#aturan_pelanggaran_id');
-
-    const customPelanggaran =
-        $('#customPelanggaran');
-
-    const namaCustom =
-        $('#jenis_pelanggaran_custom');
-
-    const poinCustom =
-        $('#poin_custom');
-
-    const infoPoin =
-        $('#infoPoin');
-
-    const poinBadge =
-        $('#poinBadge');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Simpan seluruh option aturan
-    |--------------------------------------------------------------------------
-    */
-
-    const semuaAturan = aturanSelect
-        .find('option')
-        .filter(function(){
-
-            return $(this).val() !== '';
-
-        })
-        .clone();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Filter kategori
-    |--------------------------------------------------------------------------
-    */
-
-    kategoriSelect.on('change', function(){
-
-        const kategori = $(this).val();
-
-        const pilihanSaatIni =
-            aturanSelect.val();
-
-        aturanSelect.empty();
-
-
-        /*
-         * Option kosong
-         */
-
-        aturanSelect.append(`
-            <option value="">
-                -- Tidak memilih pelanggaran --
-            </option>
-        `);
-
-
-        /*
-         * Tambahkan aturan sesuai kategori
-         */
-
-        semuaAturan.each(function(){
-
-            const option = $(this);
-
-            const value = option.val();
-
-
-            /*
-             * Pelanggaran lainnya selalu tampil
-             */
-
-            if(value === 'custom'){
-
-                return;
-
-            }
-
-
-            /*
-             * Jika kategori kosong,
-             * tampilkan semua aturan.
-             */
-
-            if(
-                kategori === '' ||
-                option.attr('data-kategori') === kategori
-            ){
-
-                aturanSelect.append(
-                    option.clone()
-                );
-
-            }
-
-        });
-
-
-        /*
-         * Pelanggaran lainnya
-         */
-
-        const customOption =
-            semuaAturan.filter(function(){
-
-                return $(this).val() === 'custom';
-
-            });
-
-        if(customOption.length){
-
-            aturanSelect.append(
-                customOption.clone()
-            );
-
+        if (file.size > MAX_SIZE) {
+            resetFoto();
+            showError('Ukuran foto melebihi 5 MB. Pilih foto yang lebih kecil.');
+            return;
         }
 
+        if (objectUrl) { URL.revokeObjectURL(objectUrl); }
+        objectUrl = URL.createObjectURL(file);
 
-        /*
-         * Pertahankan pilihan jika masih tersedia
-         */
+        preview.src = objectUrl;
+        $('fileName').textContent = file.name;
+        $('fileSize').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        result.classList.remove('is-hidden');
+    });
 
-        const masihAda =
-            aturanSelect.find(
-                'option[value="' +
-                pilihanSaatIni +
-                '"]'
-            ).length > 0;
+    $('hapusFoto').addEventListener('click', function () {
+        resetFoto();
+        showError('');
+    });
 
-        if(masihAda){
-
-            aturanSelect.val(
-                pilihanSaatIni
-            );
-
+    /* Dua tombol untuk satu input file:
+       - "Ambil Foto" memasang capture="environment" supaya HP membuka
+         kamera belakang langsung.
+       - "Pilih dari Galeri" melepas capture supaya file chooser
+         menampilkan daftar foto.
+       capture harus sudah terpasang saat dialog dibuka, makanya diubah
+       sebelum input.click(), bukan sesudahnya. */
+    function openFileDialog(capture) {
+        if (capture) {
+            fotoInput.setAttribute('capture', 'environment');
         } else {
-
-            aturanSelect.val('');
-
+            fotoInput.removeAttribute('capture');
         }
-
-
-        updatePoin();
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pilih jenis pelanggaran
-    |--------------------------------------------------------------------------
-    */
-
-    aturanSelect.on('change', function(){
-
-        updatePoin();
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Fungsi update poin
-    |--------------------------------------------------------------------------
-    */
-
-    function updatePoin(){
-
-        const value =
-            aturanSelect.val();
-
-
-        /*
-         * RESET
-         */
-
-        customPelanggaran.hide();
-
-        namaCustom
-            .prop('required', false);
-
-        poinCustom
-            .prop('required', false)
-            .prop('readonly', true)
-            .val('')
-            .attr(
-                'placeholder',
-                'Poin otomatis'
-            );
-
-        poinBadge.removeClass('active');
-
-
-        /*
-         * TIDAK MEMILIH
-         */
-
-        if(value === ''){
-
-            infoPoin.text(
-                'Pilih jenis pelanggaran untuk mendapatkan poin.'
-            );
-
-            return;
-
-        }
-
-
-        /*
-         * PELANGGARAN LAINNYA
-         */
-
-        if(value === 'custom'){
-
-            customPelanggaran.show();
-
-            namaCustom
-                .prop('required', true);
-
-            poinCustom
-                .prop('required', true)
-                .prop('readonly', false)
-                .attr(
-                    'placeholder',
-                    'Masukkan poin manual'
-                );
-
-            infoPoin.text(
-                'Poin dapat diisi manual untuk pelanggaran lainnya.'
-            );
-
-            return;
-
-        }
-
-
-        /*
-         * ATURAN RESMI
-         */
-
-        const selected =
-            aturanSelect.find(
-                'option:selected'
-            );
-
-        const poin =
-            selected.attr('data-poin');
-
-
-        poinCustom
-            .val(poin)
-            .prop('readonly', true)
-            .prop('required', false)
-            .attr(
-                'placeholder',
-                'Poin otomatis'
-            );
-
-
-        infoPoin.text(
-            'Poin otomatis berdasarkan aturan pelanggaran.'
-        );
-
-
-        poinBadge
-            .addClass('active')
-            .text(
-                'Poin aturan resmi: ' +
-                poin +
-                '. Tidak dapat diubah.'
-            );
-
+        fotoInput.click();
     }
 
+    $('btnAmbilFoto').addEventListener('click', function () {
+        openFileDialog(true);
+    });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Jalankan saat halaman pertama dibuka
-    |--------------------------------------------------------------------------
-    */
+    $('btnPilihGaleri').addEventListener('click', function () {
+        openFileDialog(false);
+    });
 
+
+    /* =====================================================
+       CARI SISWA
+       Endpoint dan format respons sama seperti sebelumnya
+       (GET /search-siswa?q=...). Hasil dirender lewat
+       textContent, bukan innerHTML, agar nama siswa yang
+       berisi tanda kutip / tag HTML tidak merusak halaman.
+    ===================================================== */
+
+    var SEARCH_URL = @json(url('/search-siswa'));
+
+    var searchInput = $('searchSiswa');
+    var results     = $('hasilSiswa');
+    var searchBox   = $('searchBox');
+    var siswaId     = $('siswa_id');
+    var selected    = $('selectedSiswa');
+
+    var timer = null;
+    var lastRequest = 0;
+
+    function hideResults() {
+        results.classList.add('is-hidden');
+        results.innerHTML = '';
+    }
+
+    function showStatus(text) {
+        results.innerHTML = '';
+        var div = document.createElement('div');
+        div.className = 'pv-siswa-status';
+        div.textContent = text;
+        results.appendChild(div);
+        results.classList.remove('is-hidden');
+    }
+
+    function renderResults(list) {
+        results.innerHTML = '';
+
+        if (!list.length) {
+            showStatus('Siswa tidak ditemukan.');
+            return;
+        }
+
+        list.forEach(function (item) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pv-siswa-item';
+            btn.setAttribute('role', 'option');
+
+            var name = document.createElement('strong');
+            name.textContent = item.nama;
+
+            var meta = document.createElement('small');
+            meta.textContent = item.nisn + ' • ' + item.kelas;
+
+            btn.appendChild(name);
+            btn.appendChild(meta);
+
+            btn.addEventListener('click', function () { pickSiswa(item); });
+
+            results.appendChild(btn);
+        });
+
+        results.classList.remove('is-hidden');
+    }
+
+    function pickSiswa(item) {
+        siswaId.value = item.id;
+
+        $('selectedAvatar').textContent = (item.nama || '?').charAt(0).toUpperCase();
+        $('selectedNama').textContent = item.nama;
+        $('selectedMeta').textContent = 'NISN: ' + item.nisn + ' • Kelas: ' + item.kelas;
+
+        selected.classList.remove('is-hidden');
+        searchBox.classList.add('is-hidden');
+        hideResults();
+    }
+
+    function clearSiswa() {
+        siswaId.value = '';
+        searchInput.value = '';
+        selected.classList.add('is-hidden');
+        searchBox.classList.remove('is-hidden');
+        searchInput.focus();
+    }
+
+    $('gantiSiswa').addEventListener('click', clearSiswa);
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(timer);
+
+        var q = searchInput.value.trim();
+
+        if (q.length < 2) {
+            lastRequest++; // batalkan respons yang masih berjalan
+            hideResults();
+            return;
+        }
+
+        timer = setTimeout(function () {
+            var current = ++lastRequest;
+            showStatus('Mencari...');
+
+            fetch(SEARCH_URL + '?q=' + encodeURIComponent(q), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'
+            })
+            .then(function (res) {
+                if (!res.ok) { throw new Error('HTTP ' + res.status); }
+                return res.json();
+            })
+            .then(function (data) {
+                // Abaikan respons lama yang datang terlambat.
+                if (current !== lastRequest) { return; }
+                renderResults(Array.isArray(data) ? data : []);
+            })
+            .catch(function () {
+                if (current !== lastRequest) { return; }
+                showStatus('Gagal memuat data siswa. Coba lagi.');
+            });
+        }, 300);
+    });
+
+    // Navigasi keyboard: panah bawah/atas pindah antar hasil, Esc menutup.
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') {
+            var first = results.querySelector('.pv-siswa-item');
+            if (first) { e.preventDefault(); first.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+        }
+    });
+
+    results.addEventListener('keydown', function (e) {
+        var items = Array.prototype.slice.call(results.querySelectorAll('.pv-siswa-item'));
+        var i = items.indexOf(document.activeElement);
+
+        if (e.key === 'ArrowDown' && i < items.length - 1) {
+            e.preventDefault();
+            items[i + 1].focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (i > 0) { items[i - 1].focus(); } else { searchInput.focus(); }
+        } else if (e.key === 'Escape') {
+            hideResults();
+            searchInput.focus();
+        }
+    });
+
+    // Klik di luar area pencarian menutup daftar hasil.
+    document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) { hideResults(); }
+    });
+
+
+    /* =====================================================
+       KATEGORI + JENIS PELANGGARAN + POIN
+    ===================================================== */
+
+    var kategoriSelect = $('kategoriPelanggaran');
+    var cariAturan     = $('cariAturan');
+    var aturanSelect   = $('aturan_pelanggaran_id');
+    var poinInput      = $('poinOtomatis');
+    var infoPoin       = $('infoPoin');
+    var poinBadge      = $('poinBadge');
+    var infoCari       = $('cariAturanInfo');
+
+    // Simpan daftar aturan asli sekali, lalu bangun ulang opsi saat
+    // kategori / kata kunci berubah (cara ini juga andal di Safari/iOS).
+    var placeholderText = aturanSelect.options[0].textContent.trim();
+
+    var semuaAturan = [];
+
+    Array.prototype.forEach.call(aturanSelect.options, function (o) {
+        if (o.value === '') { return; }
+
+        semuaAturan.push({
+            value: o.value,
+            text: o.textContent.replace(/\s+/g, ' ').trim(),
+            kategori: o.dataset.kategori || '',
+            poin: o.dataset.poin || '0'
+        });
+    });
+
+    function renderAturan(kategori) {
+        var pilihan = aturanSelect.value;
+        var keyword = (cariAturan.value || '').toLowerCase().trim();
+
+        aturanSelect.innerHTML = '';
+        aturanSelect.appendChild(new Option(placeholderText, ''));
+
+        var jumlahCocok = 0;
+
+        semuaAturan.forEach(function (r) {
+            if (kategori && r.kategori !== kategori) { return; }
+            if (keyword && r.text.toLowerCase().indexOf(keyword) === -1) { return; }
+
+            jumlahCocok++;
+
+            var opt = new Option(r.text, r.value);
+            opt.dataset.kategori = r.kategori;
+            opt.dataset.poin = r.poin;
+            aturanSelect.appendChild(opt);
+        });
+
+        // Pertahankan pilihan jika masih ada di daftar.
+        var masihAda = Array.prototype.some.call(aturanSelect.options, function (o) {
+            return o.value === pilihan;
+        });
+
+        aturanSelect.value = masihAda ? pilihan : '';
+
+        // Info jumlah hasil + pesan bila tidak ada yang cocok.
+        if (jumlahCocok === 0) {
+            infoCari.textContent = keyword
+                ? 'Tidak ada jenis pelanggaran yang cocok dengan "' + (cariAturan.value || '').trim() + '".'
+                : 'Tidak ada jenis pelanggaran pada kategori ini.';
+        } else if (keyword) {
+            infoCari.textContent = jumlahCocok + ' jenis pelanggaran ditemukan.';
+        } else {
+            infoCari.textContent = '';
+        }
+    }
+
+    function updatePoin() {
+        poinBadge.classList.remove('active');
+        poinBadge.textContent = '';
+
+        if (! aturanSelect.value) {
+            poinInput.value = '';
+            infoPoin.textContent = 'Pilih jenis pelanggaran untuk mendapatkan poin.';
+            return;
+        }
+
+        // Poin selalu mengikuti master aturan dan tidak bisa diubah.
+        var opt  = aturanSelect.options[aturanSelect.selectedIndex];
+        var poin = opt.dataset.poin;
+
+        poinInput.value = poin;
+        infoPoin.textContent = 'Poin otomatis berdasarkan aturan pelanggaran.';
+
+        poinBadge.textContent = 'Poin aturan resmi: ' + poin + '. Tidak dapat diubah.';
+        poinBadge.classList.add('active');
+    }
+
+    kategoriSelect.addEventListener('change', function () {
+        renderAturan(kategoriSelect.value);
+        updatePoin();
+    });
+
+    cariAturan.addEventListener('input', function () {
+        renderAturan(kategoriSelect.value);
+        updatePoin();
+    });
+
+    aturanSelect.addEventListener('change', updatePoin);
+
+    // Nilai select sudah dibawa dari old() oleh Blade, jadi cukup
+    // refresh tampilan poin tanpa perlu menyimpan apa pun.
     updatePoin();
 
-});
 
+    /* =====================================================
+       MENCEGAH KIRIM GANDA
+    ===================================================== */
 
+    var btnSimpan = $('btnSimpan');
+    var labelAwal = btnSimpan.textContent;
+
+    form.addEventListener('submit', function () {
+        btnSimpan.disabled = true;
+        btnSimpan.textContent = 'Menyimpan...';
+    });
+
+    // Pulihkan tombol jika pengguna kembali lewat tombol Back.
+    window.addEventListener('pageshow', function () {
+        btnSimpan.disabled = false;
+        btnSimpan.textContent = labelAwal;
+    });
+})();
 </script>
 @endsection

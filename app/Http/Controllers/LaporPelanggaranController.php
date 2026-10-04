@@ -27,21 +27,46 @@ class LaporPelanggaranController extends Controller
         | Guru BK / Guru Khusus / PDS / Admin melihat seluruh siswa.
         */
 
-        $query = Siswa::orderBy('nama');
+        // Urut kelas mengikuti urutan resmi sekolah, konsisten dengan
+        // halaman Data Siswa dan tabel direktori di bawah form.
+        $query = Siswa::urutKelas();
 
         if ($user && $user->isWalas() && $user->kelas) {
             $query->where('kelas', $user->kelas);
 
             $kelasList = collect([$user->kelas]);
         } else {
-            $kelasList = Siswa::select('kelas')
-                ->whereNotNull('kelas')
-                ->distinct()
-                ->orderBy('kelas')
-                ->pluck('kelas');
+            $kelasList = Siswa::urutKelasList(
+                Siswa::select('kelas')
+                    ->whereNotNull('kelas')
+                    ->distinct()
+                    ->pluck('kelas')
+            );
         }
 
         $siswas = $query->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Daftar siswa untuk pencarian di form
+        |--------------------------------------------------------------------------
+        |
+        | Dikirim ke halaman sebagai array ringan supaya combobox
+        | "Pilih Siswa" bisa memfilter di sisi klien. Endpoint
+        | /search-siswa tidak dipakai di sini karena middleware
+        | memblokirnya untuk role walas, dan walas hanya boleh
+        | melihat siswa kelasnya sendiri.
+        |
+        */
+
+        $siswaOptions = $siswas
+            ->map(fn (Siswa $s) => [
+                'id' => $s->id,
+                'nama' => $s->nama,
+                'nisn' => $s->nisn,
+                'kelas' => $s->kelas,
+            ])
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -117,6 +142,7 @@ class LaporPelanggaranController extends Controller
 
         return view('lapor.index', compact(
             'siswas',
+            'siswaOptions',
             'kelasList',
             'selectedSiswaId',
             'aturanPelanggarans',

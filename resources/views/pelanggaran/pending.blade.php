@@ -267,37 +267,7 @@
                             @foreach($aturanPelanggarans as $aturan)
                                 <option value="{{ $aturan->id }}">{{ $aturan->kode }} - {{ $aturan->nama }} (-{{ $aturan->poin }} poin)</option>
                             @endforeach
-                            <option value="custom">-- Pelanggaran Lainnya (Custom) --</option>
                         </select>
-                    </div>
-
-                    <div id="customApproveDiv" class="pd-custom is-hidden">
-
-                        <div class="pd-field">
-                            <label class="pd-label" for="approveCustomNama">Nama Pelanggaran</label>
-                            <input type="text" name="jenis_pelanggaran_custom" id="approveCustomNama"
-                                   class="pd-input" placeholder="Contoh: Bermain judi online di kelas">
-                        </div>
-
-                        <div class="pd-row">
-                            <div class="pd-field">
-                                <label class="pd-label" for="approveCustomKategori">Kategori</label>
-                                <select name="kategori" id="approveCustomKategori" class="pd-input">
-                                    <option value="">-- Pilih Kategori --</option>
-                                    <option value="Ringan">Ringan</option>
-                                    <option value="Sedang">Sedang</option>
-                                    <option value="Berat">Berat</option>
-                                    <option value="Luar Biasa">Luar Biasa</option>
-                                </select>
-                            </div>
-
-                            <div class="pd-field">
-                                <label class="pd-label" for="approveCustomPoin">Poin Sanksi</label>
-                                <input type="number" name="poin_custom" id="approveCustomPoin"
-                                       class="pd-input" min="0" placeholder="Misal: 20">
-                            </div>
-                        </div>
-
                     </div>
 
                     <div class="pd-field">
@@ -1214,23 +1184,6 @@
     box-shadow:0 0 0 3px rgba(217,119,6,.18);
 }
 
-.pending-page .pd-custom{
-    margin-bottom:16px;
-    padding:14px;
-
-    background:#fffbeb;
-    border:1px dashed #fcd34d;
-    border-radius:12px;
-}
-
-.pending-page .pd-custom .pd-field:last-child{ margin-bottom:0; }
-
-.pending-page .pd-row{
-    display:grid;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:12px;
-}
-
 .pending-page .pd-alert-danger{
     margin-bottom:16px;
     padding:12px 14px;
@@ -1314,11 +1267,6 @@
         width:100%;
     }
 
-    .pending-page .pd-row{
-        grid-template-columns:1fr;
-        gap:0;
-    }
-
     /* 16px mencegah iOS melakukan zoom otomatis saat input difokus */
     .pending-page .pd-input{ font-size:16px; }
 }
@@ -1350,7 +1298,6 @@
     const approveForm  = document.getElementById('approveForm');
     const rejectForm   = document.getElementById('rejectForm');
     const approveAturan = document.getElementById('approveAturan');
-    const customDiv     = document.getElementById('customApproveDiv');
 
     function buildUrl(template, id) {
         return template.replace('__ID__', encodeURIComponent(id));
@@ -1370,26 +1317,6 @@
             list.appendChild(li);
         });
         document.getElementById(boxId).classList.remove('is-hidden');
-    }
-
-    /*
-     * Tampilkan atau sembunyikan field pelanggaran custom.
-     * Kolom custom harus dikosongkan saat disembunyikan, kalau tidak
-     * nilainya ikut terkirim dan bisa menimpa pilihan lain.
-     */
-    function toggleCustomApprove(val) {
-        const isCustom = val === 'custom';
-
-        customDiv.classList.toggle('is-hidden', !isCustom);
-
-        customDiv.querySelectorAll('input, select').forEach(function (el) {
-            if (isCustom) {
-                el.setAttribute('required', 'true');
-            } else {
-                el.removeAttribute('required');
-                el.value = '';
-            }
-        });
     }
 
     function openApproveModal(btn) {
@@ -1413,7 +1340,6 @@
             approveAturan.value = exists ? preselected : '';
         }
 
-        toggleCustomApprove(approveAturan.value);
         clearErrors('approveFormErrors', 'approveFormErrorsList');
 
         approveModal.classList.add('active');
@@ -1444,10 +1370,6 @@
         btn.addEventListener('click', function () { openRejectModal(btn); });
     });
 
-    approveAturan.addEventListener('change', function () {
-        toggleCustomApprove(this.value);
-    });
-
     document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
         btn.addEventListener('click', function () {
             closeModal(document.getElementById(btn.dataset.closeModal));
@@ -1461,36 +1383,6 @@
                 closeModal(modal);
             }
         });
-    });
-
-    /*
-     * Validasi sisi klien untuk field custom.
-     *
-     * Controller memeriksa `poin_custom === null`, tapi form yang kosong
-     * mengirim string "" yang lolos aturan `nullable`, sehingga poin
-     * tersimpan 0 tanpa warning. Cek di sini agar user dapat feedback.
-     */
-    approveForm.addEventListener('submit', function (e) {
-        if (approveAturan.value !== 'custom') {
-            return;
-        }
-
-        const nama = document.getElementById('approveCustomNama');
-        const poin = document.getElementById('approveCustomPoin');
-        const pesan = [];
-
-        if (!nama.value.trim()) {
-            pesan.push('Nama pelanggaran wajib diisi.');
-        }
-
-        if (poin.value === '' || Number(poin.value) < 0) {
-            pesan.push('Poin sanksi wajib diisi dan tidak boleh negatif.');
-        }
-
-        if (pesan.length > 0) {
-            e.preventDefault();
-            showErrors('approveFormErrors', 'approveFormErrorsList', pesan);
-        }
     });
 
     rejectForm.addEventListener('submit', function (e) {

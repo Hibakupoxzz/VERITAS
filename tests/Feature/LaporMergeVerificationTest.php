@@ -60,6 +60,28 @@ class LaporMergeVerificationTest extends TestCase
         });
     }
 
+    /**
+     * Combobox "Pilih Siswa" di form sekarang memakai array
+     * yang dikirim server, jadi daftar untuk pencarian harus
+     * ikut terkunci sesuai role, sama seperti $siswas.
+     */
+    public function test_index_siswa_options_terbatas_sesuai_role(): void
+    {
+        $this->login('walas', 'X-RPL-1');
+
+        Siswa::create(['nama' => 'Siswa RPL1', 'nisn' => '1001', 'kelas' => 'X-RPL-1']);
+        Siswa::create(['nama' => 'Siswa RPL2', 'nisn' => '1002', 'kelas' => 'X-RPL-2']);
+
+        $this->get(route('lapor.index'))
+            ->assertOk()
+            ->assertViewHas('siswaOptions', function ($options) {
+                return count($options) === 1
+                    && $options[0]['nama'] === 'Siswa RPL1'
+                    && $options[0]['nisn'] === '1001'
+                    && $options[0]['kelas'] === 'X-RPL-1';
+            });
+    }
+
     public function test_index_guru_khusus_melihat_semua_kelas(): void
     {
         $this->login('guru');

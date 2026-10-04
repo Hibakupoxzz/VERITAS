@@ -38,7 +38,7 @@ class PrestasiController extends Controller
      */
     public function create()
     {
-        $query = Siswa::orderBy('nama');
+        $query = Siswa::urutKelas();
 
         // PDS dan BK kini dapat melihat semua siswa (Global)
 
@@ -192,7 +192,7 @@ class PrestasiController extends Controller
      */
     public function edit(Prestasi $prestasi)
     {
-        $siswas = Siswa::orderBy('nama')->get();
+        $siswas = Siswa::urutKelas()->get();
 
         return view(
             'prestasi.edit',
@@ -430,11 +430,12 @@ class PrestasiController extends Controller
         // DAFTAR KELAS
         // ==========================================
 
-        $kelasList = Siswa::whereNotNull('kelas')
-            ->where('kelas', '!=', '')
-            ->distinct()
-            ->orderBy('kelas')
-            ->pluck('kelas');
+        $kelasList = Siswa::urutKelasList(
+            Siswa::whereNotNull('kelas')
+                ->where('kelas', '!=', '')
+                ->distinct()
+                ->pluck('kelas')
+        );
 
         // ==========================================
         // TAMPILKAN VIEW
