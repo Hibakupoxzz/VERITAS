@@ -1,653 +1,835 @@
 @extends('layouts.app')
 
-@section('title', 'Rincian Laporan Pelanggaran')
-@section('page_title', 'Rincian Laporan Pelanggaran')
-
-@section('styles')
-
-@include('partials.ui')
-
-/* =========================================================
-   RINCIAN LAPORAN PELANGGARAN
-   Primitif bersama (.pv-card, .pv-section-label, .pv-page-*,
-   .pv-footer) berasal dari partials/ui.blade.
-========================================================= */
-
-.pv-body {
-    width: 100%;
-}
-
-.pv-inner {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-/* .pv-card di partial tidak punya padding, jadi diberikan di sini */
-.pv-inner .pv-card {
-    padding: 24px 28px;
-}
-
-
-/* ── Definisi / nilai ── */
-.pv-grid {
-    display: grid;
-    grid-template-columns: 210px minmax(0, 1fr);
-    gap: 0;
-}
-
-.pv-item {
-    display: contents;
-}
-
-.pv-key {
-    min-width: 0;
-    padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
-    color: #6b7280;
-    font-size: .85rem;
-    font-weight: 500;
-    overflow-wrap: anywhere;
-}
-
-.pv-value {
-    min-width: 0;
-    padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
-    color: #111827;
-    font-size: .9rem;
-    font-weight: 600;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-}
-
-/*
- * pre-line hanya untuk teks bebas (kronologi, catatan) supaya baris
- * baru dari pengguna tetap terlihat. Jika dipasang di semua nilai,
- * spasi/newline dari template Blade ikut tampil sebagai baris kosong.
- * Isi .pv-value-text harus ditulis dalam satu baris di template.
- */
-.pv-value-text {
-    white-space: pre-line;
-    font-weight: 500;
-}
-
-.pv-item:last-child .pv-key,
-.pv-item:last-child .pv-value {
-    border-bottom: none;
-}
-
-
-/* ── Badge ── */
-.pv-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    max-width: 100%;
-    padding: 5px 11px;
-    border-radius: 999px;
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-size: .78rem;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-.pv-badge-poin     { background: #fff7ed; color: #9a3412; }
-.pv-badge-pending  { background: #fef9c3; color: #854d0e; }
-.pv-badge-verified { background: #dcfce7; color: #166534; }
-.pv-badge-rejected { background: #fee2e2; color: #991b1b; }
-
-.pv-kat-ringan { background: #dcfce7; color: #166534; }
-.pv-kat-sedang { background: #fef3c7; color: #92400e; }
-.pv-kat-berat  { background: #fee2e2; color: #991b1b; }
-.pv-kat-luar-biasa { background: #1f2937; color: #fff; }
-
-.pv-muted {
-    color: #9ca3af;
-    font-style: italic;
-    font-weight: 500;
-}
-
-
-/* ── Ringkasan siswa ── */
-.pv-summary {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 18px;
-}
-
-.pv-summary-item {
-    min-width: 0;
-    padding: 14px 16px;
-    border: 1px solid #e8eaed;
-    border-radius: 12px;
-    background: #f9fafb;
-}
-
-.pv-summary-label {
-    display: block;
-    margin-bottom: 4px;
-    color: #9ca3af;
-    font-size: .68rem;
-    font-weight: 700;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-}
-
-.pv-summary-value {
-    display: block;
-    color: #1a1a2e;
-    font-size: 1.05rem;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-
-/* ── Riwayat teguran ── */
-.pv-history {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.pv-history li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border: 1px solid #f1f5f9;
-    border-radius: 10px;
-    background: #f9fafb;
-}
-
-.pv-history-date {
-    flex: 0 0 auto;
-    color: #6b7280;
-    font-size: .78rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-}
-
-.pv-history-jenis {
-    flex: 1 1 auto;
-    min-width: 0;
-    color: #1f2937;
-    font-size: .85rem;
-    font-weight: 600;
-    overflow-wrap: anywhere;
-}
-
-.pv-history-poin {
-    flex: 0 0 auto;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: #fff7ed;
-    color: #9a3412;
-    font-size: .72rem;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-
-/* ── Foto bukti ── */
-.pv-photo-link {
-    position: relative;
-    display: block;
-    max-width: 520px;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-.pv-img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-}
-
-.pv-photo-hint {
-    position: absolute;
-    inset: auto 0 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px;
-    background: rgba(17, 24, 39, .72);
-    color: #fff;
-    font-size: .72rem;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity .18s ease;
-}
-
-.pv-photo-link:hover .pv-photo-hint,
-.pv-photo-link:focus-visible .pv-photo-hint {
-    opacity: 1;
-}
-
-/* Layar sentuh tidak punya hover, jadi petunjuk selalu terlihat */
-@media (hover: none) {
-    .pv-photo-hint { opacity: 1; }
-}
-
-
-/* ── Footer / tombol ── */
-.pv-inner .pv-footer {
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    margin-top: 4px;
-}
-
-.pv-note {
-    flex: 1 1 240px;
-    min-width: 0;
-    margin: 0;
-    color: #9ca3af;
-    font-size: .78rem;
-    line-height: 1.5;
-}
-
-.pv-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-left: auto;
-}
-
-.pv-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    min-height: 42px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: .875rem;
-    font-weight: 600;
-    line-height: 1;
-    cursor: pointer;
-    transition: background .18s ease, transform .18s ease;
-}
-
-.pv-btn-primary {
-    background: var(--primary);
-    color: #fff;
-}
-
-.pv-btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-}
-
-.pv-btn-muted {
-    background: #f3f4f6;
-    color: #4b5563;
-}
-
-.pv-btn-muted:hover {
-    background: #e5e7eb;
-    color: #1f2937;
-}
-
-.pv-btn:focus-visible,
-.pv-photo-link:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-
-/* ── Responsive ── */
-@media (max-width: 768px) {
-    .pv-inner .pv-card { padding: 18px; }
-    .pv-page-header { gap: 10px; }
-    .pv-summary { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 576px) {
-    .pv-inner .pv-card { padding: 16px 14px; }
-
-    .pv-grid { grid-template-columns: 1fr; }
-
-    .pv-key {
-        padding: 10px 0 0;
-        border-bottom: none;
-        font-size: .72rem;
-        letter-spacing: .02em;
-        text-transform: uppercase;
-    }
-
-    .pv-value { padding: 2px 0 10px; }
-
-    .pv-page-icon {
-        width: 40px;
-        height: 40px;
-        flex: 0 0 40px;
-    }
-
-    .pv-page-title { font-size: 1.1rem; }
-
-    .pv-actions { width: 100%; margin-left: 0; }
-    .pv-btn { width: 100%; }
-
-    .pv-photo-link { max-width: 100%; }
-
-    .pv-history li { flex-wrap: wrap; }
-}
-@endsection
-
+@section('title', 'Riwayat Laporan')
+@section('page_title', 'Riwayat Laporan Saya')
 
 @section('content')
 
 @php
-    $statusMeta = match ($pelanggaran->status) {
-        'pending'      => ['label' => 'Menunggu Verifikasi', 'class' => 'pv-badge-pending'],
-        'diverifikasi' => ['label' => 'Terverifikasi',       'class' => 'pv-badge-verified'],
-        'ditolak'      => ['label' => 'Ditolak',             'class' => 'pv-badge-rejected'],
-        default        => ['label' => ucfirst($pelanggaran->status), 'class' => ''],
-    };
-
-    // Halaman ini jadi tujuan dari "Pending Laporan",
-    // supaya tombol kembali mengarah ke antrean verifikasi.
-    $fromPending = request()->query('from') === 'pending';
-    $backUrl     = $fromPending ? route('pelanggaran.pending') : route('pelanggaran.index');
-
-    $canVerify  = auth()->user()?->canVerify();
-    $isPending  = $pelanggaran->status === 'pending';
-    $katSlug    = \Illuminate\Support\Str::slug($pelanggaran->kategori ?? '');
-
-    $ringkasan = $ringkasan ?? null;
-    $riwayat   = $riwayat ?? collect();
+    $stats = $stats ?? [];
+    $count = [
+        'all'          => $stats['total']    ?? $laporans->count(),
+        'pending'      => $stats['pending']  ?? $laporans->where('status', 'pending')->count(),
+        'diverifikasi' => $stats['verified'] ?? $laporans->where('status', 'diverifikasi')->count(),
+        'ditolak'      => $stats['rejected'] ?? $laporans->where('status', 'ditolak')->count(),
+    ];
 @endphp
 
-<div class="pv-body">
+<div class="walas-container">
 
-<div class="pv-inner">
+    {{-- Catatan: flash session('success') / 'error' sudah otomatis
+         ditampilkan oleh layouts/app.blade.php. --}}
 
-    {{-- HEADER --}}
-    <div class="pv-page-header">
-        <div class="pv-page-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-                <path d="M9 11l3 3L22 4"/>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-            </svg>
-        </div>
+    <div class="walas-card" id="riwayat-lapor">
 
-        <div class="pv-page-headtext">
-            <h1 class="pv-page-title">Rincian Laporan Pelanggaran</h1>
-            <p class="pv-page-sub">
-                Laporan #{{ $pelanggaran->id }} &middot;
-                <span class="pv-badge {{ $statusMeta['class'] }}">{{ $statusMeta['label'] }}</span>
-            </p>
-        </div>
-    </div>
+        {{-- HEADER --}}
+        <div class="walas-card-header">
 
-
-    {{-- SISWA --}}
-    <div class="pv-card">
-
-        <div class="pv-section-label">Siswa yang Dilaporkan</div>
-
-        <div class="pv-grid">
-            <div class="pv-item">
-                <div class="pv-key">Nama</div>
-                <div class="pv-value">{{ $pelanggaran->siswa?->nama ?? 'Laporan Umum (Tanpa Siswa)' }}</div>
-            </div>
-
-            <div class="pv-item">
-                <div class="pv-key">NISN</div>
-                <div class="pv-value">{{ $pelanggaran->siswa?->nisn ?? '—' }}</div>
-            </div>
-
-            <div class="pv-item">
-                <div class="pv-key">Kelas</div>
-                <div class="pv-value">{{ $pelanggaran->siswa?->kelas ?? '—' }}</div>
-            </div>
-        </div>
-
-        @if(!empty($ringkasan))
-            <div class="pv-summary">
-                <div class="pv-summary-item">
-                    <span class="pv-summary-label">Saldo Poin</span>
-                    <span class="pv-summary-value">{{ $ringkasan->saldo_poin }} Poin</span>
+            <div class="walas-card-header-main">
+                <div class="walas-card-icon walas-card-icon-indigo">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-
-                <div class="pv-summary-item">
-                    <span class="pv-summary-label">Pelanggaran Terverifikasi</span>
-                    <span class="pv-summary-value">{{ $ringkasan->jumlah_pelanggaran }} kali</span>
-                </div>
-
-                <div class="pv-summary-item">
-                    <span class="pv-summary-label">Total Poin Pelanggaran</span>
-                    <span class="pv-summary-value">{{ (int) ($ringkasan->total_poin_pelanggaran ?? 0) }} Poin</span>
+                <div class="walas-card-header-text">
+                    <h2>Riwayat Laporan Saya</h2>
+                    <p>Daftar seluruh laporan yang telah Anda kirimkan beserta perkembangan status verifikasinya.</p>
                 </div>
             </div>
+
+            <a href="{{ route('lapor.index') }}" class="walas-btn-new">
+                <i class="fa-solid fa-plus"></i>
+                <span>Buat Laporan</span>
+            </a>
+
+        </div>
+
+
+        @if($laporans->count() > 0)
+
+            {{-- TOOLBAR: TAB STATUS + CARI --}}
+            <div class="walas-toolbar">
+
+                <div class="walas-filter-tabs" id="filterTabs" role="group" aria-label="Filter status">
+                    <button type="button" class="tab-btn active" data-status="all" aria-pressed="true">
+                        Semua ({{ $count['all'] }})
+                    </button>
+                    <button type="button" class="tab-btn" data-status="pending" aria-pressed="false">
+                        Menunggu ({{ $count['pending'] }})
+                    </button>
+                    <button type="button" class="tab-btn" data-status="diverifikasi" aria-pressed="false">
+                        Diverifikasi ({{ $count['diverifikasi'] }})
+                    </button>
+                    <button type="button" class="tab-btn" data-status="ditolak" aria-pressed="false">
+                        Ditolak ({{ $count['ditolak'] }})
+                    </button>
+                </div>
+
+                <div class="walas-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input
+                        type="search"
+                        id="reportSearch"
+                        placeholder="Cari siswa atau pelanggaran..."
+                        autocomplete="off"
+                    >
+                </div>
+
+            </div>
+
+            <div class="walas-result-info">
+                Menampilkan <strong id="reportCount">{{ $laporans->count() }}</strong> laporan
+            </div>
+
         @endif
 
-    </div>
 
+        {{-- DAFTAR LAPORAN --}}
+        <div class="walas-reports-list" id="reportsList">
 
-    {{-- ISI LAPORAN --}}
-    <div class="pv-card">
+            @forelse($laporans as $laporan)
 
-        <div class="pv-section-label">Isi Laporan</div>
+                @php
+                    $namaSiswa = $laporan->siswa?->nama ?? 'Siswa Tidak Ditemukan';
+                    $haystack  = \Illuminate\Support\Str::lower(
+                        $namaSiswa . ' ' .
+                        ($laporan->siswa?->kelas ?? '') . ' ' .
+                        $laporan->jenis_pelanggaran . ' ' .
+                        ($laporan->keterangan ?? '')
+                    );
+                @endphp
 
-        {{--
-            Catatan Blade: direktif (@if, @elseif, @else, @endif) harus didahului
-            spasi, tanda baca, atau awal baris. Jika menempel pada huruf
-            (mis. "Poin@elseif"), Blade menganggapnya teks biasa dan kode
-            direktifnya tercetak ke halaman.
-        --}}
-        <div class="pv-grid">
+                <div class="report-item"
+                     data-status="{{ $laporan->status }}"
+                     data-search="{{ $haystack }}">
 
-            <div class="pv-item">
-                <div class="pv-key">Tanggal Kejadian</div>
-                <div class="pv-value">{{ \Carbon\Carbon::parse($pelanggaran->tanggal)->locale('id')->translatedFormat('d F Y') }}</div>
-            </div>
+                    {{-- Header Kartu --}}
+                    <div class="report-header">
 
-            <div class="pv-item">
-                <div class="pv-key">Waktu Dilaporkan</div>
-                <div class="pv-value">{{ \Carbon\Carbon::parse($pelanggaran->created_at)->locale('id')->translatedFormat('d F Y, H:i') }}</div>
-            </div>
+                        <div class="report-student">
+                            <div class="student-avatar">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div class="student-info">
+                                <h3 class="student-name">{{ $namaSiswa }}</h3>
+                                <span class="student-class">{{ $laporan->siswa?->kelas ?? '-' }}</span>
+                            </div>
+                        </div>
 
-            <div class="pv-item">
-                <div class="pv-key">Pelapor</div>
-                <div class="pv-value">
-                    @if($pelanggaran->pelapor)
-                        {{ $pelanggaran->pelapor->name }}
-                        <span class="pv-muted">({{ $pelanggaran->pelapor->role_label }})</span>
-                    @else
-                        <span class="pv-muted">Tidak diketahui</span>
-                    @endif
-                </div>
-            </div>
+                        <div class="report-status-badge">
+                            @if($laporan->status === 'pending')
+                                <span class="badge-status badge-pending">
+                                    <i class="fa-solid fa-hourglass-half"></i> Menunggu Verifikasi
+                                </span>
+                            @elseif($laporan->status === 'diverifikasi')
+                                <span class="badge-status badge-verified">
+                                    <i class="fa-solid fa-circle-check"></i> Diverifikasi
+                                </span>
+                            @elseif($laporan->status === 'ditolak')
+                                <span class="badge-status badge-rejected">
+                                    <i class="fa-solid fa-circle-xmark"></i> Ditolak
+                                </span>
+                            @else
+                                <span class="badge-status">{{ ucfirst($laporan->status) }}</span>
+                            @endif
+                        </div>
 
-            <div class="pv-item">
-                <div class="pv-key">Aturan Master</div>
-                <div class="pv-value">
-                    @if($pelanggaran->aturanPelanggaran)
-                        {{ $pelanggaran->aturanPelanggaran->kode }} — {{ $pelanggaran->aturanPelanggaran->nama }}
-                        <span class="pv-muted">({{ $pelanggaran->aturanPelanggaran->kategori }}, {{ $pelanggaran->aturanPelanggaran->poin }} poin)</span>
-                    @else
-                        <span class="pv-muted">Tidak terkait aturan master</span>
-                    @endif
-                </div>
-            </div>
+                    </div>
 
-            <div class="pv-item">
-                <div class="pv-key">Jenis Pelanggaran</div>
-                <div class="pv-value">{{ $pelanggaran->jenis_pelanggaran ?: '—' }}</div>
-            </div>
+                    {{-- Body Kartu --}}
+                    <div class="report-body">
 
-            <div class="pv-item">
-                <div class="pv-key">Kategori</div>
-                <div class="pv-value">
-                    @if($pelanggaran->kategori)
-                        <span class="pv-badge pv-kat-{{ $katSlug }}">{{ $pelanggaran->kategori }}</span>
-                    @else
-                        —
-                    @endif
-                </div>
-            </div>
+                        <div class="report-meta-tags">
+                            <span class="meta-tag">
+                                <i class="fa-regular fa-calendar"></i>
+                                {{ \Carbon\Carbon::parse($laporan->tanggal)->locale('id')->translatedFormat('d F Y') }}
+                            </span>
+                            <span class="meta-tag meta-violation">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                {{ $laporan->jenis_pelanggaran }}
+                            </span>
+                        </div>
 
-            <div class="pv-item">
-                <div class="pv-key">Poin</div>
-                <div class="pv-value">
-                    @if($pelanggaran->poin)
-                        <span class="pv-badge pv-badge-poin">−{{ $pelanggaran->poin }} Poin</span>
-                    @else
-                        —
-                    @endif
-                </div>
-            </div>
-
-            <div class="pv-item">
-                <div class="pv-key">Saldo Poin Tercatat</div>
-                <div class="pv-value">
-                    @if($pelanggaran->poin_sebelum !== null)
-                        {{ $pelanggaran->poin_sebelum }} → {{ $pelanggaran->poin_sesudah }} Poin
-                    @elseif($isPending)
-                        <span class="pv-muted">Belum dihitung (menunggu verifikasi)</span>
-                    @elseif(!$pelanggaran->siswa)
-                        <span class="pv-muted">Tidak dihitung (tanpa siswa)</span>
-                    @else
-                        <span class="pv-muted">Tidak tercatat</span>
-                    @endif
-                </div>
-            </div>
-
-            <div class="pv-item">
-                <div class="pv-key">Kronologi / Keterangan</div>
-                <div class="pv-value pv-value-text">@if($pelanggaran->keterangan){{ $pelanggaran->keterangan }}@else<span class="pv-muted">Tidak ada keterangan tambahan.</span>@endif</div>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- VERIFIKASI --}}
-    @if(!$isPending || $pelanggaran->catatan_verifikasi)
-        <div class="pv-card">
-
-            <div class="pv-section-label">Verifikasi</div>
-
-            <div class="pv-grid">
-
-                <div class="pv-item">
-                    <div class="pv-key">Verifikator</div>
-                    <div class="pv-value">
-                        @if($pelanggaran->verifikator)
-                            {{ $pelanggaran->verifikator->name }}
-                            <span class="pv-muted">({{ $pelanggaran->verifikator->role_label }})</span>
-                        @else
-                            <span class="pv-muted">Belum diverifikasi</span>
+                        @if($laporan->keterangan)
+                            <p class="report-description">{{ $laporan->keterangan }}</p>
                         @endif
+
+                        @if($laporan->foto_bukti)
+                            <div class="report-photo">
+                                <a href="{{ asset('storage/' . $laporan->foto_bukti) }}"
+                                   target="_blank" rel="noopener"
+                                   title="Klik untuk memperbesar">
+                                    <img src="{{ asset('storage/' . $laporan->foto_bukti) }}"
+                                         alt="Foto Bukti" loading="lazy">
+                                    <span class="photo-hint">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i> Lihat Bukti Penuh
+                                    </span>
+                                </a>
+                            </div>
+                        @endif
+
                     </div>
+
+                    {{-- Info Verifikasi --}}
+                    @if($laporan->status === 'diverifikasi')
+
+                        <div class="report-feedback feedback-verified">
+                            <div class="feedback-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                            <div class="feedback-text">
+                                <strong>Laporan Diterima &amp; Disetujui</strong>
+                                <span>Diverifikasi oleh: <strong>{{ $laporan->verifikator->name ?? 'Petugas PDS' }}</strong></span>
+                                <span class="points-badge">Poin Pengurang Dikenakan: -{{ $laporan->poin }}</span>
+                                @if($laporan->catatan_verifikasi)
+                                    <p class="feedback-note">"{{ $laporan->catatan_verifikasi }}"</p>
+                                @endif
+                            </div>
+                        </div>
+
+                    @elseif($laporan->status === 'ditolak')
+
+                        <div class="report-feedback feedback-rejected">
+                            <div class="feedback-icon"><i class="fa-solid fa-ban"></i></div>
+                            <div class="feedback-text">
+                                <strong>Laporan Ditolak</strong>
+                                <span>Ditinjau oleh: <strong>{{ $laporan->verifikator->name ?? 'Petugas PDS' }}</strong></span>
+                                @if($laporan->catatan_verifikasi)
+                                    <p class="feedback-note">Alasan Penolakan: "{{ $laporan->catatan_verifikasi }}"</p>
+                                @endif
+                            </div>
+                        </div>
+
+                    @else
+
+                        <div class="report-feedback feedback-pending">
+                            <div class="feedback-icon"><i class="fa-solid fa-clock"></i></div>
+                            <div class="feedback-text">
+                                <strong>Dalam Antrean Peninjauan</strong>
+                                <span>Laporan ini belum diverifikasi. Petugas PDS akan segera meninjau bukti dan menentukan poin pelanggaran.</span>
+                            </div>
+                        </div>
+
+                    @endif
+
                 </div>
 
-                @if(!$isPending)
-                    <div class="pv-item">
-                        <div class="pv-key">Waktu Verifikasi</div>
-                        <div class="pv-value">{{ $pelanggaran->updated_at->locale('id')->translatedFormat('d F Y, H:i') }}</div>
-                    </div>
-                @endif
+            @empty
 
-                <div class="pv-item">
-                    <div class="pv-key">Catatan Verifikasi</div>
-                    <div class="pv-value pv-value-text">@if($pelanggaran->catatan_verifikasi){{ $pelanggaran->catatan_verifikasi }}@else<span class="pv-muted">Tidak ada catatan.</span>@endif</div>
+                <div class="walas-empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+                    <h3>Belum Ada Laporan</h3>
+                    <p>Anda belum pernah mengirim laporan pelanggaran. Gunakan formulir di halaman Lapor untuk melapor.</p>
+                    <a href="{{ route('lapor.index') }}" class="walas-btn-new walas-btn-center">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Buat Laporan Pertama</span>
+                    </a>
                 </div>
 
+            @endforelse
+
+        </div>
+
+        {{-- Muncul saat filter/pencarian tidak menemukan hasil --}}
+        <div class="walas-empty-state is-hidden" id="noResult">
+            <div class="empty-icon"><i class="fa-solid fa-filter-circle-xmark"></i></div>
+            <h3>Tidak Ada Laporan</h3>
+            <p>Tidak ada laporan yang cocok dengan filter atau pencarian Anda.</p>
+        </div>
+
+        {{-- Pagination (hanya jika $laporans berupa paginator) --}}
+        @if(method_exists($laporans, 'hasPages') && $laporans->hasPages())
+            <div class="walas-pagination">
+                {{ $laporans->links() }}
             </div>
-
-        </div>
-    @endif
-
-
-    {{-- RIWAYAT TEGURAN --}}
-    @if($riwayat->isNotEmpty())
-        <div class="pv-card">
-
-            <div class="pv-section-label">Riwayat Teguran 90 Hari Terakhir</div>
-
-            <ul class="pv-history">
-                @foreach($riwayat as $item)
-                    <li>
-                        <span class="pv-history-date">
-                            {{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}
-                        </span>
-                        <span class="pv-history-jenis">{{ $item->jenis_pelanggaran }}</span>
-                        <span class="pv-history-poin">−{{ $item->poin }}</span>
-                    </li>
-                @endforeach
-            </ul>
-
-        </div>
-    @endif
-
-
-    {{-- FOTO BUKTI --}}
-    @if($pelanggaran->foto_bukti)
-        <div class="pv-card">
-
-            <div class="pv-section-label">Foto Bukti</div>
-
-            <a href="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-               target="_blank"
-               rel="noopener"
-               class="pv-photo-link"
-               title="Buka foto di ukuran penuh">
-                <img src="{{ asset('storage/' . $pelanggaran->foto_bukti) }}"
-                     alt="Bukti foto pelanggaran {{ $pelanggaran->jenis_pelanggaran ?? '' }}"
-                     class="pv-img"
-                     loading="lazy">
-                <span class="pv-photo-hint">
-                    <i class="fa-solid fa-expand"></i>
-                    Klik untuk melihat ukuran penuh
-                </span>
-            </a>
-
-        </div>
-    @endif
-
-
-    {{-- AKSI --}}
-    <div class="pv-footer">
-
-        @if($isPending && $canVerify)
-            <p class="pv-note">
-                Laporan ini masih menunggu verifikasi. Kembali ke antrean
-                untuk menyetujui atau menolak.
-            </p>
         @endif
-
-        <div class="pv-actions">
-            <a href="{{ $backUrl }}" class="pv-btn pv-btn-muted">
-                <i class="fa-solid fa-arrow-left"></i>
-                {{ $fromPending ? 'Kembali ke Antrean' : 'Kembali' }}
-            </a>
-
-            @if($isPending && $canVerify)
-                <a href="{{ route('pelanggaran.pending') }}" class="pv-btn pv-btn-primary">
-                    <i class="fa-solid fa-list-check"></i>
-                    Verifikasi Laporan
-                </a>
-            @endif
-        </div>
 
     </div>
 
 </div>
 
-</div>
+@endsection
 
+
+@section('styles')
+@include('partials.ui')
+
+/* =========================================================
+   RIWAYAT LAPORAN
+   Di-scope ke .walas-container supaya tidak bentrok dengan
+   class generik di partials/ui.blade.
+========================================================= */
+
+.walas-container {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-wrap: break-word;
+}
+
+.walas-container .is-hidden {
+    display: none !important;
+}
+
+
+/* ---------- CARD & HEADER ---------- */
+
+.walas-container .walas-card {
+    min-width: 0;
+    padding: 28px 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+}
+
+.walas-container .walas-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.walas-container .walas-card-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1 1 320px;
+}
+
+.walas-container .walas-card-header-text {
+    min-width: 0;
+}
+
+.walas-container .walas-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    font-size: 20px;
+}
+
+.walas-container .walas-card-icon-indigo {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.walas-container .walas-card-header h2 {
+    margin: 0 0 4px;
+    color: #111827;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.walas-container .walas-card-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.walas-container .walas-btn-new {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(109, 20, 8, 0.22);
+    transition: all 0.2s ease;
+}
+
+.walas-container .walas-btn-new:hover {
+    background: #550f06;
+    transform: translateY(-2px);
+}
+
+.walas-container .walas-btn-center {
+    margin-top: 18px;
+}
+
+
+/* ---------- TOOLBAR ---------- */
+
+.walas-container .walas-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.walas-container .walas-filter-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.walas-container .tab-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #4b5563;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.walas-container .tab-btn:hover {
+    background: #e5e7eb;
+}
+
+.walas-container .tab-btn.active {
+    background: #111827;
+    color: #fff;
+}
+
+.walas-container .tab-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.walas-container .walas-search {
+    position: relative;
+    flex: 0 1 320px;
+    min-width: 200px;
+}
+
+.walas-container .walas-search i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 13px;
+    pointer-events: none;
+}
+
+.walas-container .walas-search input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 40px;
+    padding: 0 14px 0 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #fff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.walas-container .walas-search input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(109, 20, 8, 0.12);
+}
+
+.walas-container .walas-result-info {
+    margin-bottom: 16px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.walas-container .walas-result-info strong {
+    color: #111827;
+}
+
+
+/* ---------- DAFTAR LAPORAN ---------- */
+
+.walas-container .walas-reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.walas-container .report-item {
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fff;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.walas-container .report-item[hidden] {
+    display: none !important;
+}
+
+.walas-container .report-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.walas-container .report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed #e5e7eb;
+}
+
+.walas-container .report-student {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.walas-container .report-status-badge {
+    flex-shrink: 0;
+}
+
+.walas-container .student-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: #4b5563;
+    font-size: 16px;
+}
+
+.walas-container .student-info {
+    min-width: 0;
+}
+
+.walas-container .student-name {
+    margin: 0 0 2px;
+    color: #111827;
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .student-class {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.walas-container .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.walas-container .badge-pending  { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.walas-container .badge-verified { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.walas-container .badge-rejected { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+
+.walas-container .report-body {
+    margin-bottom: 16px;
+}
+
+.walas-container .report-meta-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.walas-container .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #4b5563;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .meta-violation {
+    background: #fef2f2;
+    color: #991b1b;
+    font-weight: 600;
+}
+
+.walas-container .report-description {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border-left: 3px solid #d1d5db;
+    border-radius: 8px;
+    background: #f9fafb;
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .report-photo {
+    margin-top: 10px;
+}
+
+.walas-container .report-photo a {
+    display: inline-block;
+}
+
+.walas-container .report-photo img {
+    display: block;
+    width: auto;
+    max-width: min(140px, 100%);
+    height: auto;
+    max-height: 140px;
+    object-fit: cover;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.walas-container .report-photo a:hover img {
+    transform: scale(1.03);
+}
+
+.walas-container .photo-hint {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 10px;
+}
+
+
+/* ---------- FEEDBACK VERIFIKASI ---------- */
+
+.walas-container .report-feedback {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.walas-container .feedback-verified { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.walas-container .feedback-rejected { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.walas-container .feedback-pending  { background: #fefce8; border-color: #fef08a; color: #854d0e; }
+
+.walas-container .feedback-icon {
+    margin-top: 2px;
+    font-size: 16px;
+}
+
+.walas-container .feedback-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.walas-container .points-badge {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--c-point-bg);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.walas-container .feedback-note {
+    margin: 4px 0 0;
+    font-size: 11px;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+.walas-container .walas-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 22px;
+}
+
+
+/* ---------- EMPTY STATE ---------- */
+
+.walas-container .walas-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.walas-container .empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    color: #9ca3af;
+    font-size: 24px;
+}
+
+.walas-container .walas-empty-state h3 {
+    margin: 0 0 6px;
+    color: #111827;
+    font-size: 16px;
+}
+
+.walas-container .walas-empty-state p {
+    max-width: 400px;
+    margin: 0 auto;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1024px) {
+    .walas-container .walas-card { padding: 24px; }
+}
+
+@media (max-width: 900px) {
+    .walas-container .walas-card-header { flex-direction: column; align-items: flex-start; }
+    .walas-container .walas-card-header-main { width: 100%; }
+    .walas-container .walas-btn-new { width: 100%; }
+    .walas-container .walas-btn-center { width: auto; }
+    .walas-container .walas-search { flex: 1 1 100%; }
+}
+
+@media (max-width: 768px) {
+    .walas-container { gap: 16px; }
+    .walas-container .walas-card { padding: 20px 16px; border-radius: 16px; }
+    .walas-container .report-item { padding: 16px; }
+    .walas-container .report-header { flex-wrap: wrap; align-items: flex-start; }
+    .walas-container .report-student,
+    .walas-container .report-status-badge { flex: 1 1 100%; }
+}
+
+@media (max-width: 640px) {
+    /* Tab menggulir horizontal agar tidak menumpuk berbaris-baris */
+    .walas-container .walas-filter-tabs {
+        flex-wrap: nowrap;
+        width: 100%;
+        padding-bottom: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .walas-container .tab-btn {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 9px 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* 16px mencegah iOS zoom otomatis saat input difokus */
+    .walas-container .walas-search input { font-size: 16px; }
+
+    .walas-container .walas-card-header h2 { font-size: 17px; }
+    .walas-container .walas-card-icon { width: 40px; height: 40px; border-radius: 11px; font-size: 17px; }
+    .walas-container .report-feedback { padding: 12px; gap: 10px; }
+    .walas-container .badge-status { max-width: 100%; white-space: normal; }
+}
+
+@media (max-width: 480px) {
+    .walas-container .walas-card { padding: 16px 13px; }
+    .walas-container .report-item { padding: 14px; border-radius: 12px; }
+    .walas-container .student-avatar { width: 36px; height: 36px; flex-basis: 36px; font-size: 15px; }
+    .walas-container .student-name { font-size: 14px; }
+    .walas-container .report-description { padding: 10px 12px; }
+    .walas-container .walas-empty-state { padding: 30px 10px; }
+}
+
+@media (max-width: 400px) {
+    .walas-container .walas-card { padding: 14px 10px; }
+    .walas-container .badge-status { padding: 6px 10px; font-size: 11px; }
+    .walas-container .points-badge { font-size: 10px; }
+}
+@endsection
+
+
+@section('scripts')
+<script>
+(function () {
+    'use strict';
+
+    var tabs     = document.getElementById('filterTabs');
+    var search   = document.getElementById('reportSearch');
+    var counter  = document.getElementById('reportCount');
+    var noResult = document.getElementById('noResult');
+    var items    = document.querySelectorAll('.report-item');
+
+    // Tidak ada laporan sama sekali: tidak ada yang perlu difilter.
+    if (!tabs || !items.length) { return; }
+
+    var activeStatus = 'all';
+
+    // Filter status dan pencarian bekerja bersamaan.
+    function applyFilter() {
+        var q = (search.value || '').trim().toLowerCase();
+        var shown = 0;
+
+        items.forEach(function (item) {
+            var okStatus = activeStatus === 'all' || item.dataset.status === activeStatus;
+            var okSearch = !q || item.dataset.search.indexOf(q) !== -1;
+            var show = okStatus && okSearch;
+
+            item.hidden = !show;
+            if (show) { shown++; }
+        });
+
+        counter.textContent = shown;
+        noResult.classList.toggle('is-hidden', shown !== 0);
+    }
+
+    tabs.addEventListener('click', function (e) {
+        var btn = e.target.closest('.tab-btn');
+        if (!btn) { return; }
+
+        activeStatus = btn.dataset.status;
+
+        tabs.querySelectorAll('.tab-btn').forEach(function (b) {
+            var isActive = b === btn;
+            b.classList.toggle('active', isActive);
+            b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+
+        applyFilter();
+    });
+
+    search.addEventListener('input', applyFilter);
+})();
+</script>
 @endsection

@@ -480,7 +480,23 @@
 
             <div class="pv-item">
                 <div class="pv-key">Saldo Poin Tercatat</div>
-                <div class="pv-value">@if($pelanggaran->poin_sebelum !== null){{ $pelanggaran->poin_sebelum }} → {{ $pelanggaran->poin_sesudah }} Poin@elseif($isPending)<span class="pv-muted">Belum dihitung (menunggu verifikasi)</span>@else<span class="pv-muted">Tidak dihitung (tanpa siswa)</span>@endif</div>
+                {{--
+                    Direktif Blade (@if/@elseif/@else/@endif) harus berada di
+                    awal baris atau didahului spasi. Kalau menempel pada teks
+                    (mis. "Poin@elseif"), Blade tidak mengenali dan
+                    menampilkan kode mentahnya ke pengguna.
+                --}}
+                <div class="pv-value">
+                    @if($pelanggaran->poin_sebelum !== null)
+                        {{ $pelanggaran->poin_sebelum }} → {{ $pelanggaran->poin_sesudah }} Poin
+                    @elseif($isPending)
+                        <span class="pv-muted">Belum dihitung (menunggu verifikasi)</span>
+                    @elseif(! $pelanggaran->siswa)
+                        <span class="pv-muted">Tidak dihitung (tanpa siswa)</span>
+                    @else
+                        <span class="pv-muted">Tidak tercatat</span>
+                    @endif
+                </div>
             </div>
 
             <div class="pv-item">

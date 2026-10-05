@@ -41,13 +41,11 @@
     </div>
 
 
-    {{-- SUCCESS --}}
-    @if(session('success'))
-        <div class="pg-alert">
-            <i class="fa-solid fa-circle-check"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
+    {{--
+        CATATAN: alert session('success') SENGAJA TIDAK ditampilkan di sini.
+        Layout (layouts/app.blade.php) sudah menampilkannya untuk semua halaman,
+        sehingga kalau ditulis lagi di sini alert-nya muncul dobel.
+    --}}
 
 
     {{-- RINGKASAN --}}
@@ -531,8 +529,16 @@
     max-width:100%;
 }
 
-.pelanggaran-page a{
-    text-decoration:none;
+/* Hilangkan underline di semua link & isinya (termasuk tombol) */
+.pelanggaran-page a,
+.pelanggaran-page a:hover,
+.pelanggaran-page a:focus,
+.pelanggaran-page a:active,
+.pelanggaran-page a *,
+.pelanggaran-page .pg-btn,
+.pelanggaran-page .pg-btn:hover,
+.pelanggaran-page .pg-btn span{
+    text-decoration:none !important;
 }
 
 .pelanggaran-page [hidden]{
@@ -621,27 +627,6 @@
     background:var(--primary);
     color:#fff;
     border-color:var(--primary);
-}
-
-
-/* ---------- ALERT ---------- */
-
-.pelanggaran-page .pg-alert{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-
-    background:#dcfce7;
-    color:#166534;
-
-    padding:13px 16px;
-    margin-bottom:18px;
-
-    border:1px solid #bbf7d0;
-    border-radius:12px;
-
-    font-size:14px;
-    overflow-wrap:anywhere;
 }
 
 

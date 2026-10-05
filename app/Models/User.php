@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'kelas'])]
+#[Fillable(['name', 'email', 'nig', 'password', 'role', 'jabatan', 'kelas'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -62,6 +62,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Apakah user termasuk unsur pimpinan sekolah (kepsek / waka)?
+     *
+     * Ditentukan dari jabatan resmi, BUKAN dari role — karena role
+     * "guru" dipakai bersama oleh semua tenaga pendidik, termasuk
+     * guru biasa yang disebut "Guru Khusus / Piket" di label role.
+     */
+    public function isPimpinan(): bool
+    {
+        $jabatan = mb_strtolower((string) $this->jabatan);
+
+        return str_contains($jabatan, 'kepala sekolah')
+            || str_contains($jabatan, 'waka');
+    }
+
+    /**
      * Apakah user berwenang memverifikasi laporan?
      */
     public function canVerify(): bool
@@ -95,9 +110,17 @@ class User extends Authenticatable
 
     /**
      * Label role yang ditampilkan di UI.
+     *
+     * Unsur pimpinan sekolah dikembalikan dari jabatannya ("Kepala
+     * Sekolah", "Waka Kesiswaan"), bukan "Guru Khusus / Piket" —
+     * label itu hanya benar untuk guru piket sungguhan.
      */
     public function getRoleLabelAttribute(): string
     {
+        if ($this->isPimpinan() && $this->jabatan) {
+            return $this->jabatanSingkat();
+        }
+
         return match ($this->role) {
             'admin' => 'Super Admin',
             'walas' => 'Wali Kelas',
@@ -106,6 +129,59 @@ class User extends Authenticatable
             'guru' => 'Guru Khusus / Piket',
             default => 'Guru',
         };
+    }
+
+    /**
+     * Jabatan yang dipersingkat untuk tampilan sempit.
+     *
+     * Di daftar resmi sekolah jabatan waka ditulis panjang, misalnya
+     * "Waka Urs. Hubungan Masyarakat & Guru Pendidikan Matematika".
+     * Nama jabatan resmi yang utuh disimpan di kolom `jabatan`; yang
+     * dipangkas hanya bagian yang tidak perlu untuk label — singkatan
+     * "Urs." dan jabatan pendamping setelah tanda "&".
+     */
+    public function jabatanSingkat(): string
+    {
+        $jabatan = (string) $this->jabatan;
+
+        if ($jabatan === '') {
+            return '';
+        }
+
+        $jabatan = preg_replace('/\bUrs\.\s*/u', '', $jabatan);
+        $jabatan = explode('&', $jabatan)[0];
+
+        return trim(preg_replace('/\s+/u', ' ', $jabatan));
+    }
+
+    /**
+     * Guru biasa: role "guru" yang BUKAN unsur pimpinan.
+     *
+     * Ini yang tidak perlu melihat data pribadi siswa: daftar
+     * pelanggaran dan rangking siapa paling banyak melakukan pelanggaran.
+     *
+     * Unsur pimpinan sengaja dikecualikan: mereka monitoring
+     * seluruh sekolah, jadi tetap perlu melihat semuanya meski role
+     * aplikasinya sama-sama "guru".
+     */
+    public function isGuruBiasa(): bool
+    {
+        return $this->isGuru() && ! $this->isPimpinan();
+    }
+
+    /**
+     * Kunci untuk memilih daftar route yang boleh dibuka di menu.
+     *
+     * HANYA untuk menu: pemblokiran URL tetap dipegang
+     * EnsureCanManage, supaya ada satu tempat yang benar-benar
+     * menentukan apakah sebuah request ditolak.
+     *
+     * Mengembalikan "pimpinan" untuk kepala sekolah dan waka supaya
+     * mereka punya hak akses penuh, meski role-nya "guru".
+     */
+    public function navKey(): string
+    {
+        return $this->isPimpinan() ? 'pimpinan' : (string) $this->role;
     }
 
     /**

@@ -10,6 +10,19 @@
 
     $kelasList = $kelasList ?? collect();
 
+    /*
+     * Guru biasa hanya boleh melihat papan prestasi.
+     *
+     * "Top Pelanggaran" disembunyikan karena itu daftar siapa paling
+     * banyak melanggar. "Saldo Poin" juga disembunyikan, padahal tidak
+     * namanya terkait pelanggaran — rumusnya 100 - poin pelanggaran +
+     * poin prestasi, diurutkan saldo terendah, jadi tetap membocorkan
+     * siapa yang paling banyak melanggar.
+     *
+     * Unsur pimpinan, PDS, dan BK tetap melihat ketiganya.
+     */
+    $bolehLihatPelanggaran = ! auth()->user()->isGuruBiasa();
+
     // Satu konfigurasi, tiga papan peringkat.
     $boards = [
         'prestasi' => [
@@ -40,6 +53,14 @@
             'empty' => ['Belum ada data siswa', 'Data saldo poin siswa akan muncul di sini.'],
         ],
     ];
+
+    if (! $bolehLihatPelanggaran) {
+        $boards = array_filter(
+            $boards,
+            fn (string $key) => $key === 'prestasi',
+            ARRAY_FILTER_USE_KEY
+        );
+    }
 @endphp
 
 <div class="lb-page">
@@ -47,7 +68,13 @@
     {{-- HEADER --}}
     <header class="lb-head">
         <h1>Leaderboard</h1>
-        <p>Peringkat siswa berdasarkan prestasi, pelanggaran, dan saldo poin.</p>
+        <p>
+            @if($bolehLihatPelanggaran)
+                Peringkat siswa berdasarkan prestasi, pelanggaran, dan saldo poin.
+            @else
+                Peringkat siswa berdasarkan prestasi.
+            @endif
+        </p>
     </header>
 
 
@@ -291,7 +318,8 @@
     --lb-line-strong: #d6cdc3;
     --lb-soft: #f7f3ee;
     --lb-tint: #fcfaf7;
-    --lb-accent: var(--primary, #6d1408);
+    /* Tanpa fallback hex: --primary selalu ada dari partials/ui. */
+    --lb-accent: var(--primary);
     --lb-shadow: 0 1px 2px rgba(31, 27, 24, .04), 0 12px 28px -18px rgba(31, 27, 24, .22);
 
     width: 100%;

@@ -14,8 +14,13 @@ class WalasFlowTest extends TestCase
     {
         $walas = User::factory()->create(['role' => 'walas']);
 
+        /*
+         * Login memakai NIG. Akun walas per-kelas belum punya NIG,
+         * jadi form login menerima email sebagai cadangan — itu yang
+         * diuji di sini.
+         */
         $response = $this->post('/login', [
-            'email' => $walas->email,
+            'nig' => $walas->email,
             'password' => 'password',
         ]);
 

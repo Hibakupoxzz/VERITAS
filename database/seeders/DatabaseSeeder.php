@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             BkUserSeeder::class,
             WalasUserSeeder::class,
             GuruUserSeeder::class,
+            GuruTenagaPendidikSeeder::class,
 
             // Data referensi & master
             AturanPelanggaranSeeder::class,

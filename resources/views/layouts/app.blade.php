@@ -88,7 +88,7 @@
             height: auto;
         }
 
-        /* Teks panjang (nama, NISN, keterangan) tidak boleh causing overflow */
+        /* Teks panjang (nama, NISN, keterangan) tidak boleh menyebabkan overflow */
         p,
         span,
         td,
@@ -101,6 +101,10 @@
         small,
         label {
             overflow-wrap: break-word;
+        }
+
+        [hidden] {
+            display: none !important;
         }
 
 
@@ -123,6 +127,7 @@
             --muted: #6B7280;
 
             --sidebar-width: 270px;
+            --topbar-height: 72px;
 
             --shadow-sm:
                 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -137,14 +142,9 @@
             /* =====================================================
                DESIGN TOKENS
                Satu sumber kebenaran untuk nilai yang sebelumnya
-               ditulis ulang-ulang dengan angka berbeda di tiap view
-               (terdeteksi 204 selector terduplikasi & ~300 properti
-               yang nilainya berbeda antar halaman).
-
-               Primitive dipakai langsung (mis. padding kartu),
-               semantic kalau nilainya ikut makna (mis. warna-poin).
+               ditulis ulang-ulang dengan angka berbeda di tiap view.
                Aturan main: kalau sebuah nilai pernah ditulis beda
-               di beberapa halaman, pindahkan ke sini — jangan
+               di beberapa halaman, pindahkan ke sini, jangan
                menulis angka mentah di view.
                ===================================================== */
 
@@ -166,9 +166,7 @@
             --fw-semibold: 600;
             --fw-bold: 700;
 
-            /* --- Radius ---
-               Nilai literal, bukan alias ke token lain, supaya blok
-               ini mandiri dan tidak bergantung token yang belum ada. */
+            /* --- Radius --- */
             --r-xs: 6px;
             --r-sm: 8px;
             --r-md: 10px;
@@ -209,17 +207,11 @@
             --c-badge-neutral-bg: #F3F4F6;
             --c-badge-neutral-text: #4B5563;
 
-            /* Poin: relatifitas SUDAH TENTU di sini.
-               Sebelumnya .badge-point hijau di halaman prestasi
-               tapi merah di halaman pelanggaran — elemen sama,
-               makna berlawanan. */
+            /* Poin: warnanya ditetapkan di sini agar sama di semua halaman. */
             --c-point-bg: var(--primary);
             --c-point-text: #FFFFFF;
 
-            /* Table header: dark surface + white text, konsisten
-               dengan sidebar. Sebelumnya `th` berwarna putih di
-               satu halaman dan abu-abu di halaman lain sehingga
-               kontras header terbalik. */
+            /* Table header: dark surface + white text, konsisten dengan sidebar. */
             --c-thead-bg: var(--dark);
             --c-thead-text: #FFFFFF;
             --c-row-hover: #F9FAFB;
@@ -264,8 +256,6 @@
             overflow-x: hidden;
         }
 
-        /* Scrollbar sidebar */
-
         .sidebar::-webkit-scrollbar {
             width: 5px;
         }
@@ -285,7 +275,7 @@
         ========================================================= */
 
         .sidebar-brand {
-            height: 78px;
+            height: var(--topbar-height);
 
             display: flex;
             align-items: center;
@@ -452,6 +442,51 @@
             border-radius: 0 5px 5px 0;
         }
 
+        /* Lencana jumlah di samping menu (mis. Pending Verifikasi) */
+        .menu-badge {
+            margin-left: auto;
+
+            min-width: 20px;
+
+            padding: 2px 7px;
+
+            border-radius: 99px;
+
+            background: #EF4444;
+
+            color: #fff;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            text-align: center;
+        }
+
+        /* Daftar kelas binaan */
+        .menu-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+
+            padding: 8px 13px;
+        }
+
+        .menu-chip {
+            display: inline-block;
+
+            padding: 4px 10px;
+
+            border: 1px solid rgba(109,20,8,0.3);
+            border-radius: 6px;
+
+            background: rgba(109,20,8,0.15);
+
+            color: #D1D5DB;
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
 
         /* =========================================================
            USER AREA
@@ -584,32 +619,25 @@
         ========================================================= */
 
         .topbar {
-            height: 78px;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+
+            height: var(--topbar-height);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 16px;
+
+            padding: 0 30px;
 
             background: white;
 
             border-bottom:
                 1px solid var(--border);
-
-            display: flex;
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding:
-                0 30px;
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 900;
         }
-
-
-        /* =========================================================
-           TOPBAR LEFT
-        ========================================================= */
 
         .topbar-left {
             display: flex;
@@ -625,6 +653,8 @@
 
             width: 40px;
             height: 40px;
+
+            flex-shrink: 0;
 
             border: none;
 
@@ -644,27 +674,108 @@
             font-size: 16px;
         }
 
-        .page-heading {
+        /* =========================================================
+           REMAH ROTI (BREADCRUMB)
+        ========================================================= */
+
+        .topbar-crumb {
+            display: flex;
+            align-items: center;
+
+            gap: 6px;
+
             min-width: 0;
+
+            font-size: 13px;
+
+            color: var(--muted);
         }
 
-        .page-heading h1 {
-            font-size: 18px;
-            font-weight: 700;
+        /* Ikon chevron dipisah agar jaraknya konsisten
+           dan tidak ikut hilang bersama teks panjang. */
+        .topbar-crumb .crumb-sep {
+            flex: 0 0 auto;
 
-            color: var(--dark);
+            font-size: 9px;
 
-            white-space: nowrap;
+            color: #C4CAD3;
         }
 
-        .page-heading p {
-            margin-top: 3px;
+        .crumb-link {
+            display: inline-flex;
+            align-items: center;
 
-            font-size: 11px;
+            gap: 6px;
+
+            min-width: 0;
+
+            padding: 4px 8px;
+
+            border-radius: 7px;
 
             color: var(--muted);
 
+            text-decoration: none;
+
             white-space: nowrap;
+
+            transition:
+                background 0.15s ease,
+                color 0.15s ease;
+        }
+
+        .crumb-link i {
+            font-size: 11px;
+            flex: 0 0 auto;
+        }
+
+        .crumb-link:hover {
+            background: #F7F2EF;
+            color: var(--primary);
+        }
+
+        .crumb-link:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 1px;
+        }
+
+        /* Level terakhir: halaman yang sedang dibuka. */
+        .crumb-page {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 6px;
+
+            min-width: 0;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            color: var(--dark);
+        }
+
+        .crumb-page i {
+            font-size: 12px;
+            flex: 0 0 auto;
+            color: var(--primary);
+        }
+
+        /* Judul panjang dipotong di tengah, bukan di awal, supaya
+           ikon dan awal kata tetap terbaca. */
+        .crumb-page span,
+        .crumb-link span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Cegah judul sangat panjang menabrak blok tanggal. */
+        .topbar-left {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .topbar-crumb {
+            overflow: hidden;
         }
 
 
@@ -676,7 +787,9 @@
             display: flex;
             align-items: center;
 
-            gap: 12px;
+            gap: 10px;
+
+            flex-shrink: 0;
         }
 
         .topbar-date {
@@ -689,8 +802,7 @@
 
             color: var(--muted);
 
-            padding:
-                8px 12px;
+            padding: 8px 12px;
 
             background: #F9FAFB;
 
@@ -698,10 +810,17 @@
                 1px solid var(--border);
 
             border-radius: 8px;
+
+            white-space: nowrap;
         }
 
         .topbar-date i {
             color: var(--primary);
+        }
+
+        .mobile-menu-btn:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
         }
 
 
@@ -1110,6 +1229,14 @@
            RESPONSIVE TABLET
         ========================================================= */
 
+        @media (max-width: 1200px) {
+
+            .topbar-date {
+                display: none;
+            }
+
+        }
+
         @media (max-width: 1100px) {
 
             :root {
@@ -1132,13 +1259,6 @@
             .page {
                 padding:
                     24px 22px 35px;
-            }
-
-            .topbar-date {
-                font-size: 10px;
-
-                padding:
-                    7px 10px;
             }
 
         }
@@ -1172,10 +1292,6 @@
                     20px 18px 30px;
             }
 
-            .topbar-date {
-                display: none;
-            }
-
         }
 
 
@@ -1207,7 +1323,7 @@
             }
 
             .topbar {
-                height: 68px;
+                height: 66px;
 
                 padding:
                     0 15px;
@@ -1217,19 +1333,16 @@
                 display: flex;
             }
 
-            .page-heading h1 {
-                font-size: 15px;
-
-                /* Judul panjang tidak lagi dipaksa satu baris */
-                white-space: normal;
-            }
-
-            .page-heading p {
-                font-size: 9px;
-            }
-
-            .topbar-date {
+            /* Di layar sempit hanya level terakhir yang tampil: penanda
+               posisi sudah jelas dari isi halaman, dan rantai breadcrumb
+               pendek lebih mudah dibaca. */
+            .topbar-crumb .crumb-link,
+            .topbar-crumb .crumb-sep {
                 display: none;
+            }
+
+            .topbar-crumb .crumb-page {
+                font-size: 15px;
             }
 
             .topbar-right {
@@ -1258,7 +1371,7 @@
                 min-height: 40px;
             }
 
-            /* Cegah inputSafari/iOS auto-zoom saat fokus */
+            /* Cegah input Safari/iOS auto-zoom saat fokus */
             .form-control,
             .form-label {
                 font-size: 16px;
@@ -1294,6 +1407,8 @@
 
             .topbar {
                 height: 62px;
+
+                gap: 10px;
             }
 
             .mobile-menu-btn {
@@ -1301,12 +1416,8 @@
                 height: 36px;
             }
 
-            .page-heading h1 {
+            .topbar-crumb .crumb-page {
                 font-size: 14px;
-            }
-
-            .page-heading p {
-                display: none;
             }
 
             .page {
@@ -1369,7 +1480,7 @@
                     14px 10px 22px;
             }
 
-            .page-heading h1 {
+            .topbar-crumb .crumb-page {
                 font-size: 13px;
             }
 
@@ -1474,6 +1585,180 @@
 
 <body>
 
+@php
+    /*
+     * Data untuk sidebar dan topbar dihitung SEKALI di sini.
+     * Sebelumnya jumlah laporan pending di-query tiga kali per halaman
+     * (sidebar PDS, sidebar admin, topbar).
+     *
+     * $canVerify sengaja tetap dihitung walau tidak dipakai topbar:
+     * sidebar memakai peran yang sama untuk menentukan menu mana
+     * yang perlu lencana jumlah laporan.
+     */
+
+    $topUser   = auth()->user();
+    $canVerify = (bool) $topUser?->canVerify();
+    $isWalas   = (bool) $topUser?->isWalas();
+
+    // ---- Label portal (muncul di penunjuk lokasi) ----
+    $portalLabel = match (true) {
+        (bool) $topUser?->isPimpinan() => 'Pimpinan Sekolah',
+        $isWalas                    => 'Wali Kelas',
+        (bool) $topUser?->isGuru()  => 'Guru Khusus',
+        (bool) $topUser?->isPds()   => 'Guru PDS',
+        (bool) $topUser?->isBk()    => 'Guru BK',
+        default                     => 'Administrator',
+    };
+
+    // ---- Jumlah laporan pending ----
+    $pendingCount = ($canVerify || $topUser?->isPds())
+        ? \App\Models\Pelanggaran::where('status', 'pending')->count()
+        : 0;
+
+    /*
+     * =========================================================
+     * REMAH ROTI (BREADCRUMB) TIGA LEVEL
+     * =========================================================
+     *
+     * Level: Portal > Grup > Halaman.
+     *
+     * Peta route ke grup ditulis di sini, bukan di tiap view, supaya
+     * semua halaman dalam satu grup pasti punya induk yang sama.
+     * Tiap entri: [label grup, route induk, ikon].
+     *
+     * Route induk TIDAK selalu bisa dibuka user yang sedang masuk —
+     * misalnya Wali Kelas tidak boleh membuka /dashboard. Karena itu
+     * URL induk divalidasi dulu lewat $parentUrl() sebelum
+     * dirender sebagai tautan; kalau tidak boleh, grup ditampilkan
+     * sebagai teks biasa agar tidak ada link yang mati.
+     */
+
+    $NAV_GRUP = [
+        // --- Pelanggaran ---
+        'pelanggaran.index' => ['Data Pelanggaran', 'pelanggaran.index', 'fa-shield-halved'],
+        'pelanggaran.pending' => ['Data Pelanggaran', 'pelanggaran.index', 'fa-hourglass-half'],
+        'pelanggaran.create' => ['Data Pelanggaran', 'pelanggaran.index', 'fa-shield-halved'],
+        'pelanggaran.edit' => ['Data Pelanggaran', 'pelanggaran.index', 'fa-shield-halved'],
+        'pelanggaran.show' => ['Data Pelanggaran', 'pelanggaran.index', 'fa-shield-halved'],
+
+        // --- Pelaporan (dipakai Walas & Guru) ---
+        'lapor.index' => ['Pelaporan', 'lapor.index', 'fa-bullhorn'],
+        'lapor.riwayat' => ['Pelaporan', 'lapor.index', 'fa-bullhorn'],
+
+        // --- Data Siswa ---
+        'siswa.index' => ['Data Siswa', 'siswa.index', 'fa-users'],
+        'siswa.create' => ['Data Siswa', 'siswa.index', 'fa-users'],
+        'siswa.edit' => ['Data Siswa', 'siswa.index', 'fa-users'],
+        'siswa.show' => ['Data Siswa', 'siswa.index', 'fa-users'],
+
+        // --- Data Prestasi ---
+        'prestasi.index' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
+        'prestasi.create' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
+        'prestasi.edit' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
+        'prestasi.show' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
+
+        // --- Tanpa induk ---
+        'leaderboard' => ['Leaderboard', null, 'fa-ranking-star'],
+        'dashboard' => [null, null, 'fa-gauge-high'],
+    ];
+
+    /*
+     * Route yang boleh dibuka tiap peran untuk link remah roti.
+     * Mengikuti aturan yang sama dengan EnsureCanManage supaya
+     * crumb tidak pernah mengarah ke halaman yang akan
+     * dibatalkan middleware.
+     */
+    $NAV_BOLEH = [
+        'admin' => '*',
+        'pds' => ['dashboard', 'pelanggaran.index', 'pelanggaran.pending', 'pelanggaran.show',
+            'pelanggaran.create', 'lapor.index', 'lapor.riwayat', 'siswa.index',
+            'siswa.show', 'siswa.create', 'siswa.edit', 'prestasi.index',
+            'leaderboard', 'prestasi.show'],
+        'bk' => ['dashboard', 'pelanggaran.index', 'pelanggaran.pending', 'pelanggaran.show',
+            'lapor.index', 'lapor.riwayat', 'siswa.index', 'siswa.show',
+            'siswa.create', 'siswa.edit', 'prestasi.index', 'leaderboard', 'prestasi.show'],
+        /*
+         * Guru biasa TIDAK diberi Data Pelanggaran: daftar pelanggaran
+         * dan rinciannya memuat data pribadi siswa.
+         */
+        'guru' => ['lapor.index', 'lapor.riwayat', 'siswa.index',
+            'prestasi.index', 'leaderboard', 'prestasi.show'],
+
+        /*
+         * Unsur pimpinan (kepsek + waka) punya role "guru" yang sama,
+         * tapi tetap boleh melihat Data Pelanggaran karena tugasnya
+         * monitoring seluruh sekolah. User::navKey() yang memilih
+         * kuncinya, jadi tidak perlu role baru di tabel users.
+         */
+        'pimpinan' => ['lapor.index', 'lapor.riwayat', 'siswa.index',
+            'pelanggaran.index', 'pelanggaran.show',
+            'prestasi.index', 'leaderboard', 'prestasi.show'],
+        'walas' => ['lapor.index', 'lapor.riwayat', 'pelanggaran.index', 'pelanggaran.show',
+            'prestasi.index', 'leaderboard', 'prestasi.show'],
+    ];
+
+    /*
+     * Ubah nama route menjadi URL, atau null kalau user yang sedang
+     * masuk tidak boleh membuka route tersebut (dan route-nya memang
+     * ada).芯片组 null berarti level itu ditampilkan sebagai teks
+     * biasa, bukan tautan mati.
+     */
+    $parentUrl = function (?string $routeName) use ($topUser, $NAV_BOLEH): ?string {
+        if (! $routeName || ! \Illuminate\Support\Facades\Route::has($routeName)) {
+            return null;
+        }
+
+        // Peran tak dikenal (mis. admin) bebas.
+        //
+        // navKey() bukan role: ia memilih kunci nav yang sesuai untuk
+        // user. Unsur pimpinan memakai role "guru" seperti guru biasa,
+        // tapi punya daftar route sendiri.
+        $boleh = $NAV_BOLEH[$topUser?->navKey()] ?? [];
+
+        if ($boleh !== '*' && ! in_array($routeName, $boleh, true)) {
+            return null;
+        }
+
+        return route($routeName);
+    };
+
+    $routeSekarang = request()->route()?->getName();
+
+    // Judul halaman boleh diganti view lewat section opsional.
+    $judulHalaman = trim((string) $__env->yieldContent('page_title')) ?: 'Beranda';
+
+    // Susun remah roti: [label, url|null, ikon|null, apakah ini halaman ini]
+    $crumbs = [];
+
+    $portalUrl = match (true) {
+        $isWalas, (bool) $topUser?->isGuru() => $parentUrl('lapor.index'),
+        default => $parentUrl('dashboard'),
+    };
+
+    $crumbs[] = ['label' => $portalLabel, 'url' => $portalUrl, 'icon' => 'fa-house', 'current' => false];
+
+    if (isset($NAV_GRUP[$routeSekarang])) {
+        [$labelGrup, $routeInduk, $ikonGrup] = $NAV_GRUP[$routeSekarang];
+
+        if ($labelGrup) {
+            $crumbs[] = [
+                'label' => $labelGrup,
+                'url' => $parentUrl($routeInduk),
+                'icon' => $ikonGrup,
+                'current' => false,
+            ];
+        }
+    }
+
+    $crumbs[] = [
+        'label' => $judulHalaman,
+        'url' => null,
+        'icon' => $NAV_GRUP[$routeSekarang][2] ?? 'fa-file-lines',
+        'current' => true,
+    ];
+
+@endphp
+
 <div class="app">
 
 
@@ -1513,7 +1798,7 @@
 
         <nav class="menu">
 
-            @if(auth()->check() && auth()->user()->isWalas())
+            @if(auth()->check() && $isWalas)
 
                 {{-- =================================================
                      MENU KHUSUS WALI KELAS (HANYA PELAPORAN & KELAS)
@@ -1582,7 +1867,7 @@
 
                 {{-- DIREKTORI DATA KELAS & SISWA --}}
                 <div class="menu-title">
-                    Data Kelas & Siswa
+                    Data Kelas &amp; Siswa
                 </div>
 
                 <a href="{{ route('siswa.index') }}"
@@ -1596,11 +1881,19 @@
                     Monitoring
                 </div>
 
-                <a href="{{ route('pelanggaran.index') }}"
-                   class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
-                    <i class="fa-solid fa-list-check"></i>
-                    <span>Pelanggaran Siswa</span>
-                </a>
+                @if(auth()->user()->isPimpinan())
+                    {{--
+                        Hanya unscursrah pimpinan (kepsek + waka) yang punya
+                        role "guru" tetapi tetap boleh melihat Data
+                        Pelanggaran. Guru biasa tidak, karena halamannya
+                        memuat data pribadi siswa.
+                    --}}
+                    <a href="{{ route('pelanggaran.index') }}"
+                       class="{{ request()->routeIs('pelanggaran.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Pelanggaran Siswa</span>
+                    </a>
+                @endif
 
                 <a href="{{ route('prestasi.index') }}"
                    class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
@@ -1694,11 +1987,9 @@
                         Kelas Binaan BK
                     </div>
 
-                    <div style="padding: 8px 13px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <div class="menu-chips">
                         @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
-                            <span style="display: inline-block; padding: 4px 10px; background: rgba(109,20,8,0.15); color: #D1D5DB; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(109,20,8,0.3);">
-                                {{ $kelasBinaan }}
-                            </span>
+                            <span class="menu-chip">{{ $kelasBinaan }}</span>
                         @endforeach
                     </div>
                 @endif
@@ -1722,20 +2013,15 @@
 
                 {{-- DISIPLIN & PELANGGARAN --}}
                 <div class="menu-title">
-                    Disiplin & Pelanggaran
+                    Disiplin &amp; Pelanggaran
                 </div>
 
                 <a href="{{ route('pelanggaran.pending') }}"
                    class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
                     <i class="fa-solid fa-hourglass-half"></i>
                     <span>Pending Verifikasi</span>
-                    @php
-                        $pendingCountPds = \App\Models\Pelanggaran::where('status', 'pending')->count();
-                    @endphp
-                    @if($pendingCountPds > 0)
-                        <span style="margin-left:auto; background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px;">
-                            {{ $pendingCountPds }}
-                        </span>
+                    @if($pendingCount > 0)
+                        <span class="menu-badge">{{ $pendingCount }}</span>
                     @endif
                 </a>
 
@@ -1753,7 +2039,7 @@
 
                 {{-- PRESTASI SISWA (READ-ONLY) --}}
                 <div class="menu-title">
-                    Prestasi & Aktivitas
+                    Prestasi &amp; Aktivitas
                 </div>
 
                 <a href="{{ route('prestasi.index') }}"
@@ -1785,11 +2071,9 @@
                         Kelas Binaan PDS
                     </div>
 
-                    <div style="padding: 8px 13px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <div class="menu-chips">
                         @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
-                            <span style="display: inline-block; padding: 4px 10px; background: rgba(109,20,8,0.15); color: #D1D5DB; font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid rgba(109,20,8,0.3);">
-                                {{ $kelasBinaan }}
-                            </span>
+                            <span class="menu-chip">{{ $kelasBinaan }}</span>
                         @endforeach
                     </div>
                 @endif
@@ -1824,13 +2108,8 @@
                    class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
                     <i class="fa-solid fa-hourglass-half"></i>
                     <span>Pending Laporan</span>
-                    @php
-                        $pendingCountAdmin = \App\Models\Pelanggaran::where('status', 'pending')->count();
-                    @endphp
-                    @if($pendingCountAdmin > 0)
-                        <span style="margin-left:auto; background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px;">
-                            {{ $pendingCountAdmin }}
-                        </span>
+                    @if($pendingCount > 0)
+                        <span class="menu-badge">{{ $pendingCount }}</span>
                     @endif
                 </a>
 
@@ -1973,56 +2252,58 @@
         <header class="topbar">
 
 
+            {{-- KIRI: tombol menu (mobile) + penunjuk lokasi --}}
             <div class="topbar-left">
-
-
-                {{-- MOBILE MENU --}}
 
                 <button type="button"
                         class="mobile-menu-btn"
-                        id="mobileMenuBtn">
+                        id="mobileMenuBtn"
+                        aria-label="Buka menu"
+                        aria-controls="sidebar">
 
                     <i class="fa-solid fa-bars"></i>
 
                 </button>
 
+                {{-- Remah roti tiga level: Portal > Grup > Halaman.
+                     Level yang punya URL jadi tautan, level terakhir
+                     adalah teks tebal penanda halaman ini. --}}
+                <nav class="topbar-crumb" aria-label="Remah roti">
 
-                {{-- PAGE TITLE --}}
-
-                <div class="page-heading">
-
-                    <h1>
-                        @if(trim($__env->yieldContent('page_title')))
-                            @yield('page_title')
-                        @elseif(trim($__env->yieldContent('page-title')))
-                            @yield('page-title')
-                        @else
-                            Dashboard
+                    @foreach ($crumbs as $crumb)
+                        @if (! $loop->first)
+                            <i class="fa-solid fa-chevron-right crumb-sep" aria-hidden="true"></i>
                         @endif
-                    </h1>
 
-                    <p>
-                        @if(auth()->check() && auth()->user()->isWalas())
-                            Portal Pelaporan Wali Kelas
-                        @elseif(auth()->check() && auth()->user()->isGuru())
-                            Portal Pelaporan Guru Khusus (Semua Kelas)
-                        @elseif(auth()->check() && auth()->user()->isPds())
-                            Monitoring Kelas Binaan PDS
-                        @elseif(auth()->check() && auth()->user()->isBk())
-                            Bimbingan &amp; Konseling (BK)
+                        @if ($crumb['url'] && ! $crumb['current'])
+                            <a class="crumb-link" href="{{ $crumb['url'] }}">
+                                <i class="fa-solid {{ $crumb['icon'] }}" aria-hidden="true"></i>
+                                <span>{{ $crumb['label'] }}</span>
+                            </a>
                         @else
-                            Sistem Monitoring Siswa
+                            {{-- Halaman ini: bukan tautan, ditandai untuk pembaca layar. --}}
+                            <strong class="crumb-page"
+                                    @if ($crumb['current']) aria-current="page" @endif>
+                                <i class="fa-solid {{ $crumb['icon'] }}" aria-hidden="true"></i>
+                                <span>{{ $crumb['label'] }}</span>
+                            </strong>
                         @endif
-                    </p>
+                    @endforeach
 
-                </div>
-
+                </nav>
 
             </div>
 
 
-            {{-- TOPBAR RIGHT --}}
+            {{--
+                Topbar sengaja hanya berisi dua hal: penunjuk lokasi
+                (navigasi) dan tanggal.
 
+                Pencarian siswa, tombol aksi cepat, dan lonceng
+                notifikasi dihapus dari sini. Jumlah laporan yang
+                menunggu verifikasi tetap terlihat lewat lencana
+                pada menu "Pending Verifikasi" di sidebar.
+            --}}
             <div class="topbar-right">
 
                 <div class="topbar-date">
@@ -2123,165 +2404,62 @@
 
 
 {{-- =============================================================
-     JAVASCRIPT
+     JAVASCRIPT LAYOUT
 ============================================================= --}}
 
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
 
-
-        const sidebar =
-            document.getElementById('sidebar');
-
-        const overlay =
-            document.getElementById('sidebarOverlay');
-
-        const mobileMenuBtn =
-            document.getElementById('mobileMenuBtn');
+        var $ = function (id) { return document.getElementById(id); };
 
 
         /* =====================================================
-           OPEN SIDEBAR
+           SIDEBAR (MOBILE)
         ====================================================== */
+
+        var sidebar       = $('sidebar');
+        var overlay       = $('sidebarOverlay');
+        var mobileMenuBtn = $('mobileMenuBtn');
 
         function openSidebar() {
-
             sidebar.classList.add('show');
-
             overlay.classList.add('show');
-
             document.body.style.overflow = 'hidden';
-
         }
-
-
-        /* =====================================================
-           CLOSE SIDEBAR
-        ====================================================== */
 
         function closeSidebar() {
-
             sidebar.classList.remove('show');
-
             overlay.classList.remove('show');
-
             document.body.style.overflow = '';
-
         }
-
-
-        /* =====================================================
-           MOBILE BUTTON
-        ====================================================== */
 
         if (mobileMenuBtn) {
-
-            mobileMenuBtn.addEventListener(
-                'click',
-                function () {
-
-                    if (
-                        sidebar.classList.contains('show')
-                    ) {
-
-                        closeSidebar();
-
-                    } else {
-
-                        openSidebar();
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        /* =====================================================
-           OVERLAY
-        ====================================================== */
-
-        if (overlay) {
-
-            overlay.addEventListener(
-                'click',
-                closeSidebar
-            );
-
-        }
-
-
-        /* =====================================================
-           CLOSE SIDEBAR AFTER CLICK MENU
-        ====================================================== */
-
-        const menuLinks =
-            document.querySelectorAll('.menu a');
-
-        menuLinks.forEach(function (link) {
-
-            link.addEventListener(
-                'click',
-                function () {
-
-                    if (
-                        window.innerWidth <= 768
-                    ) {
-
-                        closeSidebar();
-
-                    }
-
-                }
-            );
-
-        });
-
-
-        /* =====================================================
-           RESET SIDEBAR WHEN DESKTOP
-        ====================================================== */
-
-        window.addEventListener(
-            'resize',
-            function () {
-
-                if (
-                    window.innerWidth > 768
-                ) {
-
+            mobileMenuBtn.addEventListener('click', function () {
+                if (sidebar.classList.contains('show')) {
                     closeSidebar();
-
-                }
-
-            }
-        );
-
-
-    });
-
-</script>
-
-
-{{-- =============================================================
-     PAGE SCRIPTS
-============================================================= --}}
-
-{{-- Tom Select JS --}}
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.searchable-select').forEach(function(el) {
-            new TomSelect(el, {
-                create: false,
-                sortField: {
-                    field: "text",
-                    direction: "asc"
+                } else {
+                    openSidebar();
                 }
             });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', closeSidebar);
+        }
+
+        // Tutup sidebar setelah memilih menu di layar kecil
+        document.querySelectorAll('.menu a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth <= 768) { closeSidebar(); }
+            });
         });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 768) { closeSidebar(); }
+        });
+
+
     });
 </script>
 

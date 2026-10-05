@@ -40,24 +40,48 @@ class EnsureCanManage
                 ->with('error', 'Akses dibatasi. Guru Walas hanya memiliki akses untuk pelaporan dan melihat data kelasnya.');
         }
 
-        // 2. Guru Khusus / Piket: Read-only Siswa, Pelanggaran, Prestasi, Leaderboard
+        // 2. Guru (role "guru")
+        //
+        // Ada dua kelompok di dalam role ini:
+        //
+        // a) Guru biasa — hanya pelaporan + direktori siswa + prestasi.
+        //    TIDAK boleh melihat data pribadi siswa berupa daftar
+        //    pelanggaran (pelanggaran.index / pelanggaran.show).
+        //    Leaderboard tetap boleh, tapi bagian "Top Pelanggaran"
+        //    disembunyikan di view.
+        //
+        // b) Unsur pimpinan (kepsek + waka) — dikecualikan, mereka
+        //    monitoring seluruh sekolah, jadi hak aksesnya sama seperti
+        //    guru biasa PLUS daftar pelanggaran.
+        //
+        // Penting: cabangnya tetap memakai isGuru(), bukan
+        // isGuruBiasa(). Kalau hanya isGuruBiasa() yang dicek, unsur
+        // pimpinan akan jatuh ke return $next() di akhir dan otomatis
+        // mendapat akses penuh — termasuk hapus data.
         if ($user->isGuru()) {
             $allowedRoutes = [
                 'siswa.index',
                 'siswa.search',
-                'pelanggaran.index',
-                'pelanggaran.show',
                 'prestasi.index',
                 'prestasi.show',
                 'leaderboard',
             ];
 
+            if ($user->isPimpinan()) {
+                $allowedRoutes[] = 'pelanggaran.index';
+                $allowedRoutes[] = 'pelanggaran.show';
+            }
+
             if (in_array($routeName, $allowedRoutes)) {
                 return $next($request);
             }
 
-            return redirect()->route('lapor.index')
-                ->with('error', 'Akses dibatasi. Guru hanya memiliki akses untuk pelaporan dan melihat direktori siswa/kelas.');
+            // Pesan khusus untuk dua halaman yang paling sering ditanyakan.
+            $pesan = in_array($routeName, ['pelanggaran.index', 'pelanggaran.show'], true)
+                ? 'Akses dibatasi. Daftar pelanggaran siswa hanya dapat dilihat oleh Kepala Sekolah, Wakil Kepala Sekolah, Guru PDS, dan Guru BK.'
+                : 'Akses dibatasi. Guru hanya memiliki akses untuk pelaporan, melihat direktori siswa, dan mengelola prestasi.';
+
+            return redirect()->route('lapor.index')->with('error', $pesan);
         }
 
         // 2. BK: Bisa nambah prestasi & report, tapi TIDAK BISA verify/acc pelanggaran

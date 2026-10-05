@@ -1,118 +1,220 @@
 # Daftar Lengkap Semua Akun VERITAS
 
+> **Login memakai NIG, bukan email.**
+> Data ini disalin apa adanya dari daftar resmi sekolah (58 tenaga
+> pendidik), termasuk gelar pada setiap nama.
+>
+> Penetapan role: **akun PDS, akun BK, dan unsur pimpinan
+> dibiarkan apa adanya.** Seluruh tenaga pendidik lainnya — termasuk
+> yang jabatannya berubah di daftar terbaru — menjadi role `guru`.
+
 ## 1. Super Admin (1 akun)
 
-| Nama | Email | Password | Role |
-|------|-------|----------|------|
-| Admin | duospirits@gmail.com | zidan123 | admin |
+| No | NIG / Email | Nama | Password |
+|----|-------------|------|----------|
+| 1 | `duospirits@gmail.com` | Admin | zidan123 |
+
+Admin masih login dengan email karena belum ada NIG-nya.
 
 ---
 
-## 2. Guru BK (8 akun)
+## 1a. Unsur Pimpinan Sekolah (6 akun)
+
+Password semua: **pimpinan123**
+
+Kepala Sekolah dan lima Wakil Kepala Sekolah. Password-nya dipisah
+dari guru pada umumnya supaya mudah dikenali saat menerima laporan.
+
+| No | NIG / Email | Nama | Jabatan | Password |
+|----|-------------|------|---------|----------|
+| 1 | `0250186083` | Sri Mildawati, S.Pd., M.Pd | Kepala Sekolah | pimpinan123 |
+| 2 | `0170194006` | Amirul Hadid Ramadan, S.Pd., M.Pd | Waka Kurikulum | pimpinan123 |
+| 3 | `0180193040` | Septia Sundari, S.Pd | Waka Hubungan Masyarakat & Guru Pendidikan Matematika | pimpinan123 |
+| 4 | `0170188005` | Nugrah Dwi Saptaji, S.Psi | Waka Hubungan Industri | pimpinan123 |
+| 5 | `0190195044` | Hanifan Nurfauzi, M. Ag | Waka Kesiswaan | pimpinan123 |
+| 6 | `0170167004` | Rohajon, S.T | Waka Sarana Prasarana | pimpinan123 |
+
+> [!WARNING]
+> Belum ada fitur ganti password di aplikasi, jadi password ini
+> hanya bisa diubah dari seeder. Sebaiknya tidak dibagikan ke guru.
+
+---
+
+## 2. Guru PDS (5 akun)
+
+Password semua: **pds123**
+
+Role PDS **tidak lagi diambil dari jabatan di daftar resmi sekolah**,
+tetapi dipertahankan dari akun yang sudah ada. Empat orang di bawah
+ini punya jabatan resmi Guru Jasmani, Guru PPKN, Guru
+Ekonomi/Produktif, dan Guru Produk Kreatif — semuanya tetap PDS
+sesuai keputusan.
+
+Sopiyan tetap PDS karena jabatannya memang Koordinator PDS.
+
+| No | NIG / Email | Nama | Password |
+|----|-------------|------|----------|
+| 1 | `0190191049` | Ari Zulfikar, S.Pd | pds123 |
+| 2 | `0230189074` | Fitri Rohmayasari, S.Pd | pds123 |
+| 3 | `0220194070` | Muzakir Zulkarnaen, S.Ak | pds123 |
+| 4 | `0170179003` | Sopiyan, S.Hi., M.A | pds123 |
+| 5 | `0250189080` | Yulianie Kasari, M.Pd | pds123 |
+
+---
+
+## 3. Guru BK (8 akun)
 
 Password semua: **bk123**
 
-| No | Nama | Kode | Email | Kelas Pegangan / Binaan |
-|----|------|------|-------|--------------------------|
-| 1 | Rakhma Dhania | - | rakhmadhania@bk.com | *(Koordinator BK / Semua Kelas)* |
-| 2 | R. Dodi Setiadi | 29 | rdodisetiadi@bk.com | XI-RPL-1, XI-TOI-1, X-TOI-2, X-TKJ-2 |
-| 3 | Sholehudin Aditya Utama | 27 | sholehudinadityautama@bk.com | XI-RPL-2, XI-LPB-2, X-RPL-2, X-TKJ-1 |
-| 4 | Anisah Dwi Rahayu | 33 | anisahdwirahayu@bk.com | XI-TKJ-1, X-DKV-1, X-DKV-3 |
-| 5 | Anita Lestari | 34 | anitalestari@bk.com | XI-DKV-1, XI-TKJ-2, X-LPB-1, X-TOI-1 |
-| 6 | Ariska Dwi Saputri | 35 | ariskadwisaputri@bk.com | *(Belum terjadwal sesi Sabtu)* |
-| 7 | Wilda Septiarini | 38 | wildaseptiarini@bk.com | XI-DKV-2, XI-LPB-1, X-LPB-2 |
-| 8 | Ardi Sukma | 39 | ardisukma@bk.com | XI-DKV-3, X-DKV-2, X-RPL-1 |
+Role BK diambil dari jabatan "Guru Bimbingan Konseling" dan
+"Koordinator BK" pada daftar resmi sekolah.
+
+| No | NIG / Email | Nama | Password |
+|----|-------------|------|----------|
+| 1 | `0200197053` | Anisah Dwi Rahayu, S.Pd | bk123 |
+| 2 | `0200197060` | Anita Lestari, S.Pd | bk123 |
+| 3 | `0220194072` | Ardi Sukma, S.H | bk123 |
+| 4 | `0200197061` | Ariska Dwi Saputri, S.Pd | bk123 |
+| 5 | `0190185045` | R. Dodi Setiadi, S.Pd.I | bk123 |
+| 6 | `0180192027` | Rakhma Dhania, S.Pd | bk123 |
+| 7 | `0190195043` | Sholehudin Aditya Utama, S.Pd | bk123 |
+| 8 | `0220199071` | Wilda Septiriani, S.Pd | bk123 |
 
 ---
 
-## 3. Guru PDS (5 akun)
+## 4. Guru Lainnya (40 akun)
 
-| Nama | Email | Password | Kelas Binaan |
-|------|-------|----------|-------------|
-| Sopiyan | sopiyan@pds.com | pds123 | XI-TKJ-1, XII-DKV-3, XII-LPB-1, XII-DKV-4 |
-| Ari Zulfikar | arizulfikar@pds.com | pds123 | X-TOI-1, X-DKV-2, X-LPB-1, XI-TOI-1, XI-LPB-1, XI-LPB-2, XII-TKJ-1 |
-| Fitri Rohmayasari | fitrirohmayasari@pds.com | pds123 | X-RPL-2, X-TKJ-2, X-LPB-2, XI-DKV-2, XII-RPL-1, XII-RPL-2, XII-DKV-2 |
-| Muzakir Zulkarnaen | muzakirzulkarnaen@pds.com | pds123 | X-DKV-3, X-TOI-2, X-DKV-1, XI-DKV-1, XI-DKV-3, XII-TKJ-2, XII-LPB-2 |
-| Yulianie Kasari | yulianiekasari@pds.com | pds123 | X-RPL-1, X-TKJ-1, XI-RPL-1, XI-RPL-2, XI-TKJ-2, XII-TKJ-3, XII-DKV-1 |
+Password semua: **guru123**
+
+Semua tenaga pendidik lain. Role `guru` berarti bisa melapor
+pelanggaran, tetapi tidak bisa memverifikasi dan tidak bisa mengelola
+data master.
+
+| No | NIG / Email | Nama | Password |
+|----|-------------|------|----------|
+| 1 | `0250194090` | Abdul Choir | guru123 |
+| 2 | `0170194016` | Akbar Maulana, S.Pd | guru123 |
+| 3 | `0200179052` | Alfi Hardian, S.Sn. | guru123 |
+| 4 | `0190197048` | Alvi Luviani Rahayu, S.I.Kom | guru123 |
+| 5 | `0250102088` | Annisa Febiyanti, S.I.Kom | guru123 |
+| 6 | `0240198077` | Ashifa Ramadanty Maharddhika, S.Pd | guru123 |
+| 7 | `0180192034` | Asit Rahmah, S.Pd | guru123 |
+| 8 | `0260198095` | Bagoes Setya Ananda | guru123 |
+| 9 | `0200197062` | Dewi Ratnawati, S.Pd. | guru123 |
+| 10 | `0180183021` | Diana Rosita, S.Pd.I | guru123 |
+| 11 | `0250100086` | Dimas Maulana Ishaq, S.Kom | guru123 |
+| 12 | `0170193008` | Dita Wulandari, S.TP | guru123 |
+| 13 | `0190184041` | Erfan Bayu Saputra, SE | guru123 |
+| 14 | `0180192037` | Farida Awalia, S.Pd | guru123 |
+| 15 | `gurupiket@guru.com` | Guru Piket (Umum) | guru123 |
+| 16 | `0180195029` | Ika Sartika, S.Pd | guru123 |
+| 17 | `0220198067` | Indah Ramadhanty, S.Pd | guru123 |
+| 18 | `0180186028` | Karti Suminar, M.Pd | guru123 |
+| 19 | `0250196081` | Luthfi Abdul Rahman, S.Pd | guru123 |
+| 20 | `0180177022` | Mieke Rahmawaty Eliyaningrum, S.Kom | guru123 |
+| 21 | `0220185069` | Muhamad Adib, S.E | guru123 |
+| 22 | `0170190009` | Muhammad Ghufran Arnan, S.Pd | guru123 |
+| 23 | `0190193042` | Muhammad Nurcholis Majid, S.Kom | guru123 |
+| 24 | `0200184064` | Mustamah, S.Pd.I, MM. | guru123 |
+| 25 | `0230189075` | Nani Yuliawati Ningsih, S.Pd | guru123 |
+| 26 | `0170193011` | Nitta Lestari, S.Kom | guru123 |
+| 27 | `0220188073` | Nurulia Falah, S.Sos., M.Pd | guru123 |
+| 28 | `0250198082` | Nurwanti Ayu Mashita, S.Mat | guru123 |
+| 29 | `0180194026` | Putri Ngawirabaya, S.S | guru123 |
+| 30 | `0250195089` | Qurotta Umi Kulsum | guru123 |
+| 31 | `0180195023` | Rizni Fauziah, S.Tr.Akun | guru123 |
+| 32 | `0260103092` | Sashi Kirana Saslsabila | guru123 |
+| 33 | `0180179036` | Septianto Raharso, S.Kom, M.Pd | guru123 |
+| 34 | `0250103091` | Silfa Tsania | guru123 |
+| 35 | `0220188066` | Siti Kholifah, S.Pd.I | guru123 |
+| 36 | `0180196039` | Suci Romadini, S.Kom | guru123 |
+| 37 | `0250198079` | Sulthan Alawy Shihab, S.Kom | guru123 |
+| 38 | `0260100093` | Syahidah Muthi'ah, S.Pd | guru123 |
+| 39 | `0170193014` | Vivin Dwi Yudianto, S.Pd | guru123 |
+| 40 | `0220199064` | Yaumil Akbaria, S.Pd | guru123 |
+
+> 6 akun pimpinan sekolah di bagian 1a **tidak** diulang di sini.
+> `gurupiket@guru.com` (Guru Piket Umum) ikut terhitung karena
+> memang punya role `guru`, walaupun tidak ada di daftar sekolah.
 
 ---
 
-## 4. Wali Kelas (36 akun)
+## 5. Akun Kelas / Wali Kelas (46 akun)
 
 Password semua: **walas123**
 
-### Kelas X (25 akun)
+Akun ini mewakili **kelas**, bukan orang. Email dipakai untuk login
+karena kelas tidak punya NIG.
 
-| Nama | Email | Kelas |
-|------|-------|-------|
-| Walas X-RPL-1 | xrpl1@guru.com | X-RPL-1 |
-| Walas X-RPL-2 | xrpl2@guru.com | X-RPL-2 |
-| Walas X-RPL-3 | xrpl3@guru.com | X-RPL-3 |
-| Walas X-RPL-4 | xrpl4@guru.com | X-RPL-4 |
-| Walas X-RPL-5 | xrpl5@guru.com | X-RPL-5 |
-| Walas X-TOI-1 | xtoi1@guru.com | X-TOI-1 |
-| Walas X-TOI-2 | xtoi2@guru.com | X-TOI-2 |
-| Walas X-TOI-3 | xtoi3@guru.com | X-TOI-3 |
-| Walas X-TOI-4 | xtoi4@guru.com | X-TOI-4 |
-| Walas X-TOI-5 | xtoi5@guru.com | X-TOI-5 |
-| Walas X-TKJ-1 | xtkj1@guru.com | X-TKJ-1 |
-| Walas X-TKJ-2 | xtkj2@guru.com | X-TKJ-2 |
-| Walas X-TKJ-3 | xtkj3@guru.com | X-TKJ-3 |
-| Walas X-TKJ-4 | xtkj4@guru.com | X-TKJ-4 |
-| Walas X-TKJ-5 | xtkj5@guru.com | X-TKJ-5 |
-| Walas X-DKV-1 | xdkv1@guru.com | X-DKV-1 |
-| Walas X-DKV-2 | xdkv2@guru.com | X-DKV-2 |
-| Walas X-DKV-3 | xdkv3@guru.com | X-DKV-3 |
-| Walas X-DKV-4 | xdkv4@guru.com | X-DKV-4 |
-| Walas X-DKV-5 | xdkv5@guru.com | X-DKV-5 |
-| Walas X-LPB-1 | xlpb1@guru.com | X-LPB-1 |
-| Walas X-LPB-2 | xlpb2@guru.com | X-LPB-2 |
-| Walas X-LPB-3 | xlpb3@guru.com | X-LPB-3 |
-| Walas X-LPB-4 | xlpb4@guru.com | X-LPB-4 |
-| Walas X-LPB-5 | xlpb5@guru.com | X-LPB-5 |
-
-### Kelas XI (10 akun)
-
-| Nama | Email | Kelas |
-|------|-------|-------|
-| Walas XI-RPL-1 | xirpl1@guru.com | XI-RPL-1 |
-| Walas XI-RPL-2 | xirpl2@guru.com | XI-RPL-2 |
-| Walas XI-TOI-1 | xitoi1@guru.com | XI-TOI-1 |
-| Walas XI-TKJ-1 | xitkj1@guru.com | XI-TKJ-1 |
-| Walas XI-TKJ-2 | xitkj2@guru.com | XI-TKJ-2 |
-| Walas XI-DKV-1 | xidkv1@guru.com | XI-DKV-1 |
-| Walas XI-DKV-2 | xidkv2@guru.com | XI-DKV-2 |
-| Walas XI-DKV-3 | xidkv3@guru.com | XI-DKV-3 |
-| Walas XI-LPB-1 | xilpb1@guru.com | XI-LPB-1 |
-| Walas XI-LPB-2 | xilpb2@guru.com | XI-LPB-2 |
-
-### Kelas XII (11 akun)
-
-| Nama | Email | Kelas |
-|------|-------|-------|
-| Walas XII-RPL-1 | xiirpl1@guru.com | XII-RPL-1 |
-| Walas XII-RPL-2 | xiirpl2@guru.com | XII-RPL-2 |
-| Walas XII-TKJ-1 | xiitkj1@guru.com | XII-TKJ-1 |
-| Walas XII-TKJ-2 | xiitkj2@guru.com | XII-TKJ-2 |
-| Walas XII-TKJ-3 | xiitkj3@guru.com | XII-TKJ-3 |
-| Walas XII-DKV-1 | xiidkv1@guru.com | XII-DKV-1 |
-| Walas XII-DKV-2 | xiidkv2@guru.com | XII-DKV-2 |
-| Walas XII-DKV-3 | xiidkv3@guru.com | XII-DKV-3 |
-| Walas XII-DKV-4 | xiidkv4@guru.com | XII-DKV-4 |
-| Walas XII-LPB-1 | xiilpb1@guru.com | XII-LPB-1 |
-| Walas XII-LPB-2 | xiilpb2@guru.com | XII-LPB-2 |
+| No | NIG / Email | Nama | Jabatan | Password |
+|----|-------------|------|---------|----------|
+| 1 | `xdkv1@guru.com` | Walas X-DKV-1 | X-DKV-1 | walas123 |
+| 2 | `xdkv2@guru.com` | Walas X-DKV-2 | X-DKV-2 | walas123 |
+| 3 | `xdkv3@guru.com` | Walas X-DKV-3 | X-DKV-3 | walas123 |
+| 4 | `xdkv4@guru.com` | Walas X-DKV-4 | X-DKV-4 | walas123 |
+| 5 | `xdkv5@guru.com` | Walas X-DKV-5 | X-DKV-5 | walas123 |
+| 6 | `xlpb1@guru.com` | Walas X-LPB-1 | X-LPB-1 | walas123 |
+| 7 | `xlpb2@guru.com` | Walas X-LPB-2 | X-LPB-2 | walas123 |
+| 8 | `xlpb3@guru.com` | Walas X-LPB-3 | X-LPB-3 | walas123 |
+| 9 | `xlpb4@guru.com` | Walas X-LPB-4 | X-LPB-4 | walas123 |
+| 10 | `xlpb5@guru.com` | Walas X-LPB-5 | X-LPB-5 | walas123 |
+| 11 | `xrpl1@guru.com` | Walas X-RPL-1 | X-RPL-1 | walas123 |
+| 12 | `xrpl2@guru.com` | Walas X-RPL-2 | X-RPL-2 | walas123 |
+| 13 | `xrpl3@guru.com` | Walas X-RPL-3 | X-RPL-3 | walas123 |
+| 14 | `xrpl4@guru.com` | Walas X-RPL-4 | X-RPL-4 | walas123 |
+| 15 | `xrpl5@guru.com` | Walas X-RPL-5 | X-RPL-5 | walas123 |
+| 16 | `xtkj1@guru.com` | Walas X-TKJ-1 | X-TKJ-1 | walas123 |
+| 17 | `xtkj2@guru.com` | Walas X-TKJ-2 | X-TKJ-2 | walas123 |
+| 18 | `xtkj3@guru.com` | Walas X-TKJ-3 | X-TKJ-3 | walas123 |
+| 19 | `xtkj4@guru.com` | Walas X-TKJ-4 | X-TKJ-4 | walas123 |
+| 20 | `xtkj5@guru.com` | Walas X-TKJ-5 | X-TKJ-5 | walas123 |
+| 21 | `xtoi1@guru.com` | Walas X-TOI-1 | X-TOI-1 | walas123 |
+| 22 | `xtoi2@guru.com` | Walas X-TOI-2 | X-TOI-2 | walas123 |
+| 23 | `xtoi3@guru.com` | Walas X-TOI-3 | X-TOI-3 | walas123 |
+| 24 | `xtoi4@guru.com` | Walas X-TOI-4 | X-TOI-4 | walas123 |
+| 25 | `xtoi5@guru.com` | Walas X-TOI-5 | X-TOI-5 | walas123 |
+| 26 | `xidkv1@guru.com` | Walas XI-DKV-1 | XI-DKV-1 | walas123 |
+| 27 | `xidkv2@guru.com` | Walas XI-DKV-2 | XI-DKV-2 | walas123 |
+| 28 | `xidkv3@guru.com` | Walas XI-DKV-3 | XI-DKV-3 | walas123 |
+| 29 | `xilpb1@guru.com` | Walas XI-LPB-1 | XI-LPB-1 | walas123 |
+| 30 | `xilpb2@guru.com` | Walas XI-LPB-2 | XI-LPB-2 | walas123 |
+| 31 | `xirpl1@guru.com` | Walas XI-RPL-1 | XI-RPL-1 | walas123 |
+| 32 | `xirpl2@guru.com` | Walas XI-RPL-2 | XI-RPL-2 | walas123 |
+| 33 | `xitkj1@guru.com` | Walas XI-TKJ-1 | XI-TKJ-1 | walas123 |
+| 34 | `xitkj2@guru.com` | Walas XI-TKJ-2 | XI-TKJ-2 | walas123 |
+| 35 | `xitoi1@guru.com` | Walas XI-TOI-1 | XI-TOI-1 | walas123 |
+| 36 | `xiidkv1@guru.com` | Walas XII-DKV-1 | XII-DKV-1 | walas123 |
+| 37 | `xiidkv2@guru.com` | Walas XII-DKV-2 | XII-DKV-2 | walas123 |
+| 38 | `xiidkv3@guru.com` | Walas XII-DKV-3 | XII-DKV-3 | walas123 |
+| 39 | `xiidkv4@guru.com` | Walas XII-DKV-4 | XII-DKV-4 | walas123 |
+| 40 | `xiilpb1@guru.com` | Walas XII-LPB-1 | XII-LPB-1 | walas123 |
+| 41 | `xiilpb2@guru.com` | Walas XII-LPB-2 | XII-LPB-2 | walas123 |
+| 42 | `xiirpl1@guru.com` | Walas XII-RPL-1 | XII-RPL-1 | walas123 |
+| 43 | `xiirpl2@guru.com` | Walas XII-RPL-2 | XII-RPL-2 | walas123 |
+| 44 | `xiitkj1@guru.com` | Walas XII-TKJ-1 | XII-TKJ-1 | walas123 |
+| 45 | `xiitkj2@guru.com` | Walas XII-TKJ-2 | XII-TKJ-2 | walas123 |
+| 46 | `xiitkj3@guru.com` | Walas XII-TKJ-3 | XII-TKJ-3 | walas123 |
 
 ---
 
 ## Ringkasan
 
-| Role | Jumlah | Password Default |
-|------|--------|-----------------|
-| Admin | 1 | zidan123 |
-| BK | 8 | bk123 |
-| PDS | 5 | pds123 |
-| Walas | 36 | walas123 |
-| **Total** | **50** | |
+| Kelompok | Jumlah | Password | Cara Login |
+|----------|--------|----------|------------|
+| Admin | 1 | zidan123 | Email *(sementara)* |
+| Pimpinan | 6 | pimpinan123 | NIG |
+| PDS | 5 | pds123 | NIG |
+| BK | 8 | bk123 | NIG |
+| Guru | 40 | guru123 | NIG |
+| Wali Kelas | 46 | walas123 | Email *(sementara)* |
+| **Total** | **106** | | |
+
+> Catatan: 6 akun pimpinan **sudah termasuk** terhitung sebagai guru
+> di tabel seeder — role aplikasinya memang `guru`, hanya passwordnya
+> yang dibedakan.
 
 > [!NOTE]
-> Akun BK ke-8 telah diisi oleh **Ardi Sukma, S.H** (menggantikan placeholder kosong sebelumnya), dan ejaan nama **Wilda Septiarini** telah diselaraskan dengan data resmi. Kelas pegangan masing-masing guru BK disimpan dalam format JSON di database.
+> NIG admin, 1 akun Guru Piket, dan 46 akun walas belum terisi, jadi
+> mereka login pakai email. Fallback email di `LoginController` ada
+> karena itu — begitu semua akun punya NIG, blok fallback itu bisa
+> dihapus.

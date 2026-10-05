@@ -15,12 +15,48 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        /*
+         * Login memakai NIG, bukan email.
+         *
+         * NIG diterima apa adanya (tanpa casting ke angka) karena
+         * sebagian besar diawali nol — "0170194016" tidak boleh
+         * berubah jadi "174194016".
+         *
+         * Email tetap diterima sebagai cadangan supaya akun lama
+         * yang belum punya NIG (mis. akun walas per-kelas) tidak
+         * terkunci. Begitu semua akun punya NIG, blok ini bisa
+         * dihapus.
+         */
+        $request->validate([
+            /*
+             * Batas 255 (bukan 20) karena field ini menerima NIG
+             * sekaligus email sebagai cadangan. Email "nama@sekolah.sch.id"
+             * bisa melebihi 20 karakter, dan pesan error "nig field
+             * must not be greater than 20 characters" sangat membingungkan
+             * untuk pengguna yang memang sengaja mengetik email.
+             *
+             * NIG sendiri tetap dibatasi 20 karakter oleh kolom DB.
+             */
+            'nig' => ['required', 'string', 'max:255'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $nig = trim($request->input('nig'));
+
+        $user = Auth::attempt(
+            ['nig' => $nig, 'password' => $request->input('password')],
+            $request->boolean('remember')
+        );
+
+        // Cadangan: coba cocokkan sebagai email.
+        if (! $user && filter_var($nig, FILTER_VALIDATE_EMAIL)) {
+            $user = Auth::attempt(
+                ['email' => $nig, 'password' => $request->input('password')],
+                $request->boolean('remember')
+            );
+        }
+
+        if ($user) {
             $request->session()->regenerate();
 
             if (Auth::user()->isWalas() || Auth::user()->isGuru()) {
@@ -31,8 +67,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+            'nig' => 'NIG atau password salah.',
+        ])->onlyInput('nig');
     }
 
     public function logout(Request $request)

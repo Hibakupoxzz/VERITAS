@@ -855,7 +855,18 @@ class LaporMergeVerificationTest extends TestCase
             'status' => 'pending',
         ]);
 
+        // approve() mewajibkan aturan sebagai sumber poin, jadi test
+        // ini harus mengirim aturan yang aktif.
+        $aturan = AturanPelanggaran::create([
+            'kode' => 'U1',
+            'kategori' => 'Ringan',
+            'nama' => 'Laporan Umum Kelas',
+            'poin' => 10,
+            'aktif' => true,
+        ]);
+
         $response = $this->post(route('pelanggaran.approve', $pelanggaran->id), [
+            'aturan_pelanggaran_id' => $aturan->id,
             'catatan_verifikasi' => 'Dicatat sebagai laporan umum.',
         ]);
 
