@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'nig', 'password', 'role', 'jabatan', 'kelas'])]
+#[Fillable(['name', 'email', 'nig', 'password', 'role', 'jabatan', 'kelas', 'access_level'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -32,6 +32,24 @@ class User extends Authenticatable
 
     /*
     |--------------------------------------------------------------------------
+    | Hak Akses Tambahan (di luar role)
+    |--------------------------------------------------------------------------
+    |
+    | Nilai kolom `access_level`. Dipakai untuk dua kebutuhan yang
+    | tidak bisa diwakili role karena role dipakai bersama.
+    */
+
+    /** Semua fitur, kecuali Manajemen Akun. */
+    public const ACCESS_FULL = 'full';
+
+    /** Boleh menambah pelanggaran langsung (menu Tambah Pelanggaran). */
+    public const ACCESS_PELANGGARAN_WRITER = 'pelanggaran_writer';
+
+    /** Boleh menambah & memverifikasi pelanggaran layaknya Guru PDS. */
+    public const ACCESS_VERIFIKATOR = 'verifikator';
+
+    /*
+    |--------------------------------------------------------------------------
     | Role Helpers
     |--------------------------------------------------------------------------
     */
@@ -39,6 +57,32 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Apakah user punya akses penuh (semua fitur selain Manajemen Akun)?
+     *
+     * Dipakai middleware EnsureCanManage untuk membuka seluruh rute
+     * manajemen, dan sidebar untuk menampilkan menu selengkap admin.
+     */
+    public function hasFullAccess(): bool
+    {
+        return $this->access_level === self::ACCESS_FULL;
+    }
+
+    /**
+     * Boleh menambah pelanggaran langsung lewat menu Tambah Pelanggaran?
+     *
+     * Berbeda dari melaporkan (yang selalu berstatus pending), ini
+     * menyimpan pelanggaran sebagai sudah diverifikasi.
+     */
+    public function isPelanggaranWriter(): bool
+    {
+        return $this->hasFullAccess()
+            || in_array($this->access_level, [
+                self::ACCESS_PELANGGARAN_WRITER,
+                self::ACCESS_VERIFIKATOR,
+            ], true);
     }
 
     public function isWalas(): bool
@@ -81,7 +125,9 @@ class User extends Authenticatable
      */
     public function canVerify(): bool
     {
-        return in_array($this->role, ['admin', 'pds']);
+        return in_array($this->role, ['admin', 'pds'])
+            || $this->hasFullAccess()
+            || $this->access_level === self::ACCESS_VERIFIKATOR;
     }
 
     /**
@@ -89,7 +135,8 @@ class User extends Authenticatable
      */
     public function canManagePrestasi(): bool
     {
-        return in_array($this->role, ['admin', 'bk']);
+        return in_array($this->role, ['admin', 'bk'])
+            || $this->hasFullAccess();
     }
 
     /**
@@ -97,7 +144,8 @@ class User extends Authenticatable
      */
     public function canDirectAddPelanggaran(): bool
     {
-        return in_array($this->role, ['admin', 'pds']);
+        return in_array($this->role, ['admin', 'pds'])
+            || $this->isPelanggaranWriter();
     }
 
     /**
@@ -181,6 +229,11 @@ class User extends Authenticatable
      */
     public function navKey(): string
     {
+        // Admin dan pemegang akses penuh memakai menu lengkap.
+        if ($this->isAdmin() || $this->hasFullAccess()) {
+            return 'admin';
+        }
+
         return $this->isPimpinan() ? 'pimpinan' : (string) $this->role;
     }
 

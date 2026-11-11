@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             PdsUserSeeder::class,
             BkUserSeeder::class,
             WalasUserSeeder::class,
-            GuruUserSeeder::class,
             GuruTenagaPendidikSeeder::class,
 
             // Data referensi & master

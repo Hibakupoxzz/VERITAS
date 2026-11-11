@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Seeder untuk akun inti aplikasi (Super Admin).
+ *
+ * Ada dua akun Super Admin dengan hak yang sama. Akun lama
+ * (duospirits@gmail.com) tetap dipertahankan dan namanya
+ * dikembalikan menjadi "Admin"; akun baru memakai nama sekolah.
  */
 class AdminUserSeeder extends Seeder
 {
@@ -21,6 +25,12 @@ class AdminUserSeeder extends Seeder
                 'name' => 'Admin',
                 'email' => 'duospirits@gmail.com',
                 'password' => Hash::make('zidan123'),
+                'role' => 'admin',
+            ],
+            [
+                'name' => 'smkpluspnb',
+                'email' => 'smkpluspnb@gmail.com',
+                'password' => Hash::make('smkpluspnb123'),
                 'role' => 'admin',
             ],
         ];

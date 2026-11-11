@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporPelanggaranController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\SiswaController;
@@ -95,5 +98,34 @@ Route::middleware('auth')->group(function () {
         // Leaderboard
         Route::get('/leaderboard', [PrestasiController::class, 'leaderboard'])
             ->name('leaderboard');
+
+        // ========================================================
+        // Backup & Pemeliharaan (Super Admin + pemegang akses penuh)
+        // ========================================================
+        Route::get('/backup', [BackupController::class, 'index'])
+            ->name('backup.index');
+        Route::get('/backup/export', [BackupController::class, 'export'])
+            ->name('backup.export');
+
+        Route::get('/maintenance', [MaintenanceController::class, 'index'])
+            ->name('maintenance.index');
+        Route::post('/maintenance/clean', [MaintenanceController::class, 'clean'])
+            ->name('maintenance.clean');
+
+        // ========================================================
+        // Manajemen Akun — KHUSUS Super Admin
+        // (pemegang akses penuh sengaja tidak termasuk)
+        // ========================================================
+        Route::middleware('super_admin')->group(function () {
+            // Ganti password akun (semua user di bawah Super Admin).
+            Route::get('/account/{account}/password', [AccountController::class, 'editPassword'])
+                ->name('account.password.edit');
+            Route::put('/account/{account}/password', [AccountController::class, 'updatePassword'])
+                ->name('account.password.update');
+
+            Route::resource('account', AccountController::class)
+                ->except(['show'])
+                ->parameters(['account' => 'account']);
+        });
     });
 });

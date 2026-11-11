@@ -43,9 +43,9 @@ class UjiSeedBersihTest extends TestCase
             ->all();
 
         $this->assertSame([
-            'admin' => 1,
+            'admin' => 2,
             'bk' => 8,
-            'guru' => 46,
+            'guru' => 45,
             'pds' => 5,
             'walas' => 46,
         ], $hitung);
@@ -78,10 +78,62 @@ class UjiSeedBersihTest extends TestCase
         };
 
         $cek('duospirits@gmail.com', 'zidan123');
+        $cek('smkpluspnb@gmail.com', 'smkpluspnb123');
         $cek('sopiyan@pds.com', 'pds123');
         $cek('rakhmadhania@bk.com', 'bk123');
         $cek('xrpl1@guru.com', 'walas123');
-        $cek('gurupiket@guru.com', 'guru123');
+    }
+
+    /**
+     * Akun contoh lama gurupiket@guru.com sudah dihapus dan tidak boleh
+     * muncul lagi setelah seed bersih.
+     */
+    public function test_akun_guru_piket_umum_sudah_tidak_ada(): void
+    {
+        $this->seedSemua();
+
+        $this->assertNull(User::where('email', 'gurupiket@guru.com')->first());
+    }
+
+    /**
+     * Dua akun pimpinan dengan hak akses khusus harus tetap mendapat
+     * tanda yang benar setelah seed bersih.
+     */
+    public function test_akses_khusus_dua_pimpinan(): void
+    {
+        $this->seedSemua();
+
+        $hanifi = User::where('nig', '0190195044')->first();  // Waka Kesiswaan
+        $septia = User::where('nig', '0180193040')->first();  // Waka Humas
+
+        // Hanifan: semua yang bisa dilakukan PDS dan BK.
+        $this->assertTrue($hanifi->hasFullAccess(), 'Waka Kesiswaan harus punya akses penuh');
+        $this->assertTrue($hanifi->canVerify(), 'Waka Kesiswaan harus bisa verifikasi seperti PDS');
+        $this->assertTrue($hanifi->canManagePrestasi(), 'Waka Kesiswaan harus bisa kelola prestasi seperti BK');
+        $this->assertTrue($hanifi->canDirectAddPelanggaran());
+
+        // Septia: tambah & verifikasi pelanggaran seperti PDS, tanpa prestasi.
+        $this->assertTrue($septia->isPelanggaranWriter(), 'Waka Humas harus boleh menambah pelanggaran');
+        $this->assertTrue($septia->canVerify(), 'Waka Humas harus bisa memverifikasi seperti PDS');
+        $this->assertFalse($septia->canManagePrestasi());
+        $this->assertFalse($septia->hasFullAccess());
+    }
+
+    public function test_dua_super_admin_punya_nama_dan_email_benar(): void
+    {
+        $this->seedSemua();
+
+        $this->assertSame(
+            'Admin',
+            User::where('email', 'duospirits@gmail.com')->first()->name
+        );
+
+        $this->assertSame(
+            'smkpluspnb',
+            User::where('email', 'smkpluspnb@gmail.com')->first()->name
+        );
+
+        $this->assertSame(2, User::where('role', 'admin')->count());
     }
 
     public function test_nig_bisa_dipakai_login_setelah_seed_bersih(): void

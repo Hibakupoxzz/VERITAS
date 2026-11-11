@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Exports;
+
+use App\Models\Prestasi;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+
+/**
+ * Sheet "Prestasi" pada backup tahunan.
+ */
+class BackupPrestasiSheet implements FromCollection, ShouldAutoSize, WithHeadings, WithStyles, WithTitle
+{
+    public function __construct(private readonly int $tahun) {}
+
+    public function collection()
+    {
+        $awal = Carbon::create($this->tahun, 1, 1)->startOfYear();
+        $akhir = Carbon::create($this->tahun, 12, 31)->endOfYear();
+
+        return Prestasi::with('siswa')
+            ->whereBetween('tanggal', [$awal, $akhir])
+            ->orderBy('tanggal')
+            ->orderBy('id')
+            ->get()
+            ->map(function ($item, $index) {
+                return [
+                    'No' => $index + 1,
+                    'Tanggal' => $item->tanggal ? date('d/m/Y', strtotime($item->tanggal)) : '-',
+                    'NISN' => $item->siswa?->nisn ?? '-',
+                    'Nama Siswa' => $item->siswa?->nama ?? 'Siswa Tidak Ditemukan',
+                    'Kelas' => $item->siswa?->kelas ?? '-',
+                    'Jenis Prestasi' => $item->jenis_prestasi ?? '-',
+                    'Tingkat' => $item->tingkat ?? '-',
+                    'Poin' => $item->poin,
+                    'Keterangan' => $item->keterangan ?? '-',
+                ];
+            });
+    }
+
+    public function headings(): array
+    {
+        return [
+            'No',
+            'Tanggal',
+            'NISN',
+            'Nama Siswa',
+            'Kelas',
+            'Jenis Prestasi',
+            'Tingkat',
+            'Poin',
+            'Keterangan',
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $lastRow = $sheet->getHighestRow();
+
+        $sheet->getStyle('A1:I1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 11,
+                'name' => 'Calibri',
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '6D1408'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        if ($lastRow > 1) {
+            $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("B2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C2:C{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("E2:E{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("H2:H{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+            $sheet->getStyle("A1:I{$lastRow}")->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'D1D5DB'],
+                    ],
+                ],
+            ]);
+        }
+
+        return [];
+    }
+
+    public function title(): string
+    {
+        return "Prestasi {$this->tahun}";
+    }
+}

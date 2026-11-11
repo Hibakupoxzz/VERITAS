@@ -1600,6 +1600,11 @@
     $canVerify = (bool) $topUser?->canVerify();
     $isWalas   = (bool) $topUser?->isWalas();
 
+    // Super Admin (role admin) dan pemegang akses penuh memakai menu
+    // lengkap. Bedanya, menu "Manajemen Akun" hanya untuk Super Admin.
+    $isAdmin       = (bool) $topUser?->isAdmin();
+    $hasFullAccess = (bool) $topUser?->hasFullAccess();
+
     // ---- Label portal (muncul di penunjuk lokasi) ----
     $portalLabel = match (true) {
         (bool) $topUser?->isPimpinan() => 'Pimpinan Sekolah',
@@ -1657,6 +1662,14 @@
         'prestasi.edit' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
         'prestasi.show' => ['Data Prestasi', 'prestasi.index', 'fa-award'],
 
+        // --- Sistem & Bantuan ---
+        'backup.index' => ['Sistem', 'backup.index', 'fa-file-export'],
+        'maintenance.index' => ['Sistem', 'maintenance.index', 'fa-broom'],
+        'account.index' => ['Sistem', 'account.index', 'fa-user-shield'],
+        'account.create' => ['Sistem', 'account.index', 'fa-user-shield'],
+        'account.edit' => ['Sistem', 'account.index', 'fa-user-shield'],
+        'account.password.edit' => ['Sistem', 'account.index', 'fa-key'],
+
         // --- Tanpa induk ---
         'leaderboard' => ['Leaderboard', null, 'fa-ranking-star'],
         'dashboard' => [null, null, 'fa-gauge-high'],
@@ -1692,6 +1705,7 @@
          */
         'pimpinan' => ['lapor.index', 'lapor.riwayat', 'siswa.index',
             'pelanggaran.index', 'pelanggaran.show',
+            'pelanggaran.pending', 'pelanggaran.create',
             'prestasi.index', 'leaderboard', 'prestasi.show'],
         'walas' => ['lapor.index', 'lapor.riwayat', 'pelanggaran.index', 'pelanggaran.show',
             'prestasi.index', 'leaderboard', 'prestasi.show'],
@@ -1895,6 +1909,33 @@
                     </a>
                 @endif
 
+                @if(auth()->user()->canDirectAddPelanggaran())
+                    {{--
+                        Pimpinan tertentu (mis. Waka Humas) diberi hak
+                        menambah pelanggaran langsung.
+                    --}}
+                    <a href="{{ route('pelanggaran.create') }}"
+                       class="{{ request()->routeIs('pelanggaran.create') ? 'active' : '' }}">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Tambah Pelanggaran</span>
+                    </a>
+                @endif
+
+                @if(auth()->user()->canVerify())
+                    {{--
+                        Verifikator (mis. Waka Humas) memverifikasi laporan
+                        masuk layaknya Guru PDS.
+                    --}}
+                    <a href="{{ route('pelanggaran.pending') }}"
+                       class="{{ request()->routeIs('pelanggaran.pending') ? 'active' : '' }}">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                        <span>Pending Verifikasi</span>
+                        @if($pendingCount > 0)
+                            <span class="menu-badge">{{ $pendingCount }}</span>
+                        @endif
+                    </a>
+                @endif
+
                 <a href="{{ route('prestasi.index') }}"
                    class="{{ request()->routeIs('prestasi.index') ? 'active' : '' }}">
                     <i class="fa-solid fa-trophy"></i>
@@ -2078,6 +2119,14 @@
                     </div>
                 @endif
 
+            @elseif(auth()->check() && $hasFullAccess)
+
+                {{-- =================================================
+                     MENU AKSES PENUH (mis. Waka Kesiswaan)
+                     Sama seperti Super Admin, TANPA Manajemen Akun.
+                ================================================== --}}
+                @include('partials.menu-admin')
+
             @else
 
                 {{-- =================================================
@@ -2163,6 +2212,31 @@
                    class="{{ request()->routeIs('leaderboard') ? 'active' : '' }}">
                     <i class="fa-solid fa-ranking-star"></i>
                     <span>Leaderboard</span>
+                </a>
+
+                {{-- SISTEM --}}
+                <div class="menu-title">
+                    Sistem
+                </div>
+
+                @if(auth()->user()->isAdmin())
+                    <a href="{{ route('account.index') }}"
+                       class="{{ request()->routeIs('account.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span>Manajemen Akun</span>
+                    </a>
+                @endif
+
+                <a href="{{ route('backup.index') }}"
+                   class="{{ request()->routeIs('backup.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-file-export"></i>
+                    <span>Backup Data Tahunan</span>
+                </a>
+
+                <a href="{{ route('maintenance.index') }}"
+                   class="{{ request()->routeIs('maintenance.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-broom"></i>
+                    <span>Bersihkan Website</span>
                 </a>
 
             @endif

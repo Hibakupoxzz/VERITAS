@@ -22,6 +22,22 @@ class EnsureCanManage
         $user = auth()->user();
         $routeName = $request->route()->getName();
 
+        /*
+         * 0. Akses penuh (mis. Wakil Kepala Kesiswaan).
+         *
+         *    Semua rute manajemen dibuka, KECUALI Manajemen Akun —
+         *    area itu tetap milik Super Admin dan tetap dijaga
+         *    middleware super_admin sebelum eksekusi controller.
+         */
+        if ($user->hasFullAccess()) {
+            if (str_starts_with((string) $routeName, 'account.')) {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses dibatasi. Manajemen Akun hanya untuk Super Admin.');
+            }
+
+            return $next($request);
+        }
+
         // 1. Walas: Hanya read-only Pelanggaran & Prestasi + Leaderboard
         if ($user->isWalas()) {
             $allowedRoutes = [
@@ -70,6 +86,26 @@ class EnsureCanManage
             if ($user->isPimpinan()) {
                 $allowedRoutes[] = 'pelanggaran.index';
                 $allowedRoutes[] = 'pelanggaran.show';
+            }
+
+            /*
+             * Pimpinan tertentu (mis. Waka Humas) boleh menambah
+             * pelanggaran langsung lewat menu Tambah Pelanggaran.
+             * Selainnya tetap read-only.
+             */
+            if ($user->canDirectAddPelanggaran()) {
+                $allowedRoutes[] = 'pelanggaran.create';
+                $allowedRoutes[] = 'pelanggaran.store';
+            }
+
+            /*
+             * Pimpinan tertentu (mis. Waka Humas) juga boleh
+             * memverifikasi laporan layaknya Guru PDS.
+             */
+            if ($user->canVerify()) {
+                $allowedRoutes[] = 'pelanggaran.pending';
+                $allowedRoutes[] = 'pelanggaran.approve';
+                $allowedRoutes[] = 'pelanggaran.reject';
             }
 
             if (in_array($routeName, $allowedRoutes)) {

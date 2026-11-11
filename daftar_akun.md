@@ -8,13 +8,18 @@
 > dibiarkan apa adanya.** Seluruh tenaga pendidik lainnya — termasuk
 > yang jabatannya berubah di daftar terbaru — menjadi role `guru`.
 
-## 1. Super Admin (1 akun)
+## 1. Super Admin (2 akun)
 
 | No | NIG / Email | Nama | Password |
 |----|-------------|------|----------|
 | 1 | `duospirits@gmail.com` | Admin | zidan123 |
+| 2 | `smkpluspnb@gmail.com` | smkpluspnb | smkpluspnb123 |
 
-Admin masih login dengan email karena belum ada NIG-nya.
+Kedua akun punya hak yang sama. Admin masih login dengan email karena
+belum ada NIG-nya.
+
+Super Admin dapat **mengganti password semua akun** lewat menu
+**Manajemen Akun → tombol Password** pada tiap baris.
 
 ---
 
@@ -35,8 +40,16 @@ dari guru pada umumnya supaya mudah dikenali saat menerima laporan.
 | 6 | `0170167004` | Rohajon, S.T | Waka Sarana Prasarana | pimpinan123 |
 
 > [!WARNING]
-> Belum ada fitur ganti password di aplikasi, jadi password ini
-> hanya bisa diubah dari seeder. Sebaiknya tidak dibagikan ke guru.
+> Password pimpinan sebaiknya tidak dibagikan ke guru. Password kini
+> bisa diganti Super Admin lewat menu **Manajemen Akun** (isi kolom
+> "Password" pada form edit).
+>
+> Dua akun pimpinan diberi hak akses tambahan lewat kolom
+> `access_level`:
+> - **Hanifan Nurfauzi** (Waka Kesiswaan, `0190195044`) — akses
+>   penuh: semua fitur **kecuali** Manajemen Akun.
+> - **Septia Sundari** (Waka Humas, `0180193040`) — boleh menambah
+>   **dan memverifikasi** pelanggaran, layaknya Guru PDS.
 
 ---
 
@@ -82,7 +95,7 @@ Role BK diambil dari jabatan "Guru Bimbingan Konseling" dan
 
 ---
 
-## 4. Guru Lainnya (40 akun)
+## 4. Guru Lainnya (39 akun)
 
 Password semua: **guru123**
 
@@ -106,36 +119,35 @@ data master.
 | 12 | `0170193008` | Dita Wulandari, S.TP | guru123 |
 | 13 | `0190184041` | Erfan Bayu Saputra, SE | guru123 |
 | 14 | `0180192037` | Farida Awalia, S.Pd | guru123 |
-| 15 | `gurupiket@guru.com` | Guru Piket (Umum) | guru123 |
-| 16 | `0180195029` | Ika Sartika, S.Pd | guru123 |
-| 17 | `0220198067` | Indah Ramadhanty, S.Pd | guru123 |
-| 18 | `0180186028` | Karti Suminar, M.Pd | guru123 |
-| 19 | `0250196081` | Luthfi Abdul Rahman, S.Pd | guru123 |
-| 20 | `0180177022` | Mieke Rahmawaty Eliyaningrum, S.Kom | guru123 |
-| 21 | `0220185069` | Muhamad Adib, S.E | guru123 |
-| 22 | `0170190009` | Muhammad Ghufran Arnan, S.Pd | guru123 |
-| 23 | `0190193042` | Muhammad Nurcholis Majid, S.Kom | guru123 |
-| 24 | `0200184064` | Mustamah, S.Pd.I, MM. | guru123 |
-| 25 | `0230189075` | Nani Yuliawati Ningsih, S.Pd | guru123 |
-| 26 | `0170193011` | Nitta Lestari, S.Kom | guru123 |
-| 27 | `0220188073` | Nurulia Falah, S.Sos., M.Pd | guru123 |
-| 28 | `0250198082` | Nurwanti Ayu Mashita, S.Mat | guru123 |
-| 29 | `0180194026` | Putri Ngawirabaya, S.S | guru123 |
-| 30 | `0250195089` | Qurotta Umi Kulsum | guru123 |
-| 31 | `0180195023` | Rizni Fauziah, S.Tr.Akun | guru123 |
-| 32 | `0260103092` | Sashi Kirana Saslsabila | guru123 |
-| 33 | `0180179036` | Septianto Raharso, S.Kom, M.Pd | guru123 |
-| 34 | `0250103091` | Silfa Tsania | guru123 |
-| 35 | `0220188066` | Siti Kholifah, S.Pd.I | guru123 |
-| 36 | `0180196039` | Suci Romadini, S.Kom | guru123 |
-| 37 | `0250198079` | Sulthan Alawy Shihab, S.Kom | guru123 |
-| 38 | `0260100093` | Syahidah Muthi'ah, S.Pd | guru123 |
-| 39 | `0170193014` | Vivin Dwi Yudianto, S.Pd | guru123 |
-| 40 | `0220199064` | Yaumil Akbaria, S.Pd | guru123 |
+| 15 | `0180195029` | Ika Sartika, S.Pd | guru123 |
+| 16 | `0220198067` | Indah Ramadhanty, S.Pd | guru123 |
+| 17 | `0180186028` | Karti Suminar, M.Pd | guru123 |
+| 18 | `0250196081` | Luthfi Abdul Rahman, S.Pd | guru123 |
+| 19 | `0180177022` | Mieke Rahmawaty Eliyaningrum, S.Kom | guru123 |
+| 20 | `0220185069` | Muhamad Adib, S.E | guru123 |
+| 21 | `0170190009` | Muhammad Ghufran Arnan, S.Pd | guru123 |
+| 22 | `0190193042` | Muhammad Nurcholis Majid, S.Kom | guru123 |
+| 23 | `0200184064` | Mustamah, S.Pd.I, MM. | guru123 |
+| 24 | `0230189075` | Nani Yuliawati Ningsih, S.Pd | guru123 |
+| 25 | `0170193011` | Nitta Lestari, S.Kom | guru123 |
+| 26 | `0220188073` | Nurulia Falah, S.Sos., M.Pd | guru123 |
+| 27 | `0250198082` | Nurwanti Ayu Mashita, S.Mat | guru123 |
+| 28 | `0180194026` | Putri Ngawirabaya, S.S | guru123 |
+| 29 | `0250195089` | Qurotta Umi Kulsum | guru123 |
+| 30 | `0180195023` | Rizni Fauziah, S.Tr.Akun | guru123 |
+| 31 | `0260103092` | Sashi Kirana Saslsabila | guru123 |
+| 32 | `0180179036` | Septianto Raharso, S.Kom, M.Pd | guru123 |
+| 33 | `0250103091` | Silfa Tsania | guru123 |
+| 34 | `0220188066` | Siti Kholifah, S.Pd.I | guru123 |
+| 35 | `0180196039` | Suci Romadini, S.Kom | guru123 |
+| 36 | `0250198079` | Sulthan Alawy Shihab, S.Kom | guru123 |
+| 37 | `0260100093` | Syahidah Muthi'ah, S.Pd | guru123 |
+| 38 | `0170193014` | Vivin Dwi Yudianto, S.Pd | guru123 |
+| 39 | `0220199064` | Yaumil Akbaria, S.Pd | guru123 |
 
 > 6 akun pimpinan sekolah di bagian 1a **tidak** diulang di sini.
-> `gurupiket@guru.com` (Guru Piket Umum) ikut terhitung karena
-> memang punya role `guru`, walaupun tidak ada di daftar sekolah.
+> Akun contoh lama `gurupiket@guru.com` (Guru Piket Umum) sudah
+> **dihapus** karena tidak ada di daftar resmi sekolah.
 
 ---
 
@@ -201,11 +213,11 @@ karena kelas tidak punya NIG.
 
 | Kelompok | Jumlah | Password | Cara Login |
 |----------|--------|----------|------------|
-| Admin | 1 | zidan123 | Email *(sementara)* |
+| Admin | 2 | zidan123 / smkpluspnb123 | Email *(sementara)* |
 | Pimpinan | 6 | pimpinan123 | NIG |
 | PDS | 5 | pds123 | NIG |
 | BK | 8 | bk123 | NIG |
-| Guru | 40 | guru123 | NIG |
+| Guru | 39 | guru123 | NIG |
 | Wali Kelas | 46 | walas123 | Email *(sementara)* |
 | **Total** | **106** | | |
 
@@ -214,7 +226,7 @@ karena kelas tidak punya NIG.
 > yang dibedakan.
 
 > [!NOTE]
-> NIG admin, 1 akun Guru Piket, dan 46 akun walas belum terisi, jadi
+> NIG kedua akun admin dan 46 akun walas belum terisi, jadi
 > mereka login pakai email. Fallback email di `LoginController` ada
 > karena itu — begitu semua akun punya NIG, blok fallback itu bisa
 > dihapus.

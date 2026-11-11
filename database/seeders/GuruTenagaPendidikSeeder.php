@@ -38,8 +38,9 @@ use Illuminate\Support\Facades\Hash;
  * konvensi yang sudah berlaku:
  *   admin zidan123 | bk bk123 | pds pds123 | guru guru123
  *   walas walas123
- * Akun guru yang sudah ada sebelumnya (Guru Piket Umum) tidak
- * disentuh karena tidak ada di daftar guru sekolah.
+ * Akun contoh lama (Guru Piket Umum / gurupiket@guru.com) sudah
+ * dihapus — baik dari seeder maupun lewat migration — karena tidak
+ * ada di daftar guru sekolah.
  */
 class GuruTenagaPendidikSeeder extends Seeder
 {
@@ -78,6 +79,22 @@ class GuruTenagaPendidikSeeder extends Seeder
     ];
 
     private const PASSWORD_PIMPINAN = 'pimpinan123';
+
+    /**
+     * Hak akses tambahan per NIG (lihat konstanta ACCESS_* di User).
+     *
+     *   full               -> semua fitur, kecuali Manajemen Akun
+     *   pelanggaran_writer -> boleh menambah pelanggaran langsung
+     *
+     * Hanya ditulis untuk NIG yang terdaftar di sini. Akun lain
+     * dibiarkan apa adanya supaya perubahan yang dilakukan Super
+     * Admin lewat Manajemen Akun tidak terhapus saat seeder dijalankan
+     * ulang.
+     */
+    private const AKSES_KHUSUS = [
+        '0190195044' => 'full',                 // Hanifan Nurfauzi — Waka Kesiswaan
+        '0180193040' => 'verifikator',          // Septia Sundari — Waka Hubungan Masyarakat
+    ];
 
     /**
      * Maksimal selisih huruf yang masih dianggap "orang yang sama"
@@ -253,6 +270,11 @@ class GuruTenagaPendidikSeeder extends Seeder
                 'email_verified_at' => $user?->email_verified_at ?? now(),
             ];
 
+            // Hak akses tambahan hanya untuk NIG yang terdaftar.
+            if (isset(self::AKSES_KHUSUS[$nig])) {
+                $atribut['access_level'] = self::AKSES_KHUSUS[$nig];
+            }
+
             if ($user) {
                 /*
                  * Jangan sentuh password, dengan satu-satunya
@@ -283,6 +305,7 @@ class GuruTenagaPendidikSeeder extends Seeder
                         : self::PASSWORD[$role]
                 ),
                 'kelas' => null,
+                'access_level' => self::AKSES_KHUSUS[$nig] ?? null,
             ]);
 
             /*
