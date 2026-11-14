@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * Login memakai NIG, bukan email.
+ * Login memakai NIG atau email dalam satu kolom.
  *
  * NIG wajib diperlakukan sebagai STRING: sebagian besar diawali nol
  * ("0170194016"). Kalau storage atau query mengubahnya jadi angka,
@@ -122,11 +122,12 @@ class LoginNigTest extends TestCase
         $response->assertRedirect(route('dashboard'));
     }
 
-    public function test_form_login_menggunakan_field_nig(): void
+    public function test_form_login_menggunakan_satu_kolom_nig_atau_email(): void
     {
         $html = (string) $this->get(route('login'))->getContent();
 
         $this->assertStringContainsString('name="nig"', $html);
+        $this->assertStringContainsString('NIG / Email', $html);
         $this->assertStringNotContainsString('name="email"', $html);
     }
 }

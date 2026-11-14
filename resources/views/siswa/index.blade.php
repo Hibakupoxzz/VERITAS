@@ -537,8 +537,8 @@
 @section('content')
 
 @php
-    $isAdmin    = auth()->user()->isAdmin();
-    $isGuru     = auth()->user()->isGuru();
+    $isAdmin    = auth()->user()->isAdmin() || auth()->user()->hasFullAccess();
+    $isGuru     = auth()->user()->isGuru() && ! auth()->user()->hasFullAccess();
     $totalSiswa = $siswas->count();
     $totalKelas = $siswas->pluck('kelas')->unique()->count();
     $totalPoin  = $siswas->sum(fn ($s) => $s->pelanggarans->sum('poin'));

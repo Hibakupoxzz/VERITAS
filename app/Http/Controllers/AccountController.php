@@ -44,7 +44,7 @@ class AccountController extends Controller
     {
         return [
             '' => 'Normal (mengikuti role)',
-            User::ACCESS_FULL => 'Akses Penuh (semua fitur, kecuali Manajemen Akun)',
+            User::ACCESS_FULL => 'Akses Penuh (semua fitur, setara Super Admin)',
             User::ACCESS_PELANGGARAN_WRITER => 'Boleh Tambah Pelanggaran',
             User::ACCESS_VERIFIKATOR => 'Boleh Tambah & Verifikasi Pelanggaran (seperti PDS)',
         ];
@@ -52,7 +52,10 @@ class AccountController extends Controller
 
     public function index()
     {
+        // Akun Super Admin lama (duospirits@gmail.com) sengaja tidak
+        // ditampilkan di daftar; lihat User::HIDDEN_ACCOUNT_EMAIL.
         $users = User::query()
+            ->visibleInAccountList()
             ->orderBy('role')
             ->orderBy('name')
             ->get();
@@ -100,6 +103,8 @@ class AccountController extends Controller
 
     public function edit(User $account)
     {
+        $this->ensureAccountIsVisible($account);
+
         return view('account.edit', [
             'account' => $account,
             'roleOptions' => self::roleOptions(),
@@ -109,6 +114,8 @@ class AccountController extends Controller
 
     public function update(Request $request, User $account)
     {
+        $this->ensureAccountIsVisible($account);
+
         $data = $this->validated($request, $account);
 
         $data['access_level'] = ($data['access_level'] ?? null) ?: null;
@@ -120,7 +127,7 @@ class AccountController extends Controller
          * Cegah admin mengunci dirinya sendiri keluar:
          * role sendiri tidak boleh diturunkan dari admin.
          */
-        if ($this->isSelf($account) && $data['role'] !== 'admin') {
+        if ($this->isSelf($account) && $account->isAdmin() && $data['role'] !== 'admin') {
             return back()
                 ->withInput()
                 ->withErrors(['role' => 'Anda tidak dapat menurunkan role akun Anda sendiri.']);
@@ -147,6 +154,8 @@ class AccountController extends Controller
      */
     public function editPassword(User $account)
     {
+        $this->ensureAccountIsVisible($account);
+
         return view('account.password', [
             'account' => $account,
         ]);
@@ -154,6 +163,8 @@ class AccountController extends Controller
 
     public function updatePassword(Request $request, User $account)
     {
+        $this->ensureAccountIsVisible($account);
+
         $data = $request->validate([
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
@@ -167,6 +178,8 @@ class AccountController extends Controller
 
     public function destroy(User $account)
     {
+        $this->ensureAccountIsVisible($account);
+
         if ($this->isSelf($account)) {
             return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
@@ -182,6 +195,17 @@ class AccountController extends Controller
         return redirect()
             ->route('account.index')
             ->with('success', "Akun {$nama} berhasil dihapus.");
+    }
+
+    /**
+     * Akun tersembunyi tidak boleh diakses lewat URL langsung.
+     *
+     * Tanpa ini, akun yang sudah disembunyikan dari daftar masih bisa
+     * dibuka dengan menebak ID-nya.
+     */
+    private function ensureAccountIsVisible(User $account): void
+    {
+        abort_if($account->isHiddenAccount(), 404);
     }
 
     /**

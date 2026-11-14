@@ -5,7 +5,7 @@
     Dipakai dua tempat di layout:
       - Super Admin (role admin)
       - Pemegang "akses penuh" (access_level = full), mis. Waka
-        Kesiswaan — menu sama, tetapi Manajemen Akun disembunyikan.
+        Kesiswaan — menu sama, termasuk Manajemen Akun.
 
     Variabel yang dipakai dari induk: $pendingCount (sudah dihitung
     sekali di @php layout).
@@ -98,7 +98,7 @@
     Sistem
 </div>
 
-@if(auth()->user()->isAdmin())
+@if(auth()->user()->isAdmin() || auth()->user()->hasFullAccess())
     <a href="{{ route('account.index') }}"
        class="{{ request()->routeIs('account.*') ? 'active' : '' }}">
         <i class="fa-solid fa-user-shield"></i>
@@ -112,8 +112,4 @@
     <span>Backup Data Tahunan</span>
 </a>
 
-<a href="{{ route('maintenance.index') }}"
-   class="{{ request()->routeIs('maintenance.*') ? 'active' : '' }}">
-    <i class="fa-solid fa-broom"></i>
-    <span>Bersihkan Website</span>
-</a>
+

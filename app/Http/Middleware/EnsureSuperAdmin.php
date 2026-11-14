@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Membatasi rute tertentu hanya untuk Super Admin (role "admin").
+ * Membatasi rute tertentu untuk Super Admin dan pemegang "akses
+ * penuh" (access_level = full).
  *
- * Dipakai untuk Manajemen Akun. Pemegang "akses penuh" (mis. Wakil
- * Kepala Kesiswaan) dibuka hampir semua fitur, tapi area akun
- * sengaja tetap di tangan Super Admin.
+ * Dipakai untuk Manajemen Akun. Pemegang akses penuh, misalnya Wakil
+ * Kepala Kesiswaan, diperlakukan setara Super Admin.
  */
 class EnsureSuperAdmin
 {
@@ -21,9 +21,11 @@ class EnsureSuperAdmin
             return redirect()->route('login');
         }
 
-        if (! auth()->user()->isAdmin()) {
+        $user = auth()->user();
+
+        if (! $user->isAdmin() && ! $user->hasFullAccess()) {
             return redirect()->route('dashboard')
-                ->with('error', 'Akses dibatasi. Manajemen Akun hanya untuk Super Admin.');
+                ->with('error', 'Akses dibatasi. Manajemen Akun hanya untuk Super Admin dan pemegang akses penuh.');
         }
 
         return $next($request);

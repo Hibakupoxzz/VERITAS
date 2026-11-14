@@ -1,6 +1,6 @@
 # Daftar Lengkap Semua Akun VERITAS
 
-> **Login memakai NIG, bukan email.**
+> **Login memakai NIG atau email.**
 > Data ini disalin apa adanya dari daftar resmi sekolah (58 tenaga
 > pendidik), termasuk gelar pada setiap nama.
 >
@@ -17,6 +17,11 @@
 
 Kedua akun punya hak yang sama. Admin masih login dengan email karena
 belum ada NIG-nya.
+
+> [!NOTE]
+> Akun `duospirits@gmail.com` adalah akun cadangan. Akun ini **tidak
+> ditampilkan di halaman Manajemen Akun** dan tidak bisa diubah lewat
+> halaman tersebut, tetapi tetap bisa dipakai login.
 
 Super Admin dapat **mengganti password semua akun** lewat menu
 **Manajemen Akun → tombol Password** pada tiap baris.
@@ -47,7 +52,8 @@ dari guru pada umumnya supaya mudah dikenali saat menerima laporan.
 > Dua akun pimpinan diberi hak akses tambahan lewat kolom
 > `access_level`:
 > - **Hanifan Nurfauzi** (Waka Kesiswaan, `0190195044`) — akses
->   penuh: semua fitur **kecuali** Manajemen Akun.
+>   penuh: **semua fitur, setara Super Admin**, termasuk Manajemen
+>   Akun.
 > - **Septia Sundari** (Waka Humas, `0180193040`) — boleh menambah
 >   **dan memverifikasi** pelanggaran, layaknya Guru PDS.
 
@@ -213,12 +219,12 @@ karena kelas tidak punya NIG.
 
 | Kelompok | Jumlah | Password | Cara Login |
 |----------|--------|----------|------------|
-| Admin | 2 | zidan123 / smkpluspnb123 | Email *(sementara)* |
+| Admin | 2 | zidan123 / smkpluspnb123 | Email |
 | Pimpinan | 6 | pimpinan123 | NIG |
 | PDS | 5 | pds123 | NIG |
 | BK | 8 | bk123 | NIG |
 | Guru | 39 | guru123 | NIG |
-| Wali Kelas | 46 | walas123 | Email *(sementara)* |
+| Wali Kelas | 46 | walas123 | Email |
 | **Total** | **106** | | |
 
 > Catatan: 6 akun pimpinan **sudah termasuk** terhitung sebagai guru
@@ -227,6 +233,5 @@ karena kelas tidak punya NIG.
 
 > [!NOTE]
 > NIG kedua akun admin dan 46 akun walas belum terisi, jadi
-> mereka login pakai email. Fallback email di `LoginController` ada
-> karena itu — begitu semua akun punya NIG, blok fallback itu bisa
-> dihapus.
+> mereka login pakai email. Kolom login di website menerima
+> **NIG atau email** dalam satu isian.

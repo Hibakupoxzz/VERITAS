@@ -82,8 +82,8 @@
                     @endforeach
                 </select>
                 <p class="form-help">
-                    &ldquo;Akses Penuh&rdquo; membuka seluruh fitur kecuali Manajemen Akun
-                    (mis. untuk Wakil Kepala Kesiswaan).
+                    &ldquo;Akses Penuh&rdquo; membuka seluruh fitur, setara Super Admin,
+                    termasuk Manajemen Akun (mis. untuk Wakil Kepala Kesiswaan).
                 </p>
             </div>
 

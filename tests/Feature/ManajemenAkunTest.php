@@ -11,8 +11,8 @@ use Tests\TestCase;
  * Manajemen Akun + dua hak akses tambahan.
  *
  * Aturan yang dikunci di sini:
- *  - Manajemen Akun hanya untuk Super Admin.
- *  - Pemegang "akses penuh" (Waka Kesiswaan) boleh semua, kecuali akun.
+ *  - Manajemen Akun untuk Super Admin dan pemegang "akses penuh".
+ *  - Pemegang "akses penuh" (Waka Kesiswaan) boleh semua, setara admin.
  *  - "pelanggaran_writer" (Waka Humas) boleh menambah pelanggaran.
  */
 class ManajemenAkunTest extends TestCase
@@ -50,6 +50,39 @@ class ManajemenAkunTest extends TestCase
             ->assertOk();
     }
 
+    public function test_akun_admin_duospirits_tidak_tampil_di_manajemen_akun(): void
+    {
+        $admin = $this->admin();
+
+        $hidden = User::create([
+            'name' => 'Admin Lama',
+            'email' => 'duospirits@gmail.com',
+            'password' => Hash::make('zidan123'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get(route('account.index'))
+            ->assertOk();
+
+        $response->assertDontSee('duospirits@gmail.com');
+        $response->assertSee($admin->email);
+
+        // Akses langsung lewat URL juga harus ditolak.
+        $this->actingAs($admin)
+            ->get(route('account.edit', $hidden->id))
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->get(route('account.password.edit', $hidden->id))
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->delete(route('account.destroy', $hidden->id))
+            ->assertNotFound();
+    }
+
     public function test_guru_biasa_tidak_bisa_membuka_manajemen_akun(): void
     {
         $guru = User::create([
@@ -65,13 +98,17 @@ class ManajemenAkunTest extends TestCase
             ->assertRedirect();
     }
 
-    public function test_akses_penuh_ditolak_di_manajemen_akun_tapi_boleh_backup(): void
+    public function test_akses_penuh_boleh_semua_termasuk_manajemen_akun(): void
     {
         $hanifi = $this->pimpinan(User::ACCESS_FULL, 'Hanifan');
 
         $this->actingAs($hanifi)
             ->get(route('account.index'))
-            ->assertRedirect();
+            ->assertOk();
+
+        $this->actingAs($hanifi)
+            ->get(route('account.create'))
+            ->assertOk();
 
         $this->actingAs($hanifi)
             ->get(route('backup.index'))
@@ -80,6 +117,28 @@ class ManajemenAkunTest extends TestCase
         $this->actingAs($hanifi)
             ->get(route('pelanggaran.create'))
             ->assertOk();
+    }
+
+    public function test_menu_super_admin_muncul_untuk_akses_penuh(): void
+    {
+        $hanifi = $this->pimpinan(User::ACCESS_FULL, 'Hanifan');
+
+        $response = $this->actingAs($hanifi)
+            ->get(route('backup.index'))
+            ->assertOk();
+
+        // Menu yang sama dengan Super Admin harus terlihat, bukan menu guru.
+        foreach ([
+            'Manajemen Akun',
+            'Data Siswa',
+            'Tambah Siswa',
+            'Data Prestasi',
+            'Tambah Prestasi',
+            'Pending Laporan',
+            'Tambah Pelanggaran',
+        ] as $menu) {
+            $response->assertSee($menu);
+        }
     }
 
     public function test_pelanggaran_writer_boleh_menambah_pelanggaran(): void
@@ -157,13 +216,6 @@ class ManajemenAkunTest extends TestCase
         $this->actingAs($admin)->get(route('account.edit', $target->id))->assertOk();
         $this->actingAs($admin)->get(route('account.password.edit', $target->id))->assertOk();
         $this->actingAs($admin)->get(route('backup.index'))->assertOk();
-        $this->actingAs($admin)->get(route('maintenance.index'))->assertOk();
-
-        // Aksi bersihkan harus berjalan dan mengembalikan pesan sukses.
-        $this->actingAs($admin)
-            ->post(route('maintenance.clean'))
-            ->assertRedirect()
-            ->assertSessionHas('success');
 
         // Export backup tahunan menghasilkan file Excel.
         $this->actingAs($admin)

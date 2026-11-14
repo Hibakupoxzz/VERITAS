@@ -5,7 +5,6 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporPelanggaranController;
-use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\SiswaController;
@@ -100,17 +99,12 @@ Route::middleware('auth')->group(function () {
             ->name('leaderboard');
 
         // ========================================================
-        // Backup & Pemeliharaan (Super Admin + pemegang akses penuh)
+        // Backup (Super Admin + pemegang akses penuh)
         // ========================================================
         Route::get('/backup', [BackupController::class, 'index'])
             ->name('backup.index');
         Route::get('/backup/export', [BackupController::class, 'export'])
             ->name('backup.export');
-
-        Route::get('/maintenance', [MaintenanceController::class, 'index'])
-            ->name('maintenance.index');
-        Route::post('/maintenance/clean', [MaintenanceController::class, 'clean'])
-            ->name('maintenance.clean');
 
         // ========================================================
         // Manajemen Akun — KHUSUS Super Admin

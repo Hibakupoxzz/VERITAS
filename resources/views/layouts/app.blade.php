@@ -1601,7 +1601,7 @@
     $isWalas   = (bool) $topUser?->isWalas();
 
     // Super Admin (role admin) dan pemegang akses penuh memakai menu
-    // lengkap. Bedanya, menu "Manajemen Akun" hanya untuk Super Admin.
+    // lengkap, termasuk menu "Manajemen Akun".
     $isAdmin       = (bool) $topUser?->isAdmin();
     $hasFullAccess = (bool) $topUser?->hasFullAccess();
 
@@ -1664,7 +1664,6 @@
 
         // --- Sistem & Bantuan ---
         'backup.index' => ['Sistem', 'backup.index', 'fa-file-export'],
-        'maintenance.index' => ['Sistem', 'maintenance.index', 'fa-broom'],
         'account.index' => ['Sistem', 'account.index', 'fa-user-shield'],
         'account.create' => ['Sistem', 'account.index', 'fa-user-shield'],
         'account.edit' => ['Sistem', 'account.index', 'fa-user-shield'],
@@ -1812,7 +1811,17 @@
 
         <nav class="menu">
 
-            @if(auth()->check() && $isWalas)
+            @if(auth()->check() && $hasFullAccess)
+
+                {{-- =================================================
+                     MENU AKSES PENUH (mis. Waka Kesiswaan)
+                     Sama seperti Super Admin, termasuk Manajemen Akun.
+                     Dicek LEBIH DULU sebelum cabang role, karena
+                     pemegang akses penuh bisa saja ber-role "guru".
+                ================================================== --}}
+                @include('partials.menu-admin')
+
+            @elseif(auth()->check() && $isWalas)
 
                 {{-- =================================================
                      MENU KHUSUS WALI KELAS (HANYA PELAPORAN & KELAS)
@@ -2119,14 +2128,6 @@
                     </div>
                 @endif
 
-            @elseif(auth()->check() && $hasFullAccess)
-
-                {{-- =================================================
-                     MENU AKSES PENUH (mis. Waka Kesiswaan)
-                     Sama seperti Super Admin, TANPA Manajemen Akun.
-                ================================================== --}}
-                @include('partials.menu-admin')
-
             @else
 
                 {{-- =================================================
@@ -2231,12 +2232,6 @@
                    class="{{ request()->routeIs('backup.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-file-export"></i>
                     <span>Backup Data Tahunan</span>
-                </a>
-
-                <a href="{{ route('maintenance.index') }}"
-                   class="{{ request()->routeIs('maintenance.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-broom"></i>
-                    <span>Bersihkan Website</span>
                 </a>
 
             @endif

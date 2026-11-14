@@ -106,7 +106,7 @@ class UjiSeedBersihTest extends TestCase
         $hanifi = User::where('nig', '0190195044')->first();  // Waka Kesiswaan
         $septia = User::where('nig', '0180193040')->first();  // Waka Humas
 
-        // Hanifan: semua yang bisa dilakukan PDS dan BK.
+        // Hanifan: semua fitur, setara Super Admin.
         $this->assertTrue($hanifi->hasFullAccess(), 'Waka Kesiswaan harus punya akses penuh');
         $this->assertTrue($hanifi->canVerify(), 'Waka Kesiswaan harus bisa verifikasi seperti PDS');
         $this->assertTrue($hanifi->canManagePrestasi(), 'Waka Kesiswaan harus bisa kelola prestasi seperti BK');

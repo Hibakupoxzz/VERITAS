@@ -16,16 +16,14 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         /*
-         * Login memakai NIG, bukan email.
+         * Login menerima NIG atau email dalam satu kolom.
          *
          * NIG diterima apa adanya (tanpa casting ke angka) karena
          * sebagian besar diawali nol — "0170194016" tidak boleh
          * berubah jadi "174194016".
          *
-         * Email tetap diterima sebagai cadangan supaya akun lama
-         * yang belum punya NIG (mis. akun walas per-kelas) tidak
-         * terkunci. Begitu semua akun punya NIG, blok ini bisa
-         * dihapus.
+         * Email dipakai oleh akun yang belum punya NIG, misalnya
+         * Super Admin dan akun walas per-kelas.
          */
         $request->validate([
             /*
@@ -48,7 +46,7 @@ class LoginController extends Controller
             $request->boolean('remember')
         );
 
-        // Cadangan: coba cocokkan sebagai email.
+        // Jika bukan NIG yang cocok, coba cocokkan sebagai email.
         if (! $user && filter_var($nig, FILTER_VALIDATE_EMAIL)) {
             $user = Auth::attempt(
                 ['email' => $nig, 'password' => $request->input('password')],
@@ -67,7 +65,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'nig' => 'NIG atau password salah.',
+            'nig' => 'NIG/email atau password salah.',
         ])->onlyInput('nig');
     }
 

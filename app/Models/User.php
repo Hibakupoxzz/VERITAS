@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -39,7 +40,7 @@ class User extends Authenticatable
     | tidak bisa diwakili role karena role dipakai bersama.
     */
 
-    /** Semua fitur, kecuali Manajemen Akun. */
+    /** Semua fitur, setara Super Admin (termasuk Manajemen Akun). */
     public const ACCESS_FULL = 'full';
 
     /** Boleh menambah pelanggaran langsung (menu Tambah Pelanggaran). */
@@ -48,11 +49,36 @@ class User extends Authenticatable
     /** Boleh menambah & memverifikasi pelanggaran layaknya Guru PDS. */
     public const ACCESS_VERIFIKATOR = 'verifikator';
 
+    /**
+     * Akun Super Admin lama yang disembunyikan dari Manajemen Akun.
+     *
+     * Akun ini tetap bisa dipakai login sebagai akun cadangan, tetapi
+     * tidak ditampilkan di daftar dan tidak bisa diubah lewat halaman
+     * Manajemen Akun.
+     */
+    public const HIDDEN_ACCOUNT_EMAIL = 'duospirits@gmail.com';
+
     /*
     |--------------------------------------------------------------------------
     | Role Helpers
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Apakah akun ini disembunyikan dari Manajemen Akun?
+     */
+    public function isHiddenAccount(): bool
+    {
+        return strcasecmp((string) $this->email, self::HIDDEN_ACCOUNT_EMAIL) === 0;
+    }
+
+    /**
+     * Batasi query ke akun yang boleh tampil di Manajemen Akun.
+     */
+    public function scopeVisibleInAccountList(Builder $query): Builder
+    {
+        return $query->whereRaw('LOWER(email) <> ?', [self::HIDDEN_ACCOUNT_EMAIL]);
+    }
 
     public function isAdmin(): bool
     {
@@ -60,10 +86,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Apakah user punya akses penuh (semua fitur selain Manajemen Akun)?
+     * Apakah user punya akses penuh (semua fitur, setara Super Admin)?
      *
-     * Dipakai middleware EnsureCanManage untuk membuka seluruh rute
-     * manajemen, dan sidebar untuk menampilkan menu selengkap admin.
+     * Dipakai middleware EnsureCanManage/EnsureSuperAdmin untuk
+     * membuka seluruh rute manajemen, dan sidebar untuk menampilkan
+     * menu selengkap admin.
      */
     public function hasFullAccess(): bool
     {

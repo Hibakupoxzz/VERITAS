@@ -25,16 +25,10 @@ class EnsureCanManage
         /*
          * 0. Akses penuh (mis. Wakil Kepala Kesiswaan).
          *
-         *    Semua rute manajemen dibuka, KECUALI Manajemen Akun —
-         *    area itu tetap milik Super Admin dan tetap dijaga
-         *    middleware super_admin sebelum eksekusi controller.
+         *    Diperlakukan setara Super Admin: seluruh rute manajemen,
+         *    termasuk Manajemen Akun, dibuka.
          */
         if ($user->hasFullAccess()) {
-            if (str_starts_with((string) $routeName, 'account.')) {
-                return redirect()->route('dashboard')
-                    ->with('error', 'Akses dibatasi. Manajemen Akun hanya untuk Super Admin.');
-            }
-
             return $next($request);
         }
 
