@@ -80,7 +80,7 @@ class GuruTenagaPendidikSeederTest extends TestCase
             ['Ari Zulfikar', 'arizulfikar@pds.com', 'pds', 'pds'],
             ['Fitri Rohmayasari', 'fitrirohmayasari@pds.com', 'pds', 'pds'],
             ['Muzakir Zulkarnaen', 'muzakirzulkarnaen@pds.com', 'pds', 'pds'],
-            ['Yulianie Kasari', 'yulianiekasari@pds.com', 'pds', 'pds'],
+            ['Yulianie Kasari', 'yulianiekasari@pds.com', 'pds', 'guru'],
             ['Rakhma Dhania', 'rakhmadhania@bk.com', 'bk', 'bk'],
             ['R. Dodi Setiadi', 'rdodisetiadi@bk.com', 'bk', 'bk'],
             ['Sholehudin Aditya Utama', 'sholehudinadityautama@bk.com', 'bk', 'bk'],
@@ -288,12 +288,33 @@ class GuruTenagaPendidikSeederTest extends TestCase
         }
 
         /*
-         * Empat guru ini tetap PDS meski jabatan resmi di daftar
+         * Tiga guru ini tetap PDS meski jabatan resmi di daftar
          * sekolah bukan PDS — fitting dengan-role PDS, lihat
-         * konstanta PDS_TETAP di seeder.
+         * konstanta PDS_TETAP di seeder. Yulianie Kasari sudah
+         * dikeluarkan dari PDS, jadi tidak termasuk.
          */
-        foreach (['0190191049', '0220194070', '0230189074', '0250189080'] as $nig) {
+        foreach (['0190191049', '0220194070', '0230189074'] as $nig) {
             $this->assertSame('pds', User::where('nig', $nig)->first()->role, "NIG {$nig} seharusnya PDS");
+        }
+
+        $this->assertSame(
+            'guru',
+            User::where('nig', '0250189080')->first()->role,
+            'Yulianie Kasari sudah tidak lagi ber-role PDS'
+        );
+
+        /*
+         * Kepala Sekolah dan lima waka memakai role tersendiri.
+         */
+        foreach ([
+            '0250186083', '0170194006', '0180193040',
+            '0170188005', '0190195044', '0170167004',
+        ] as $nig) {
+            $this->assertSame(
+                'pimpinan',
+                User::where('nig', $nig)->first()->role,
+                "NIG {$nig} seharusnya pimpinan"
+            );
         }
     }
 
@@ -301,11 +322,11 @@ class GuruTenagaPendidikSeederTest extends TestCase
     {
         $this->seedGuru();
 
-        // Guru Bahasa Indonesia, bukan BK/PDS.
+        // Guru Bahasa Indonesia, bukan BK/PDS/pimpinan.
         $this->assertSame('guru', User::where('nig', '0170193014')->first()->role);
 
-        // Kepala sekolah juga role guru (belum ditentukan jadi admin).
-        $this->assertSame('guru', User::where('nig', '0250186083')->first()->role);
+        // Kepala sekolah memakai role pimpinan, bukan guru biasa.
+        $this->assertSame('pimpinan', User::where('nig', '0250186083')->first()->role);
     }
 
     /**

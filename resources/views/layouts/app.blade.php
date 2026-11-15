@@ -1868,12 +1868,15 @@
             @elseif(auth()->check() && auth()->user()->isGuru())
 
                 {{-- =================================================
-                     MENU GURU KHUSUS / GURU PIKET
+                     MENU GURU / PIMPINAN
+                     - Role "guru": guru khusus / piket
+                     - Role "pimpinan": kepsek & waka (akses monitoring
+                       ditambahkan lewat isPimpinan() di dalam)
                      - Bisa: Report Pelanggaran SEMUA KELAS & SISWA
                      - Bisa: Lihat Data Siswa & Semua Kelas
                 ================================================== --}}
                 <div class="menu-title">
-                    Menu Guru Khusus
+                    Menu Guru &amp; Pimpinan
                 </div>
 
                 <a href="{{ route('lapor.index') }}"
@@ -1898,6 +1901,19 @@
                     <i class="fa-solid fa-users"></i>
                     <span>Semua Data Siswa</span>
                 </a>
+
+                {{-- KELAS BINAAN (guru yang menerima pembagian kelas PDS) --}}
+                @if(count(auth()->user()->getBinaanKelasList()) > 0)
+                    <div class="menu-title">
+                        Kelas Binaan
+                    </div>
+
+                    <div class="menu-chips">
+                        @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
+                            <span class="menu-chip">{{ $kelasBinaan }}</span>
+                        @endforeach
+                    </div>
+                @endif
 
                 {{-- MONITORING SEKOLAH --}}
                 <div class="menu-title">

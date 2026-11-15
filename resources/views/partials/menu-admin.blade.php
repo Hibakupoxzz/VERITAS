@@ -70,6 +70,19 @@
     <span>Tambah Siswa</span>
 </a>
 
+{{-- KELAS BINAAN (pemegang akses penuh yang menerima pembagian kelas PDS) --}}
+@if(count(auth()->user()->getBinaanKelasList()) > 0)
+    <div class="menu-title">
+        Kelas Binaan
+    </div>
+
+    <div class="menu-chips">
+        @foreach(auth()->user()->getBinaanKelasList() as $kelasBinaan)
+            <span class="menu-chip">{{ $kelasBinaan }}</span>
+        @endforeach
+    </div>
+@endif
+
 {{-- PRESTASI --}}
 <div class="menu-title">
     Prestasi

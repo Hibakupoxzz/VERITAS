@@ -4,9 +4,10 @@
 > Data ini disalin apa adanya dari daftar resmi sekolah (58 tenaga
 > pendidik), termasuk gelar pada setiap nama.
 >
-> Penetapan role: **akun PDS, akun BK, dan unsur pimpinan
-> dibiarkan apa adanya.** Seluruh tenaga pendidik lainnya — termasuk
-> yang jabatannya berubah di daftar terbaru — menjadi role `guru`.
+> Penetapan role: **unsur pimpinan memakai role `pimpinan`; akun
+> PDS dan akun BK dibiarkan apa adanya.** Seluruh tenaga pendidik
+> lainnya — termasuk yang jabatannya berubah di daftar terbaru —
+> menjadi role `guru`.
 
 ## 1. Super Admin (2 akun)
 
@@ -32,8 +33,9 @@ Super Admin dapat **mengganti password semua akun** lewat menu
 
 Password semua: **pimpinan123**
 
-Kepala Sekolah dan lima Wakil Kepala Sekolah. Password-nya dipisah
-dari guru pada umumnya supaya mudah dikenali saat menerima laporan.
+Kepala Sekolah dan lima Wakil Kepala Sekolah. Mereka memakai role
+`pimpinan` dan password tersendiri, dipisah dari guru pada umumnya
+supaya mudah dikenali saat menerima laporan.
 
 | No | NIG / Email | Nama | Jabatan | Password |
 |----|-------------|------|---------|----------|
@@ -59,17 +61,19 @@ dari guru pada umumnya supaya mudah dikenali saat menerima laporan.
 
 ---
 
-## 2. Guru PDS (5 akun)
+## 2. Guru PDS (4 akun)
 
 Password semua: **pds123**
 
 Role PDS **tidak lagi diambil dari jabatan di daftar resmi sekolah**,
-tetapi dipertahankan dari akun yang sudah ada. Empat orang di bawah
-ini punya jabatan resmi Guru Jasmani, Guru PPKN, Guru
-Ekonomi/Produktif, dan Guru Produk Kreatif — semuanya tetap PDS
-sesuai keputusan.
+tetapi dipertahankan dari akun yang sudah ada. Tiga orang di bawah
+ini punya jabatan resmi Guru Jasmani, Guru PPKN, dan
+Guru Ekonomi/Produktif — semuanya tetap PDS sesuai keputusan.
 
 Sopiyan tetap PDS karena jabatannya memang Koordinator PDS.
+
+Yulianie Kasari, M.Pd sudah **dikeluarkan dari Guru PDS** dan kini
+menjadi guru biasa (lihat bagian 4).
 
 | No | NIG / Email | Nama | Password |
 |----|-------------|------|----------|
@@ -77,7 +81,6 @@ Sopiyan tetap PDS karena jabatannya memang Koordinator PDS.
 | 2 | `0230189074` | Fitri Rohmayasari, S.Pd | pds123 |
 | 3 | `0220194070` | Muzakir Zulkarnaen, S.Ak | pds123 |
 | 4 | `0170179003` | Sopiyan, S.Hi., M.A | pds123 |
-| 5 | `0250189080` | Yulianie Kasari, M.Pd | pds123 |
 
 ---
 
@@ -101,7 +104,7 @@ Role BK diambil dari jabatan "Guru Bimbingan Konseling" dan
 
 ---
 
-## 4. Guru Lainnya (39 akun)
+## 4. Guru Lainnya (40 akun)
 
 Password semua: **guru123**
 
@@ -150,6 +153,7 @@ data master.
 | 37 | `0260100093` | Syahidah Muthi'ah, S.Pd | guru123 |
 | 38 | `0170193014` | Vivin Dwi Yudianto, S.Pd | guru123 |
 | 39 | `0220199064` | Yaumil Akbaria, S.Pd | guru123 |
+| 40 | `0250189080` | Yulianie Kasari, M.Pd | guru123 |
 
 > 6 akun pimpinan sekolah di bagian 1a **tidak** diulang di sini.
 > Akun contoh lama `gurupiket@guru.com` (Guru Piket Umum) sudah
@@ -221,15 +225,16 @@ karena kelas tidak punya NIG.
 |----------|--------|----------|------------|
 | Admin | 2 | zidan123 / smkpluspnb123 | Email |
 | Pimpinan | 6 | pimpinan123 | NIG |
-| PDS | 5 | pds123 | NIG |
+| PDS | 4 | pds123 | NIG |
 | BK | 8 | bk123 | NIG |
-| Guru | 39 | guru123 | NIG |
+| Guru | 40 | guru123 | NIG |
 | Wali Kelas | 46 | walas123 | Email |
 | **Total** | **106** | | |
 
-> Catatan: 6 akun pimpinan **sudah termasuk** terhitung sebagai guru
-> di tabel seeder — role aplikasinya memang `guru`, hanya passwordnya
-> yang dibedakan.
+> Catatan: 6 akun pimpinan memakai role aplikasi `pimpinan` dan
+> tidak lagi dihitung sebagai role `guru`. Hak aksesnya tetap sama:
+> monitoring seluruh sekolah, dengan tambahan akses khusus untuk
+> Hanifan Nurfauzi dan Septia Sundari.
 
 > [!NOTE]
 > NIG kedua akun admin dan 46 akun walas belum terisi, jadi

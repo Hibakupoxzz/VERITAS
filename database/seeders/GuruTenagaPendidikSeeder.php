@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Hash;
  * ===== CARA MEMBACA ROLE =====
  *
  * Peta NIG di bawah adalah satu-satunya sumber kebenaran role guru
- * BK dan PDS. Daftar sekolah menandai jabatan secaratekstual, dan
- * pemetaan ke role aplikasi ditulis manual di sini:
+ * BK, PDS, dan pimpinan. Daftar sekolah menandai jabatan secaratekstual,
+ * dan pemetaan ke role aplikasi ditulis manual di sini:
  *
+ *   - "Kepala Sekolah" / "Waka ..."             -> role pimpinan
  *   - "Koordinator PDS"                        -> role pds
  *   - "Guru Bimbingan Konseling/Koordinator BK" -> role bk
  *   - "Guru Bimbingan Konseling"               -> role bk
@@ -37,7 +38,7 @@ use Illuminate\Support\Facades\Hash;
  * Tidak diubah sama sekali. Password setiap role mengikuti
  * konvensi yang sudah berlaku:
  *   admin zidan123 | bk bk123 | pds pds123 | guru guru123
- *   walas walas123
+ *   walas walas123 | pimpinan pimpinan123
  * Akun contoh lama (Guru Piket Umum / gurupiket@guru.com) sudah
  * dihapus — baik dari seeder maupun lewat migration — karena tidak
  * ada di daftar guru sekolah.
@@ -51,6 +52,7 @@ class GuruTenagaPendidikSeeder extends Seeder
      */
     private const PASSWORD = [
         'admin' => 'zidan123',
+        'pimpinan' => 'pimpinan123',
         'bk' => 'bk123',
         'pds' => 'pds123',
         'guru' => 'guru123',
@@ -97,6 +99,24 @@ class GuruTenagaPendidikSeeder extends Seeder
     ];
 
     /**
+     * Kelas binaan untuk akun pimpinan yang menerima pembagian kelas
+     * dari Guru PDS (disimpan sebagai JSON, sama seperti kelas binaan
+     * PDS/BK).
+     *
+     *   Hanifan Nurfauzi -> X-RPL-1, XI-RPL-2, XI-TKJ-2
+     *   Septia Sundari   -> XI-RPL-1, XII-TKJ-3, XII-DKV-1
+     *
+     * Sopiyan yang menerima X-TKJ-1 diatur di PdsUserSeeder. Yulianie
+     * sendiri sudah tidak lagi ber-role PDS dan tidak memegang kelas.
+     *
+     * @var array<string, list<string>>
+     */
+    private const BINAAN_KELAS = [
+        '0190195044' => ['X-RPL-1', 'XI-RPL-2', 'XI-TKJ-2'],
+        '0180193040' => ['XI-RPL-1', 'XII-TKJ-3', 'XII-DKV-1'],
+    ];
+
+    /**
      * Maksimal selisih huruf yang masih dianggap "orang yang sama"
      * saat mencocokkan nama akun lama dengan daftar sekolah.
      */
@@ -105,15 +125,18 @@ class GuruTenagaPendidikSeeder extends Seeder
     /**
      * Akun yang tetap PDS walau jabatannya di daftar sekolah bukan PDS.
      *
-     * Kelima akun ini sudah ada sebagai PDS sebelum daftar resmi
+     * Ketiga akun ini sudah ada sebagai PDS sebelum daftar resmi
      * sekolah pernah masuk ke sistem, dan keputusannya adalah
      * BIARKAN — tidak diubah jadi guru biasa.
      *
-     * Di daftar resmi, jabatan keempat orang terakhir memang bukan
-     * PDS: Ari Zulfikar (Guru Jasmani), Fitri Rohmayasari (Guru PPKN),
-     * Muzakir Zulkarnaen (Guru Ekonomi/Produktif), dan Yulianie Kasari
-     * (Guru Produk Kreatif). Sopiyan tidak masuk daftar ini karena
-     * jabatannya sudah "Koordinator PDS" dan otomatis jadi PDS.
+     * Di daftar resmi, jabatan ketiga orang ini memang bukan PDS:
+     * Ari Zulfikar (Guru Jasmani), Fitri Rohmayasari (Guru PPKN),
+     * dan Muzakir Zulkarnaen (Guru Ekonomi/Produktif). Sopiyan tidak
+     * masuk daftar ini karena jabatannya sudah "Koordinator PDS" dan
+     * otomatis jadi PDS.
+     *
+     * Yulianie Kasari sengaja tidak lagi masuk daftar ini: ia
+     * dikeluarkan dari Guru PDS dan kembali menjadi guru biasa.
      *
      * @var list<string>
      */
@@ -121,7 +144,6 @@ class GuruTenagaPendidikSeeder extends Seeder
         '0190191049', // Ari Zulfikar
         '0230189074', // Fitri Rohmayasari
         '0220194070', // Muzakir Zulkarnaen
-        '0250189080', // Yulianie Kasari
     ];
 
     /**
@@ -225,6 +247,14 @@ class GuruTenagaPendidikSeeder extends Seeder
             }
 
             /*
+             * Kepala Sekolah dan para waka memakai role "pimpinan".
+             * Ini penanda eksplisit, bukan lagi menumpang role "guru".
+             */
+            if (in_array($nig, self::PIMPINAN, true)) {
+                $role = 'pimpinan';
+            }
+
+            /*
              * Cari akun yang sudah ada, urut dari yang paling yakin:
              1. NIG persis   -> akun pernah di-seed dari daftar ini
              * 2. email induk  -> akun lama dari seeder PDS/BK
@@ -275,6 +305,12 @@ class GuruTenagaPendidikSeeder extends Seeder
                 $atribut['access_level'] = self::AKSES_KHUSUS[$nig];
             }
 
+            // Kelas binaan untuk akun pimpinan yang menerima pembagian
+            // kelas dari Guru PDS.
+            if (isset(self::BINAAN_KELAS[$nig])) {
+                $atribut['kelas'] = json_encode(self::BINAAN_KELAS[$nig]);
+            }
+
             if ($user) {
                 /*
                  * Jangan sentuh password, dengan satu-satunya
@@ -287,7 +323,9 @@ class GuruTenagaPendidikSeeder extends Seeder
                  * Kalau ada kebutuhan mengganti password, itu urusan
                  * seederPassword, bukan run() di sini.
                  *
-                 * Kelas binaan juga tetap dipertahankan.
+                 * Kelas binaan PDS/BK tetap dipertahankan, kecuali dua
+                 * akun pimpinan yang pembagian kelasnya ditetapkan di
+                 * BINAAN_KELAS.
                  */
                 if (in_array($nig, self::PIMPINAN, true)) {
                     $atribut['password'] = Hash::make(self::PASSWORD_PIMPINAN);

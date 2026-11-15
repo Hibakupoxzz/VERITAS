@@ -127,20 +127,32 @@ class User extends Authenticatable
         return $this->role === 'bk';
     }
 
+    /**
+     * Apakah user termasuk tenaga pendidik (guru)?
+     *
+     * Role "pimpinan" (kepala sekolah / waka) sengaja ikut dianggap
+     * guru: mereka tetap tenaga pendidik dan memakai sebagian besar
+     * alur guru (pelaporan, direktori siswa, prestasi). Yang
+     * membedakan hak aksesnya adalah isPimpinan() dan navKey().
+     */
     public function isGuru(): bool
     {
-        return $this->role === 'guru';
+        return in_array($this->role, ['guru', 'pimpinan'], true);
     }
 
     /**
      * Apakah user termasuk unsur pimpinan sekolah (kepsek / waka)?
      *
-     * Ditentukan dari jabatan resmi, BUKAN dari role — karena role
-     * "guru" dipakai bersama oleh semua tenaga pendidik, termasuk
-     * guru biasa yang disebut "Guru Khusus / Piket" di label role.
+     * Role "pimpinan" adalah penanda utamanya. Pengecekan jabatan
+     * dipertahankan sebagai cadangan untuk akun lama atau data uji
+     * yang masih ber-role "guru" tetapi jabatannya kepsek/waka.
      */
     public function isPimpinan(): bool
     {
+        if ($this->role === 'pimpinan') {
+            return true;
+        }
+
         $jabatan = mb_strtolower((string) $this->jabatan);
 
         return str_contains($jabatan, 'kepala sekolah')
@@ -180,7 +192,7 @@ class User extends Authenticatable
      */
     public function canReportPelanggaran(): bool
     {
-        return in_array($this->role, ['admin', 'walas', 'bk', 'guru']);
+        return in_array($this->role, ['admin', 'walas', 'bk', 'guru', 'pimpinan'], true);
     }
 
     /**
@@ -198,6 +210,7 @@ class User extends Authenticatable
 
         return match ($this->role) {
             'admin' => 'Super Admin',
+            'pimpinan' => 'Pimpinan Sekolah',
             'walas' => 'Wali Kelas',
             'pds' => 'Guru PDS',
             'bk' => 'Guru BK',
@@ -297,20 +310,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Helper umum untuk mengambil daftar kelas binaan (PDS / BK).
+     * Helper umum untuk mengambil daftar kelas binaan.
+     *
+     * Kelas binaan disimpan sebagai JSON, sehingga bisa dimiliki oleh
+     * PDS, BK, maupun guru lain yang menerima pembagian kelas (mis.
+     * unsur pimpinan). Wali kelas memakai kolom yang sama untuk satu
+     * nama kelas biasa, dan json_decode-nya menghasilkan null — bukan
+     * array — sehingga tidak ikut tampil sebagai daftar binaan.
      *
      * @return array<string>
      */
     public function getBinaanKelasList(): array
     {
-        if ($this->isPds()) {
-            return $this->getPdsKelasList();
+        if (empty($this->kelas)) {
+            return [];
         }
 
-        if ($this->isBk()) {
-            return $this->getBkKelasList();
-        }
+        $decoded = json_decode($this->kelas, true);
 
-        return [];
+        return is_array($decoded) ? $decoded : [];
     }
 }

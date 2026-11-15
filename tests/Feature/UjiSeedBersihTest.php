@@ -45,8 +45,9 @@ class UjiSeedBersihTest extends TestCase
         $this->assertSame([
             'admin' => 2,
             'bk' => 8,
-            'guru' => 45,
-            'pds' => 5,
+            'guru' => 40,
+            'pds' => 4,
+            'pimpinan' => 6,
             'walas' => 46,
         ], $hitung);
     }
@@ -163,6 +164,41 @@ class UjiSeedBersihTest extends TestCase
 
         $dodi = User::where('email', 'rdodisetiadi@bk.com')->first();
         $this->assertContains('XI-RPL-1', json_decode($dodi->kelas, true));
+    }
+
+    /**
+     * Kelas binaan Yulianie Kasari dibagi ke Hanifan, Septia, dan
+     * Sopiyan. Pembagian ini harus ikut terbentuk pada seed bersih.
+     */
+    public function test_pembagian_kelas_binaan_yulianie(): void
+    {
+        $this->seedSemua();
+
+        $kelas = function (string $nig): array {
+            $user = User::where('nig', $nig)->firstOrFail();
+
+            return json_decode($user->kelas, true) ?? [];
+        };
+
+        $this->assertSame(
+            ['X-RPL-1', 'XI-RPL-2', 'XI-TKJ-2'],
+            $kelas('0190195044'),
+            'Kelas Hanifan Nurfauzi tidak sesuai'
+        );
+
+        $this->assertSame(
+            ['XI-RPL-1', 'XII-TKJ-3', 'XII-DKV-1'],
+            $kelas('0180193040'),
+            'Kelas Septia Sundari tidak sesuai'
+        );
+
+        $this->assertSame(
+            ['X-TKJ-1', 'XI-TKJ-1', 'XII-DKV-3', 'XII-LPB-1', 'XII-DKV-4'],
+            $kelas('0170179003'),
+            'Kelas Sopiyan tidak sesuai'
+        );
+
+        $this->assertSame([], $kelas('0250189080'), 'Yulianie tidak boleh lagi memegang kelas');
     }
 
     public function test_aturan_pelanggaran_juga_terisi(): void
