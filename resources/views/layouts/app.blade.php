@@ -9,6 +9,8 @@
     <meta name="csrf-token"
           content="{{ csrf_token() }}">
 
+    @include('partials.favicon')
+
     <title>
         @yield('title', 'VERITAS - SMK PLUS PELITA NUSANTARA')
     </title>
