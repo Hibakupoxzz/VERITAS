@@ -28,6 +28,7 @@ class AccountController extends Controller
     {
         return [
             'admin' => 'Super Admin',
+            'pimpinan' => 'Pimpinan Sekolah',
             'pds' => 'Guru PDS',
             'bk' => 'Guru BK',
             'walas' => 'Wali Kelas',
@@ -63,6 +64,7 @@ class AccountController extends Controller
         $stats = [
             'total' => $users->count(),
             'admin' => $users->where('role', 'admin')->count(),
+            'pimpinan' => $users->where('role', 'pimpinan')->count(),
             'pds' => $users->where('role', 'pds')->count(),
             'bk' => $users->where('role', 'bk')->count(),
             'walas' => $users->where('role', 'walas')->count(),

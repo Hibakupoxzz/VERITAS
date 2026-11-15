@@ -9,9 +9,11 @@
     $user     = auth()->user();
     $roleIcon = $user->isBk()
         ? 'fa-user-nurse'
-        : ($user->isGuru()
-            ? 'fa-graduation-cap'
-            : ($user->isWalas() ? 'fa-user-tie' : 'fa-shield-halved'));
+        : ($user->isPimpinan()
+            ? 'fa-user-shield'
+            : ($user->isGuru()
+                ? 'fa-graduation-cap'
+                : ($user->isWalas() ? 'fa-user-tie' : 'fa-shield-halved')));
 
     $today      = date('Y-m-d');
     $multiKelas = isset($kelasList) && count($kelasList) > 1;
@@ -41,7 +43,9 @@
             <h1 class="walas-banner-title">Selamat Datang, {{ $user->name }}</h1>
 
             <p class="walas-banner-subtitle">
-                @if($user->isGuru())
+                @if($user->isPimpinan())
+                    Sebagai unsur pimpinan sekolah, Anda dapat memantau seluruh kelas dan melaporkan temuan pelanggaran siswa. Laporan Anda akan masuk ke antrean verifikasi untuk ditinjau oleh tim <strong>Guru PDS</strong>.
+                @elseif($user->isGuru())
                     Sebagai Guru Khusus, Anda memiliki akses penuh ke seluruh kelas ({{ count($kelasList ?? []) }} Kelas) dan seluruh siswa untuk melaporkan temuan pelanggaran secara langsung. Laporan Anda akan masuk ke antrean verifikasi untuk ditinjau oleh tim <strong>Guru PDS</strong>.
                 @elseif($user->isBk())
                     Sebagai Guru BK, Anda dapat melaporkan temuan pelanggaran siswa. Laporan yang Anda kirim akan masuk ke antrean verifikasi untuk ditinjau dan ditentukan sanksi/poin oleh tim <strong>Guru PDS</strong>.

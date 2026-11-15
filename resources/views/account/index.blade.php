@@ -204,6 +204,10 @@
         <div class="lbl">Super Admin</div>
     </div>
     <div class="ac-stat">
+        <div class="num">{{ $stats['pimpinan'] }}</div>
+        <div class="lbl">Pimpinan</div>
+    </div>
+    <div class="ac-stat">
         <div class="num">{{ $stats['pds'] }}</div>
         <div class="lbl">Guru PDS</div>
     </div>

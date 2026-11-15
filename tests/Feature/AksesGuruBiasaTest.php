@@ -143,6 +143,23 @@ class AksesGuruBiasaTest extends TestCase
         );
     }
 
+    /**
+     * Role "pimpinan" (bukan lagi role "guru" + jabatan) harus tetap
+     * mendapat akses monitoring yang sama.
+     */
+    public function test_role_pimpinan_tetap_bisa_membuka_data_pelanggaran(): void
+    {
+        $pimpinan = $this->user('pimpinan', 'Waka Kurikulum');
+        $id = $this->buatPelanggaran($pimpinan);
+
+        $this->assertFalse($pimpinan->isGuruBiasa());
+        $this->assertSame('pimpinan', $pimpinan->navKey());
+
+        $this->actingAs($pimpinan)->get(route('lapor.index'))->assertOk();
+        $this->actingAs($pimpinan)->get(route('pelanggaran.index'))->assertOk();
+        $this->actingAs($pimpinan)->get(route('pelanggaran.show', $id))->assertOk();
+    }
+
     public function test_unsur_pimpinan_tetap_lihat_semua_papan_leaderboard(): void
     {
         $kepsek = $this->user('guru', 'Kepala Sekolah');

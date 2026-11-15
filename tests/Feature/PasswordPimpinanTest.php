@@ -81,9 +81,9 @@ class PasswordPimpinanTest extends TestCase
         }
 
         /*
-         * 45 guru ber-NIG, 6 di antaranya jadi pimpinan -> 39 diperiksa.
+         * 40 guru ber-NIG; keenam pimpinan sudah punya role sendiri.
          */
-        $this->assertSame(39, $terperiksa);
+        $this->assertSame(40, $terperiksa);
     }
 
     public function test_pds_dan_bk_tidak_ikut_berubah(): void

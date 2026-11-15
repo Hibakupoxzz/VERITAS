@@ -50,9 +50,9 @@ class EnsureCanManage
                 ->with('error', 'Akses dibatasi. Guru Walas hanya memiliki akses untuk pelaporan dan melihat data kelasnya.');
         }
 
-        // 2. Guru (role "guru")
+        // 2. Guru & pimpinan (role "guru" / "pimpinan")
         //
-        // Ada dua kelompok di dalam role ini:
+        // Ada dua kelompok:
         //
         // a) Guru biasa — hanya pelaporan + direktori siswa + prestasi.
         //    TIDAK boleh melihat data pribadi siswa berupa daftar
@@ -60,14 +60,14 @@ class EnsureCanManage
         //    Leaderboard tetap boleh, tapi bagian "Top Pelanggaran"
         //    disembunyikan di view.
         //
-        // b) Unsur pimpinan (kepsek + waka) — dikecualikan, mereka
+        // b) Unsur pimpinan (kepsek + waka, role "pimpinan") —
         //    monitoring seluruh sekolah, jadi hak aksesnya sama seperti
         //    guru biasa PLUS daftar pelanggaran.
         //
-        // Penting: cabangnya tetap memakai isGuru(), bukan
-        // isGuruBiasa(). Kalau hanya isGuruBiasa() yang dicek, unsur
-        // pimpinan akan jatuh ke return $next() di akhir dan otomatis
-        // mendapat akses penuh — termasuk hapus data.
+        // Penting: cabangnya memakai isGuru(), yang juga mencakup role
+        // "pimpinan". Kalau tidak, role pimpinan akan jatuh ke
+        // return $next() di akhir dan otomatis mendapat akses penuh —
+        // termasuk hapus data.
         if ($user->isGuru()) {
             $allowedRoutes = [
                 'siswa.index',
