@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -85,6 +86,45 @@ class Siswa extends Model
             ->orderByRaw($raw, $bindings)
             ->orderBy('kelas')
             ->orderBy('nama');
+    }
+
+    /**
+     * Batasi query ke satu kelas dengan toleransi format penulisan.
+     *
+     * Data siswa disimpan dengan spasi ("X RPL 1"), sedangkan akun
+     * wali kelas menyimpan kelas dengan tanda hubung ("X-RPL-1").
+     * Perbandingan `where('kelas', ...)` langsung membuat siswa
+     * kelas tersebut tidak pernah ditemukan.
+     *
+     * @param  Builder  $query
+     * @return Builder
+     */
+    public function scopeWhereKelas($query, ?string $kelas)
+    {
+        $kelas = trim((string) $kelas);
+
+        if ($kelas === '') {
+            return $query;
+        }
+
+        // Samakan pemisah: "X-RPL-1" dan "X RPL 1" -> "X RPL 1".
+        $normal = preg_replace('/[\s\-]+/u', ' ', $kelas);
+
+        $variants = [
+            $kelas,
+            $normal,
+            str_replace(' ', '-', $normal),
+            str_replace(' ', '', $normal),
+        ];
+
+        // MySQL umumnya case-insensitive, tetapi SQLite (dipakai test)
+        // membandingkan string secara case-sensitive.
+        $variants = array_merge($variants, array_map('mb_strtoupper', $variants));
+
+        return $query->whereIn(
+            'kelas',
+            array_values(array_unique(array_filter($variants)))
+        );
     }
 
     /**

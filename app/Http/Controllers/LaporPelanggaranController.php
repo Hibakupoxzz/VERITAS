@@ -32,19 +32,28 @@ class LaporPelanggaranController extends Controller
         $query = Siswa::urutKelas();
 
         if ($user && $user->isWalas() && $user->kelas) {
-            $query->where('kelas', $user->kelas);
-
-            $kelasList = collect([$user->kelas]);
-        } else {
-            $kelasList = Siswa::urutKelasList(
-                Siswa::select('kelas')
-                    ->whereNotNull('kelas')
-                    ->distinct()
-                    ->pluck('kelas')
-            );
+            // Toleran terhadap format "X-RPL-1" (akun walas) vs
+            // "X RPL 1" (data siswa).
+            $query->whereKelas($user->kelas);
         }
 
         $siswas = $query->get();
+
+        /*
+         * Daftar kelas untuk filter direktori.
+         *
+         * Untuk walas, ambil dari siswa yang benar-benar ditemukan
+         * supaya penulisan kelas di filter sama dengan data siswa
+         * ("X RPL 1"), bukan format akun ("X-RPL-1").
+         */
+        $kelasList = Siswa::urutKelasList(
+            $user && $user->isWalas() && $user->kelas
+                ? $siswas->pluck('kelas')
+                : Siswa::select('kelas')
+                    ->whereNotNull('kelas')
+                    ->distinct()
+                    ->pluck('kelas')
+        );
 
         /*
         |--------------------------------------------------------------------------

@@ -22,7 +22,7 @@ class PrestasiController extends Controller
         // Jika walas, hanya tampilkan prestasi siswa di kelasnya
         if (auth()->user()->isWalas() && auth()->user()->kelas) {
             $query->whereHas('siswa', function ($q) {
-                $q->where('kelas', auth()->user()->kelas);
+                $q->whereKelas(auth()->user()->kelas);
             });
         }
 

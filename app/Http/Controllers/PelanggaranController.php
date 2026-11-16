@@ -43,7 +43,7 @@ class PelanggaranController extends Controller
         // Jika walas, hanya tampilkan pelanggaran siswa di kelasnya
         if ($user->isWalas() && $user->kelas) {
             $query->whereHas('siswa', function ($q) use ($user) {
-                $q->where('kelas', $user->kelas);
+                $q->whereKelas($user->kelas);
             });
         }
 
