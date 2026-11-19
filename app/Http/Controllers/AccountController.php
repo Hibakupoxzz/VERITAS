@@ -55,8 +55,11 @@ class AccountController extends Controller
     {
         // Akun Super Admin lama (duospirits@gmail.com) sengaja tidak
         // ditampilkan di daftar; lihat User::HIDDEN_ACCOUNT_EMAIL.
+        // Akun siswa juga tidak dikelola di sini: akun mereka dibuat
+        // dan dihapus otomatis dari Data Siswa.
         $users = User::query()
             ->visibleInAccountList()
+            ->where('role', '!=', 'siswa')
             ->orderBy('role')
             ->orderBy('name')
             ->get();
@@ -200,14 +203,13 @@ class AccountController extends Controller
     }
 
     /**
-     * Akun tersembunyi tidak boleh diakses lewat URL langsung.
-     *
-     * Tanpa ini, akun yang sudah disembunyikan dari daftar masih bisa
-     * dibuka dengan menebak ID-nya.
+     * Akun tersembunyi dan akun siswa tidak boleh diakses lewat URL
+     * langsung. Tanpa ini, akun yang tidak ditampilkan di daftar masih
+     * bisa dibuka dengan menebak ID-nya.
      */
     private function ensureAccountIsVisible(User $account): void
     {
-        abort_if($account->isHiddenAccount(), 404);
+        abort_if($account->isHiddenAccount() || $account->isSiswa(), 404);
     }
 
     /**

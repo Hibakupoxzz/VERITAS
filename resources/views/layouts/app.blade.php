@@ -1609,6 +1609,7 @@
 
     // ---- Label portal (muncul di penunjuk lokasi) ----
     $portalLabel = match (true) {
+        (bool) $topUser?->isSiswa()  => 'Portal Siswa',
         (bool) $topUser?->isPimpinan() => 'Pimpinan Sekolah',
         $isWalas                    => 'Wali Kelas',
         (bool) $topUser?->isGuru()  => 'Guru Khusus',
@@ -1674,6 +1675,7 @@
         // --- Tanpa induk ---
         'leaderboard' => ['Leaderboard', null, 'fa-ranking-star'],
         'dashboard' => [null, null, 'fa-gauge-high'],
+        'siswa.portal' => [null, null, 'fa-gauge-high'],
     ];
 
     /*
@@ -1684,6 +1686,7 @@
      */
     $NAV_BOLEH = [
         'admin' => '*',
+        'siswa' => ['siswa.portal'],
         'pds' => ['dashboard', 'pelanggaran.index', 'pelanggaran.pending', 'pelanggaran.show',
             'pelanggaran.create', 'lapor.index', 'lapor.riwayat', 'siswa.index',
             'siswa.show', 'siswa.create', 'siswa.edit', 'prestasi.index',
@@ -1746,6 +1749,7 @@
     $crumbs = [];
 
     $portalUrl = match (true) {
+        (bool) $topUser?->isSiswa() => $parentUrl('siswa.portal'),
         $isWalas, (bool) $topUser?->isGuru() => $parentUrl('lapor.index'),
         default => $parentUrl('dashboard'),
     };
@@ -1822,6 +1826,21 @@
                      pemegang akses penuh bisa saja ber-role "guru".
                 ================================================== --}}
                 @include('partials.menu-admin')
+
+            @elseif(auth()->check() && auth()->user()->isSiswa())
+
+                {{-- =================================================
+                     MENU SISWA — hanya portal sendiri
+                ================================================== --}}
+                <div class="menu-title">
+                    Portal Siswa
+                </div>
+
+                <a href="{{ route('siswa.portal') }}"
+                   class="{{ request()->routeIs('siswa.portal') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Beranda Saya</span>
+                </a>
 
             @elseif(auth()->check() && $isWalas)
 

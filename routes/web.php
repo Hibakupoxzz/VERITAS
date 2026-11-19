@@ -8,6 +8,7 @@ use App\Http\Controllers\LaporPelanggaranController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\PrestasiController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\SiswaPortalController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 // ==========================
 Route::get('/', function () {
     if (auth()->check()) {
+        if (auth()->user()->isSiswa()) {
+            return redirect()->route('siswa.portal');
+        }
+
         if (auth()->user()->isWalas() || auth()->user()->isGuru()) {
             return redirect()->route('lapor.index');
         }
@@ -45,9 +50,19 @@ Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
 
 // ==========================
+// Portal Siswa (Akun NIS)
+// ==========================
+// Sengaja sebelum grup aplikasi tenaga pendidik. Gate ensure_not_siswa
+// dipasang di grup bawah, jadi portal ini tetap bisa dibuka siswa.
+Route::middleware('auth')->group(function () {
+    Route::get('/portal/siswa', [SiswaPortalController::class, 'index'])
+        ->name('siswa.portal');
+});
+
+// ==========================
 // App Routes (Perlu Login)
 // ==========================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'ensure_not_siswa'])->group(function () {
 
     // ==========================
     // Lapor Pelanggaran (Portal Walas / Semua Guru)

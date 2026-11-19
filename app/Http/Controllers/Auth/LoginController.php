@@ -16,11 +16,12 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         /*
-         * Login menerima NIG atau email dalam satu kolom.
+         * Login menerima NIS (siswa), NIG (tenaga pendidik), atau email
+         * dalam satu kolom.
          *
-         * NIG diterima apa adanya (tanpa casting ke angka) karena
-         * sebagian besar diawali nol — "0170194016" tidak boleh
-         * berubah jadi "174194016".
+         * NIS/NIG diterima apa adanya (tanpa casting ke angka) karena
+         * NIG sebagian besar diawali nol — "0170194016" tidak boleh
+         * berubah jadi "174194016". NIS siswa memakai nilai nisn lama.
          *
          * Email dipakai oleh akun yang belum punya NIG, misalnya
          * Super Admin dan akun walas per-kelas.
@@ -46,7 +47,15 @@ class LoginController extends Controller
             $request->boolean('remember')
         );
 
-        // Jika bukan NIG yang cocok, coba cocokkan sebagai email.
+        // Siswa login memakai NIS (kolom nisn pada data siswa lama).
+        if (! $user) {
+            $user = Auth::attempt(
+                ['nis' => $nig, 'password' => $request->input('password')],
+                $request->boolean('remember')
+            );
+        }
+
+        // Jika bukan NIS/NIG yang cocok, coba cocokkan sebagai email.
         if (! $user && filter_var($nig, FILTER_VALIDATE_EMAIL)) {
             $user = Auth::attempt(
                 ['email' => $nig, 'password' => $request->input('password')],
@@ -57,6 +66,10 @@ class LoginController extends Controller
         if ($user) {
             $request->session()->regenerate();
 
+            if (Auth::user()->isSiswa()) {
+                return redirect()->route('siswa.portal');
+            }
+
             if (Auth::user()->isWalas() || Auth::user()->isGuru()) {
                 return redirect()->route('lapor.index');
             }
@@ -65,7 +78,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'nig' => 'NIG/email atau password salah.',
+            'nig' => 'NIS/NIG/email atau password salah.',
         ])->onlyInput('nig');
     }
 

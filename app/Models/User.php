@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'nig', 'password', 'role', 'jabatan', 'kelas', 'access_level'])]
+#[Fillable(['name', 'email', 'nig', 'nis', 'siswa_id', 'password', 'role', 'jabatan', 'kelas', 'access_level'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -83,6 +83,23 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Akun siswa login memakai NIS (nilainya diambil dari nisn data
+     * siswa lama) dan tidak boleh masuk ke area tenaga pendidik.
+     */
+    public function isSiswa(): bool
+    {
+        return $this->role === 'siswa';
+    }
+
+    /**
+     * Data siswa yang menjadi pemilik akun ini.
+     */
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class);
     }
 
     /**
@@ -210,6 +227,7 @@ class User extends Authenticatable
 
         return match ($this->role) {
             'admin' => 'Super Admin',
+            'siswa' => 'Siswa',
             'pimpinan' => 'Pimpinan Sekolah',
             'walas' => 'Wali Kelas',
             'pds' => 'Guru PDS',

@@ -1,6 +1,6 @@
 # Daftar Lengkap Semua Akun VERITAS
 
-> **Login memakai NIG atau email.**
+> **Login memakai NIS (siswa), NIG, atau email.**
 > Data ini disalin apa adanya dari daftar resmi sekolah (58 tenaga
 > pendidik), termasuk gelar pada setiap nama.
 >
@@ -219,6 +219,32 @@ karena kelas tidak punya NIG.
 
 ---
 
+## 6. Siswa (1048 akun)
+
+Password semua: **password**
+
+Akun siswa dibuat otomatis dari data siswa yang sudah ada. **NIS
+siswa memakai nilai NISN lama** (mis. `26271007213`), jadi tidak
+perlu mengisi kolom baru. Data siswa baru yang ditambahkan atau
+di-import otomatis mendapat akun login juga.
+
+| Cara Login | Keterangan |
+|------------|------------|
+| `nisn` (NIS) | sandi: `password` |
+
+> [!NOTE]
+> Setelah login, siswa diarahkan ke **Portal Siswa** yang hanya
+> menampilkan pelanggaran dan prestasi miliknya sendiri. Halaman
+> pelaporan, manajemen, dan dashboard tenaga pendidik ditutup untuk
+> akun siswa.
+>
+> Untuk data siswa lama yang belum punya akun, jalankan:
+> `php artisan siswa:sync-akun`
+> (tambahkan `--reset-password` untuk mengembalikan sandi ke
+> `password`).
+
+---
+
 ## Ringkasan
 
 | Kelompok | Jumlah | Password | Cara Login |
@@ -229,7 +255,8 @@ karena kelas tidak punya NIG.
 | BK | 8 | bk123 | NIG |
 | Guru | 40 | guru123 | NIG |
 | Wali Kelas | 46 | walas123 | Email |
-| **Total** | **106** | | |
+| Siswa | 1048 | password | NIS (= NISN) |
+| **Total** | **1154** | | |
 
 > Catatan: 6 akun pimpinan memakai role aplikasi `pimpinan` dan
 > tidak lagi dihitung sebagai role `guru`. Hak aksesnya tetap sama:

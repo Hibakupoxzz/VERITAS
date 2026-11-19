@@ -18,6 +18,12 @@ class Siswa extends Model
      */
     public const JURUSAN = ['RPL', 'TKJ', 'DKV', 'LPB', 'TOI'];
 
+    /**
+     * Password awal semua akun siswa. Siswa login dengan NIS (kolom
+     * nisn pada data lama) dan password ini.
+     */
+    public const PASSWORD_AWAL = 'password';
+
     protected $fillable = [
         'nisn',
         'nama',
@@ -204,6 +210,14 @@ class Siswa extends Model
     public function pelanggarans()
     {
         return $this->hasMany(Pelanggaran::class);
+    }
+
+    /**
+     * Akun login siswa (dibuat otomatis lewat SiswaObserver).
+     */
+    public function user()
+    {
+        return $this->hasOne(User::class);
     }
 
     public function prestasis()

@@ -1,6 +1,8 @@
 <?php
 
+use App\Console\Commands\SyncSiswaAccounts;
 use App\Http\Middleware\EnsureCanManage;
+use App\Http\Middleware\EnsureNotSiswa;
 use App\Http\Middleware\EnsureSuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,10 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        SyncSiswaAccounts::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'can_manage' => EnsureCanManage::class,
             'super_admin' => EnsureSuperAdmin::class,
+            'ensure_not_siswa' => EnsureNotSiswa::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

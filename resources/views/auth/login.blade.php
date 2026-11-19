@@ -628,7 +628,7 @@ a{ text-decoration:none; }
 
             <div class="form-head">
                 <h2>Selamat Datang</h2>
-                <p>Masuk menggunakan NIG atau email dan password Anda.</p>
+                <p>Masuk menggunakan NIS, NIG, atau email dan password Anda.</p>
             </div>
 
             @if (session('status'))
@@ -649,7 +649,7 @@ a{ text-decoration:none; }
                 @csrf
 
                 <div class="form-group {{ $errors->has('nig') ? 'has-error' : '' }}">
-                    <label for="nig">NIG / Email</label>
+                    <label for="nig">NIS / NIG / Email</label>
                     <div class="input-wrap">
                         <i class="fa-solid fa-id-card icon-left"></i>
                         <input
@@ -657,7 +657,7 @@ a{ text-decoration:none; }
                             id="nig"
                             name="nig"
                             value="{{ old('nig') }}"
-                            placeholder="NIG atau email"
+                            placeholder="NIS, NIG, atau email"
                             autocomplete="username"
                             maxlength="255"
                             required
@@ -711,7 +711,10 @@ a{ text-decoration:none; }
             </form>
 
             <div class="form-note">
-                <i class="fa-solid fa-circle-question"></i>
+                <i class="fa-solid fa-circle-info"></i>
+                Siswa masuk memakai NIS (NISN) dengan password awal
+                <strong>password</strong>.
+                <br>
                 Lupa password? Hubungi Devaccto RPL.
             </div>
 
