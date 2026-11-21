@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pelanggaran;
+use App\Models\Prestasi;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,13 +33,20 @@ class SiswaPortalController extends Controller
             );
         }
 
-        $pelanggarans = $siswa->pelanggarans()
+        /*
+         * Filter eksplisit berdasarkan siswa pemilik akun yang login.
+         * Portal ini tidak boleh menampilkan pelanggaran/prestasi siswa lain,
+         * termasuk lewat relasi yang kelak mungkin diubah.
+         */
+        $pelanggarans = Pelanggaran::query()
+            ->where('siswa_id', $siswa->id)
             ->with(['aturanPelanggaran', 'verifikator'])
             ->latest('tanggal')
             ->latest('id')
             ->get();
 
-        $prestasis = $siswa->prestasis()
+        $prestasis = Prestasi::query()
+            ->where('siswa_id', $siswa->id)
             ->latest('tanggal')
             ->latest('id')
             ->get();

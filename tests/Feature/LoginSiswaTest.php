@@ -163,6 +163,20 @@ class LoginSiswaTest extends TestCase
         $response->assertSee('Prestasi Unik Saya');
         $response->assertDontSee('Pelanggaran Rahasia Siswa Lain');
         $response->assertDontSee('Prestasi Rahasia Siswa Lain');
+        $response->assertDontSee('Siswa Lain');
+        $response->assertDontSee('26271007999');
+
+        $this->assertTrue(
+            $response->viewData('pelanggarans')
+                ->every(fn (Pelanggaran $item) => $item->siswa_id === $saya->id),
+            'Portal menampilkan pelanggaran milik siswa lain.'
+        );
+
+        $this->assertTrue(
+            $response->viewData('prestasis')
+                ->every(fn (Prestasi $item) => $item->siswa_id === $saya->id),
+            'Portal menampilkan prestasi milik siswa lain.'
+        );
 
         // 100 - 5 (pelanggaran terverifikasi) + 10 (prestasi) = 105.
         $response->assertSee('105');
