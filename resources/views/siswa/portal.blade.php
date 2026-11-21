@@ -220,7 +220,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <div>
-                <span class="stat-label">Pelanggaran</span>
+                <span class="stat-label">Pelanggaran Saya</span>
                 <div class="portal-siswa-stat-value">{{ $totalPelanggaran }}</div>
             </div>
         </div>
@@ -230,7 +230,7 @@
                 <i class="fa-solid fa-trophy"></i>
             </div>
             <div>
-                <span class="stat-label">Prestasi</span>
+                <span class="stat-label">Prestasi Saya</span>
                 <div class="portal-siswa-stat-value">{{ $totalPrestasi }}</div>
             </div>
         </div>
