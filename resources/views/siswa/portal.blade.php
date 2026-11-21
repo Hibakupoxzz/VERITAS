@@ -115,6 +115,14 @@
     line-height: var(--lh-tight);
 }
 
+.portal-siswa-stat-hint {
+    display: block;
+    margin-top: 2px;
+    color: var(--c-text-muted);
+    font-size: var(--fs-xs);
+    line-height: var(--lh-tight);
+}
+
 .portal-siswa-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
@@ -222,6 +230,13 @@
             <div>
                 <span class="stat-label">Pelanggaran Saya</span>
                 <div class="portal-siswa-stat-value">{{ $totalPelanggaran }}</div>
+                <span class="portal-siswa-stat-hint">
+                    @if ($totalPelanggaranSemuaStatus > $totalPelanggaran)
+                        {{ $totalPelanggaran }} terverifikasi dari {{ $totalPelanggaranSemuaStatus }} catatan
+                    @else
+                        {{ $totalPelanggaran }} catatan terverifikasi
+                    @endif
+                </span>
             </div>
         </div>
 

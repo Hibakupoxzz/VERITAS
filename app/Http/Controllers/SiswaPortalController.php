@@ -54,6 +54,7 @@ class SiswaPortalController extends Controller
         $pelanggaransDiverifikasi = $pelanggarans->where('status', 'diverifikasi');
 
         $totalPelanggaran = $pelanggaransDiverifikasi->count();
+        $totalPelanggaranSemuaStatus = $pelanggarans->count();
         $totalPrestasi = $prestasis->count();
         $poinPelanggaran = (int) $pelanggaransDiverifikasi->sum('poin');
         $poinPrestasi = (int) $prestasis->sum('poin');
@@ -64,6 +65,7 @@ class SiswaPortalController extends Controller
             'pelanggarans',
             'prestasis',
             'totalPelanggaran',
+            'totalPelanggaranSemuaStatus',
             'totalPrestasi',
             'poinPelanggaran',
             'poinPrestasi',
