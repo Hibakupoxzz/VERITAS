@@ -8,6 +8,10 @@
 @php
     $isWalas   = auth()->user()->isWalas();
     $canAdd    = auth()->user()->canDirectAddPelanggaran();
+    // Edit/hapus/ekspor mengikuti hak verifikasi (setara Guru PDS),
+    // agar tombolnya hanya tampil untuk user yang benar-benar bisa
+    // lewat middleware EnsureCanManage.
+    $canManage = auth()->user()->canVerify();
     $kategoris = $pelanggarans->pluck('kategori')->filter()->unique()->values();
 @endphp
 
@@ -251,7 +255,7 @@
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
 
-                                    @if($canAdd)
+                                    @if($canManage)
                                     <a href="{{ route('pelanggaran.edit', $pelanggaran->id) }}"
                                        class="pg-ico pg-ico-edit" title="Edit" aria-label="Edit">
                                         <i class="fa-solid fa-pen"></i>
@@ -394,7 +398,7 @@
                         <i class="fa-solid fa-eye"></i> Detail
                     </a>
 
-                    @if($canAdd)
+                    @if($canManage)
                     <a href="{{ route('pelanggaran.edit', $pelanggaran->id) }}" class="pg-mbtn pg-ico-edit">
                         <i class="fa-solid fa-pen"></i> Edit
                     </a>

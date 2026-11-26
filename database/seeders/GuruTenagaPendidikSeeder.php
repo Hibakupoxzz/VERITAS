@@ -87,6 +87,7 @@ class GuruTenagaPendidikSeeder extends Seeder
      *
      *   full               -> semua fitur, kecuali Manajemen Akun
      *   pelanggaran_writer -> boleh menambah pelanggaran langsung
+     *   verifikator        -> kelola pelanggaran penuh seperti PDS
      *
      * Hanya ditulis untuk NIG yang terdaftar di sini. Akun lain
      * dibiarkan apa adanya supaya perubahan yang dilakukan Super

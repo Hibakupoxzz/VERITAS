@@ -47,7 +47,7 @@ class AccountController extends Controller
             '' => 'Normal (mengikuti role)',
             User::ACCESS_FULL => 'Akses Penuh (semua fitur, setara Super Admin)',
             User::ACCESS_PELANGGARAN_WRITER => 'Boleh Tambah Pelanggaran',
-            User::ACCESS_VERIFIKATOR => 'Boleh Tambah & Verifikasi Pelanggaran (seperti PDS)',
+            User::ACCESS_VERIFIKATOR => 'Kelola Pelanggaran seperti PDS (tambah, edit, hapus, verifikasi)',
         ];
     }
 

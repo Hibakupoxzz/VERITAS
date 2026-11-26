@@ -56,8 +56,9 @@ supaya mudah dikenali saat menerima laporan.
 > - **Hanifan Nurfauzi** (Waka Kesiswaan, `0190195044`) — akses
 >   penuh: **semua fitur, setara Super Admin**, termasuk Manajemen
 >   Akun.
-> - **Septia Sundari** (Waka Humas, `0180193040`) — boleh menambah
->   **dan memverifikasi** pelanggaran, layaknya Guru PDS.
+> - **Septia Sundari** (Waka Humas, `0180193040`) — boleh **mengelola
+>   seluruh data pelanggaran** layaknya Guru PDS: menambah, mengedit,
+>   menghapus, memverifikasi laporan, dan mengekspor data.
 
 ---
 

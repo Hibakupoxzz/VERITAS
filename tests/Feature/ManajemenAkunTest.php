@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Pelanggaran;
+use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +15,9 @@ use Tests\TestCase;
  * Aturan yang dikunci di sini:
  *  - Manajemen Akun untuk Super Admin dan pemegang "akses penuh".
  *  - Pemegang "akses penuh" (Waka Kesiswaan) boleh semua, setara admin.
- *  - "pelanggaran_writer" (Waka Humas) boleh menambah pelanggaran.
+ *  - "pelanggaran_writer" hanya boleh menambah pelanggaran.
+ *  - "verifikator" (Waka Humas) setara Guru PDS untuk pelanggaran,
+ *    termasuk edit dan hapus.
  */
 class ManajemenAkunTest extends TestCase
 {
@@ -170,6 +174,70 @@ class ManajemenAkunTest extends TestCase
         $this->actingAs($septia)
             ->get(route('pelanggaran.create'))
             ->assertOk();
+    }
+
+    public function test_verifikator_bisa_edit_dan_hapus_pelanggaran_layaknya_pds(): void
+    {
+        $septia = $this->pimpinan(User::ACCESS_VERIFIKATOR, 'Septia');
+
+        $siswa = Siswa::create([
+            'nama' => 'Siswa Uji',
+            'nisn' => '12345678',
+            'kelas' => 'X RPL 1',
+            'jk' => 'L',
+        ]);
+
+        $pelanggaran = Pelanggaran::create([
+            'siswa_id' => $siswa->id,
+            'pelapor_id' => $septia->id,
+            'tanggal' => today(),
+            'jenis_pelanggaran' => 'Terlambat',
+            'kategori' => 'Ringan',
+            'poin' => 5,
+            'status' => 'diverifikasi',
+        ]);
+
+        $this->actingAs($septia)
+            ->get(route('pelanggaran.index'))
+            ->assertOk()
+            ->assertSee(route('pelanggaran.destroy', $pelanggaran->id));
+
+        $this->actingAs($septia)
+            ->get(route('pelanggaran.edit', $pelanggaran->id))
+            ->assertOk();
+
+        $this->actingAs($septia)
+            ->put(route('pelanggaran.update', $pelanggaran->id), [
+                'siswa_id' => $siswa->id,
+                'tanggal' => today()->toDateString(),
+                'jenis_pelanggaran' => 'Terlambat (dikoreksi)',
+                'keterangan' => 'Sudah dikoreksi Waka Humas',
+            ])
+            ->assertRedirect(route('pelanggaran.index'));
+
+        $this->assertDatabaseHas('pelanggarans', [
+            'id' => $pelanggaran->id,
+            'jenis_pelanggaran' => 'Terlambat (dikoreksi)',
+        ]);
+
+        $this->actingAs($septia)
+            ->delete(route('pelanggaran.destroy', $pelanggaran->id))
+            ->assertRedirect(route('pelanggaran.index'));
+
+        $this->assertDatabaseMissing('pelanggarans', ['id' => $pelanggaran->id]);
+    }
+
+    public function test_pelanggaran_writer_tetap_tidak_bisa_menghapus_pelanggaran(): void
+    {
+        $writer = $this->pimpinan(User::ACCESS_PELANGGARAN_WRITER, 'Penulis');
+
+        $this->actingAs($writer)
+            ->get(route('pelanggaran.create'))
+            ->assertOk();
+
+        $this->actingAs($writer)
+            ->delete(route('pelanggaran.destroy', 999))
+            ->assertRedirect(route('lapor.index'));
     }
 
     public function test_admin_bisa_menambah_dan_menghapus_akun(): void

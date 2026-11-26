@@ -46,7 +46,7 @@ class User extends Authenticatable
     /** Boleh menambah pelanggaran langsung (menu Tambah Pelanggaran). */
     public const ACCESS_PELANGGARAN_WRITER = 'pelanggaran_writer';
 
-    /** Boleh menambah & memverifikasi pelanggaran layaknya Guru PDS. */
+    /** Boleh mengelola pelanggaran penuh layaknya Guru PDS. */
     public const ACCESS_VERIFIKATOR = 'verifikator';
 
     /**

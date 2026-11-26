@@ -93,13 +93,23 @@ class EnsureCanManage
             }
 
             /*
-             * Pimpinan tertentu (mis. Waka Humas) juga boleh
-             * memverifikasi laporan layaknya Guru PDS.
+             * Pimpinan tertentu (mis. Waka Humas) juga berhak mengelola
+             * pelanggaran layaknya Guru PDS: verifikasi laporan, edit,
+             * hapus, dan export data.
+             *
+             * Sebelumnya hanya pending/approve/reject yang dibuka,
+             * sehingga tombol Edit/Hapus tampil di halaman tapi
+             * request-nya ditolak middleware ini.
              */
             if ($user->canVerify()) {
                 $allowedRoutes[] = 'pelanggaran.pending';
                 $allowedRoutes[] = 'pelanggaran.approve';
                 $allowedRoutes[] = 'pelanggaran.reject';
+                $allowedRoutes[] = 'pelanggaran.edit';
+                $allowedRoutes[] = 'pelanggaran.update';
+                $allowedRoutes[] = 'pelanggaran.destroy';
+                $allowedRoutes[] = 'pelanggaran.export.harian';
+                $allowedRoutes[] = 'pelanggaran.export.mingguan';
             }
 
             if (in_array($routeName, $allowedRoutes)) {
