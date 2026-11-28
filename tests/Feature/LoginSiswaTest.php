@@ -166,20 +166,110 @@ class LoginSiswaTest extends TestCase
         $response->assertDontSee('Siswa Lain');
         $response->assertDontSee('26271007999');
 
-        $this->assertTrue(
-            $response->viewData('pelanggarans')
-                ->every(fn (Pelanggaran $item) => $item->siswa_id === $saya->id),
-            'Portal menampilkan pelanggaran milik siswa lain.'
-        );
+        $riwayat = collect($response->viewData('riwayat'));
 
         $this->assertTrue(
-            $response->viewData('prestasis')
-                ->every(fn (Prestasi $item) => $item->siswa_id === $saya->id),
-            'Portal menampilkan prestasi milik siswa lain.'
+            $riwayat->every(fn (array $item) => in_array($item['judul'], ['Pelanggaran Unik Saya', 'Prestasi Unik Saya'], true)),
+            'Portal menampilkan riwayat milik siswa lain.'
         );
 
         // 100 - 5 (pelanggaran terverifikasi) + 10 (prestasi) = 105.
         $response->assertSee('105');
+        $this->assertSame(105, $response->viewData('saldoPoin'));
+    }
+
+    public function test_endpoint_riwayat_hanya_mengembalikan_data_siswa_sendiri(): void
+    {
+        $saya = $this->buatSiswa();
+        $lain = $this->buatSiswa([
+            'nama' => 'Siswa Lain',
+            'nisn' => '26271007999',
+        ]);
+
+        Pelanggaran::create([
+            'siswa_id' => $saya->id,
+            'tanggal' => today(),
+            'jenis_pelanggaran' => 'Pelanggaran Unik Saya',
+            'kategori' => 'Ringan',
+            'poin' => 5,
+            'status' => 'diverifikasi',
+        ]);
+
+        Pelanggaran::create([
+            'siswa_id' => $lain->id,
+            'tanggal' => today(),
+            'jenis_pelanggaran' => 'Pelanggaran Rahasia Siswa Lain',
+            'kategori' => 'Ringan',
+            'poin' => 20,
+            'status' => 'diverifikasi',
+        ]);
+
+        $json = $this->actingAs($saya->user)
+            ->getJson(route('siswa.portal.riwayat'))
+            ->assertOk()
+            ->json();
+
+        $this->assertSame(1, $json['jumlahPelanggaran']);
+        $this->assertSame(0, $json['jumlahPrestasi']);
+        $this->assertSame(95, $json['saldoPoin']);
+        $this->assertCount(1, $json['riwayat']);
+        $this->assertSame('Pelanggaran Unik Saya', $json['riwayat'][0]['judul']);
+        $this->assertNotEmpty($json['sinkron_pada']);
+    }
+
+    public function test_endpoint_riwayat_bisa_menyaring_perubahan_sejak_waktu_tertentu(): void
+    {
+        $siswa = $this->buatSiswa();
+
+        $lama = Pelanggaran::create([
+            'siswa_id' => $siswa->id,
+            'tanggal' => today()->subDay(),
+            'jenis_pelanggaran' => 'Catatan Lama',
+            'kategori' => 'Ringan',
+            'poin' => 5,
+            'status' => 'diverifikasi',
+        ]);
+        $lama->forceFill(['updated_at' => now()->subHour()])->saveQuietly();
+
+        $json = $this->actingAs($siswa->user)
+            ->getJson(route('siswa.portal.riwayat', ['since' => now()->subMinutes(5)->toIso8601String()]))
+            ->assertOk()
+            ->json();
+
+        $this->assertCount(0, $json['riwayat']);
+        $this->assertSame(1, $json['jumlahPelanggaran']);
+    }
+
+    public function test_riwayat_menggabungkan_pelanggaran_dan_prestasi_terbaru_di_atas(): void
+    {
+        $siswa = $this->buatSiswa();
+
+        Pelanggaran::create([
+            'siswa_id' => $siswa->id,
+            'tanggal' => today()->subDays(3),
+            'jenis_pelanggaran' => 'Pelanggaran Lama',
+            'kategori' => 'Ringan',
+            'poin' => 5,
+            'status' => 'diverifikasi',
+        ]);
+
+        Prestasi::create([
+            'siswa_id' => $siswa->id,
+            'tanggal' => today(),
+            'jenis_prestasi' => 'Prestasi Baru',
+            'tingkat' => 'Kota',
+            'poin' => 10,
+        ]);
+
+        $riwayat = $this->actingAs($siswa->user)
+            ->getJson(route('siswa.portal.riwayat'))
+            ->assertOk()
+            ->json('riwayat');
+
+        $this->assertSame('Prestasi Baru', $riwayat[0]['judul']);
+        $this->assertSame('prestasi', $riwayat[0]['tipe']);
+        $this->assertSame('Pelanggaran Lama', $riwayat[1]['judul']);
+        $this->assertSame('pelanggaran', $riwayat[1]['tipe']);
     }
 
     public function test_akun_siswa_tidak_dikelola_lewat_manajemen_akun(): void

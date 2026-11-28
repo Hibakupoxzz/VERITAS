@@ -57,6 +57,10 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::middleware('auth')->group(function () {
     Route::get('/portal/siswa', [SiswaPortalController::class, 'index'])
         ->name('siswa.portal');
+
+    // Endpoint JSON untuk riwayat realtime (polling) di portal siswa.
+    Route::get('/portal/siswa/riwayat', [SiswaPortalController::class, 'riwayatRealtime'])
+        ->name('siswa.portal.riwayat');
 });
 
 // ==========================
